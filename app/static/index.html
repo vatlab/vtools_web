@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Variant Tools</title>
+    <link rel="stylesheet" href="advancededitor.css">
+    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.1.min.js"></script>
+    <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="./utils.js"></script>
+</head>
+<body>
+	<h1>Variant Tools</h1>
+	<div style="width:500px;float:left">
+	<fieldset id="localFileSource">
+		<legend>Select a vcf file to upload</legend>
+		<form action="http://localhost:5000/uploader"  method="POST" enctype="multipart/form-data">
+		    <label class="formLabel1" for="localFileName">File Name</label>
+		    <input class="std_input" id="localFileName" type="text">
+		    <input id="upload" type = "file" name = "file" onchange='uploadFile()'>
+         	<input type = "submit">
+		</form>
+		
+	</fieldset>
+	<fieldset id="dataSources" style="display:none;">
+		<legend>Data Sources</legend>
+        <label  class="formLabel1" for="existingSourceName">Sources</label>
+        <select  class="dropdowns" name="existingSourceName" id="existingSourceName" onchange='selectDataSource(this.value);'>   
+        </select>
+	</fieldset>
+
+	<fieldset id="importData" style="display:none;">
+		<legend>Data Import</legend>
+		<p style="display:inline" id="selectedFileName"></p>
+		<select id="genomeVersion" size="1">
+		  <option Selected>hg19</option>
+		  <option>hg18</option>
+		</select>
+		<button id="importButton" onclick="importFile()">Import</button>
+
+	</fieldset>
+	<fieldset id="vtoolsShow" style="display:none;">
+		<legend>Show project info</legend>
+		<select id="showProjectOptions" size="1" onchange="vtoolsShow(this.value)">
+		  <option></option>
+		  <option >show</option>
+		  <option>tables</option>
+		  <option>samples</option>
+		  <option>genotypes</option>
+		</select>
+		<legend>Show Vtools info</legend>
+		<select id="showVtoolsOptions" size="1" onchange="vtoolsShow(this.value)">
+		  <option></option>
+		  <option>fields</option>
+		  <option >annotations</option>
+		  <option>formates</option>
+		  <option>tests</option>
+		  <option>runtime_options</option>
+		</select>
+		
+
+	</fieldset>
+
+	<fieldset id="outputData" style="display:none;">
+		<legend>Data Output</legend>
+		<button id="outputButton" onclick="outputData()">Output</button>
+		
+	</fieldset>
+</div>
+<div style="float:left; margin-left: 50px;">
+	<p id="showText"></p>
+	<table id="dataTable"></table>
+</div>
+</body>
+</html>

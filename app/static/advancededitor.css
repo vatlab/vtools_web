@@ -1,0 +1,529 @@
+/* File advancededitor.css for use in Next Generation Clustered Heat Map Interactive Builder */
+#topnav { height: 5.0em; background:white; border-bottom: 0.20em solid #EE3124;}
+
+body
+{
+    background-color:white;
+}
+
+.page-header
+{
+    color: black;
+    font-family: Univers, Arial, Helvetica, Verdana, sans-serif;
+    font-size: 18pt;
+    font-weight: 600;
+    text-align: center
+}
+
+.form_title
+{
+    text-align:center;
+    font-weight: bold;
+}
+
+/* Generic CSS to be used throughout page */
+.rotate
+{
+    -webkit-transform: rotate(90deg);
+    -moz-transform:    rotate(90deg);
+    -ms-transform:     rotate(90deg);
+    -o-transform:      rotate(90deg);
+    transform:         rotate(90deg);
+}
+
+.rotate-90
+{
+    -webkit-transform: rotate(-90deg);
+    -moz-transform:    rotate(-90deg);
+    -ms-transform:     rotate(-90deg);
+    -o-transform:      rotate(-90deg);
+    transform:         rotate(-90deg);
+}
+
+.rotate180
+{
+    -webkit-transform: rotate(180deg);
+    -moz-transform:    rotate(180deg);
+    -ms-transform:     rotate(180deg);
+    -o-transform:      rotate(180deg);
+    transform:         rotate(180deg);
+}
+
+.bordereddiv
+{
+    border: 1px solid #000000;
+}
+
+.hidden_fieldset
+{
+    display:none;
+}
+
+.ui-dialog-osx 
+{
+    -moz-border-radius: 0 0 8px 8px;
+    -webkit-border-radius: 0 0 8px 8px;
+    border-radius: 0 0 8px 8px; border-width: 0 8px 8px 8px;
+}
+
+.text_center
+{
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;      
+}
+
+.text_center_muted
+{
+    display: inline-block;
+    vertical-align: middle;
+    line-height: normal;
+    color: gray;
+}
+
+/* CSS for navigation control section (upper left pane of page) */
+div.nav_control_container
+{ 
+    position: absolute;
+    left: 60px;
+    width: 370px;
+    height: 370px;
+    margin: 5px 4px 4px 4px;
+    /*border: 1px solid blue;*/
+}
+
+div.ctrl_buttons
+{
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 120px;
+    height: 130px;
+    margin: 0px 0px 0px 0px;
+    /*border: 1px solid blue;*/
+}
+
+div.data_layer
+{
+    position: absolute;
+    top: 140px;
+    left: 140px;
+    width: 200px;
+    height: 200px;
+    border: 1px solid gray;
+    margin: 0px 0px 0px 0px;
+}
+
+
+/* Column covariates section */
+
+div.dendrogram_column_loc
+{
+    position: relative;
+    border: 1px solid gray;
+    top:  0px;
+    left: 0px;
+    width: 201px;
+    height: 34px;
+    padding: 1px;
+    margin: 0px;
+}
+
+div.dendrogram_column_text
+{
+    background-color:#EEEEEE;
+    text-align:center;
+    height: 32px;
+    width: 196px;
+}
+
+div.dendrogram_column_img
+{
+    border: 1px solid gray;
+    width: 200px;
+    top: -1px;
+    left: -1px;
+    padding: 0px;
+}
+
+div.covariate_add_column_size
+{
+    width: 200px;
+    height: 25px;
+    margin: 0px;
+    padding: 0px;
+}
+
+div.top_heatmap_navigator_static
+{
+    position: absolute;
+    border: 1px solid gray;
+    left: 140px;
+    margin: 0px;
+    padding: 0px;
+}
+
+div.top_heatmap_navigator_0
+{
+    top:  78px;
+    width: 200px;
+    height: 61px;
+}
+
+div.top_heatmap_navigator_1
+{
+    top:  53px;
+    width: 200px;
+    height: 86px;
+}
+
+div.top_heatmap_navigator_2
+{
+    top:  28px;
+    width: 200px;
+    height: 110px;
+}
+
+div.top_heatmap_navigator_3
+{
+    top:  3px;
+    width: 200px;
+    height: 136px;
+}
+
+div.top_heatmap_navigator_more
+{
+    top:  3px;
+    width: 200px;
+    height: 136px;
+}
+
+
+div.column_covariates_static
+{
+    position: absolute;
+    left: -1px;
+    border: 1px solid gray;
+    margin: 0px;
+    padding: 0px;
+    overflow: auto;
+}
+
+div.column_covariates_size_0
+{
+    display: none;
+}
+
+div.column_covariates_size_1
+{
+    display: inline;
+    width: 200px;
+    height: 25px;
+}
+
+div.column_covariates_size_2
+{
+    width: 200px;
+    height: 50px;
+}
+
+div.column_covariates_size_3
+{
+    width: 200px;
+    height: 75px;
+}
+
+div.column_covariates_size_more
+{
+    width: 220px;
+    height: 75px;
+}
+
+
+/* Row covariates section */
+div.dendrogram_row_loc
+{
+    position: relative;
+    border: 1px solid gray;
+    top:  -1px;
+    left: 0px;
+
+    height: 34px;
+    padding: 1px;
+    margin: 0px;
+}
+
+div.dendrogram_row_text
+{
+    background-color:#EEEEEE;
+    text-align:center;
+    height: 32px;
+    width: 196px;
+}
+
+div.dendrogram_row_img
+{
+    border: 1px solid gray;
+    width: 200px;
+    top: -1px;
+    left: -1px;
+    padding: 0px;
+}
+
+div.covariate_add_row_size
+{
+    width: 200px;
+    height: 25px;
+    margin: 0px;
+    padding: 0px;
+}
+
+div.left_heatmap_navigator_static
+{
+    position: absolute;
+    border: 1px solid gray;
+    top:   210px;
+    width: 200px;
+    margin: 0px;
+    padding: 0px;
+}
+
+div.left_heatmap_navigator_0
+{
+    left:  7px;
+}
+
+div.left_heatmap_navigator_1
+{
+    left:  -18px;
+}
+
+div.left_heatmap_navigator_2
+{
+    left:  -43px;
+}
+
+div.left_heatmap_navigator_3
+{
+    left:  -68px;
+}
+
+div.left_heatmap_navigator_more
+{
+    left:  -68px;
+    width: 200px;
+}
+
+div.row_covariates_static
+{
+    position: absolute;
+    border: 1px solid gray;
+    margin: 0px;
+    padding: 0px;
+    overflow: auto;
+}
+
+div.row_covariates_size_0
+{
+    display: none;
+}
+
+div.row_covariates_size_1
+{
+    display: inline;
+    width: 200px;
+    height: 25px;
+}
+
+div.row_covariates_size_2
+{
+    width: 200px;
+    height: 50px;
+}
+
+div.row_covariates_size_3
+{
+    width: 200px;
+    height: 75px;
+}
+
+div.row_covariates_size_more
+{
+    width: 219px;
+    height: 75px;
+    left: -20px;
+}
+
+/* CSS for buttons in Navigation Section */
+
+.ctrl_button_specs
+{
+    width: 120px;
+    height: 25px;
+    margin: 2px 0px 0px 0px;
+}
+
+.button_specs
+{
+    width: 200px;
+    height: 25px;
+    margin: 0px 0px 0px 0px;
+}
+
+.data_layer_specs
+{
+    width: 201px;
+    height: 202px;
+    margin: 0px 0px 0px 0px;
+}
+
+.buttonPlain
+{
+    background: #3498db;
+    color: #000000;
+    font-weight: normal;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.buttonHighlighted
+{
+    background: #34db98;
+    color: #000000;
+    font-weight: bold;
+    border-style: none;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+.standard
+{
+    float:right;
+    width:80px;
+}
+
+select.dropdowns
+{
+    min-width:120px;
+    margin: 2px 2px 2px 2px;
+}
+
+label.formLabelr
+{
+    display: inline-block;
+    margin: 2px 2px 2px 2px;
+    width: 100px;
+}
+
+label.formLabel1
+{
+    display: inline-block;
+    margin: 2px 2px 2px 2px;
+    width: 80px;
+}
+
+label.formLabel0
+{
+    display: inline-block;
+    margin: 2px 2px 2px 2px;
+    width: 100px;
+}
+
+label.formLabel2
+{
+    display: inline-block;
+    margin: 2px 2px 2px 2px;
+    width: 125px;
+}
+
+label.formLabel3
+{
+    display: inline-block;
+    margin: 2px 2px 2px 2px;
+    width: 146px;
+}
+
+
+.std_input
+{
+    min-width:200px;
+    margin: 2px 2px 2px 2px;
+}
+
+select.dataTypes
+{
+    min-width:320px;
+    margin: 2px 2px 2px 2px;
+    max-height: 90px;
+}
+
+.bpRowSelect
+{
+    min-width: 20px !important;
+    max-width: 20px !important;
+    width:     20px !important;
+    padding: 1px 
+}
+
+.bpColorButton
+{
+    min-width: 40px !important;
+    max-width: 40px !important;
+    width:     40px !important;
+    padding: 1px 
+}
+
+.bpColor
+{
+    min-width: 90px !important;
+    max-width: 90px !important;
+    max-width: 90px !important;
+    padding: 1px 
+}
+
+.bpValue
+{
+    min-width: 75px !important;
+    max-width: 75px !important;
+    max-width: 75px !important;
+    padding: 1px !important;
+}
+
+.bpDepth
+{
+    min-width: 38px !important;
+    max-width: 38px !important;
+    max-width: 38px !important;
+    padding: 1px !important;
+}
+
+.bpShape
+{
+    min-width: 40px !important;
+    max-width: 40px !important;
+    max-width: 40px !important;
+    padding: 1px !important;
+}
+
+.dataTables_scrollBody
+{
+    overflow-x:hidden !important;
+    overflow-y:auto !important;
+}
+
+#breakpointsTable tr td
+{
+     height: 20px;
+     padding: 1px;
+     margin: 1px auto;
+     width: 50%;
+     text-align: left; 
+}
+
+#breakpointsTable tr th td
+{
+     height: 20px;
+     padding: 0px;
+     margin: 0px ;
+     text-align: left !important; 
+}
