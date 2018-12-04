@@ -5,7 +5,7 @@ from flask import Flask, send_file,request,redirect
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
-WORK_FOLDER="/Users/jma7/Development/example-flask-python3.7-index/"
+WORK_FOLDER="/Users/jma7/Development/vtools_website/"
 
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
 app.config['WORK_FOLDER'] = WORK_FOLDER
@@ -35,6 +35,16 @@ def vtools_import():
     run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
     return "import sucess"
 
+@app.route('/addPhenotype',methods=['POST'])
+def vtools_add_phenotype():
+    fileName=request.form["fileName"]
+    command="vtools phenotype --from_file "+app.config['WORK_FOLDER']+"testData/"+fileName
+    result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    print("stdout", result.stdout)
+    print("stderr", result.stderr)
+    return result.stderr
+
+
 
 @app.route('/output', methods = ['GET'])
 def vtools_output():
@@ -45,13 +55,24 @@ def vtools_output():
     print("stderr", result.stderr)
     return result.stdout
 
+@app.route("/use",methods=['POST'])
+def vtools_use():
+    option=request.form["option"]
+    command="vtools use "+option
+    result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    print("stdout", result.stdout)
+    print("stderr", result.stderr)
+    return result.stderr
+
 
 @app.route("/show",methods=['GET'])
 def vtools_show():
     option=request.args.get("option",None,type=None)
-    command="vtools show "+option+" -l 10"
+    command="vtools show "+option+" -l 200"
     if option=="show":
         command="vtools show"
+    elif option=="anotations -v0":
+        command="vtools show annotations -l 200 -v0 "
     result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
     print(result.returncode)
     print("stdout", result.stdout)

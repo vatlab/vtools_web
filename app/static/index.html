@@ -19,6 +19,7 @@
 		    <input id="upload" type = "file" name = "file" onchange='uploadFile()'>
          	<input type = "submit">
 		</form>
+		<button id="sampleData" onclick="loadSampleData()">sampleData</button>
 		
 	</fieldset>
 	<fieldset id="dataSources" style="display:none;">
@@ -36,35 +37,51 @@
 		  <option>hg18</option>
 		</select>
 		<button id="importButton" onclick="importFile()">Import</button>
-
-	</fieldset>
-	<fieldset id="vtoolsShow" style="display:none;">
-		<legend>Show project info</legend>
-		<select id="showProjectOptions" size="1" onchange="vtoolsShow(this.value)">
-		  <option></option>
-		  <option >show</option>
-		  <option>tables</option>
-		  <option>samples</option>
-		  <option>genotypes</option>
-		</select>
-		<legend>Show Vtools info</legend>
-		<select id="showVtoolsOptions" size="1" onchange="vtoolsShow(this.value)">
-		  <option></option>
-		  <option>fields</option>
-		  <option >annotations</option>
-		  <option>formates</option>
-		  <option>tests</option>
-		  <option>runtime_options</option>
-		</select>
-		
-
 	</fieldset>
 
-	<fieldset id="outputData" style="display:none;">
-		<legend>Data Output</legend>
-		<button id="outputButton" onclick="outputData()">Output</button>
-		
-	</fieldset>
+	<div id="dataDetail" style="display:none;">
+		<fieldset id="vtoolsShow" >
+			<legend>Show project info</legend>
+			<select id="showProjectOptions" size="1" onchange="vtoolsShow(this.value)">
+			  <option></option>
+			  <option >show</option>
+			  <option>tables</option>
+			  <option>samples</option>
+			  <option>genotypes</option>
+			</select>
+			<legend>Show vtools info</legend>
+			<select id="showVtoolsOptions" size="1" onchange="vtoolsShow(this.value)">
+			  <option></option>
+			  <option>fields</option>
+			  <option >annotations</option>
+			  <option>formats</option>
+			  <option>tests</option>
+			  <option>runtime_options</option>
+			</select>
+		</fieldset>
+
+		<fieldset id="dataAnnotation" style="display:none;">
+			<legend>Data Annotation</legend>
+			<select id="annotationOptions" size="1">
+			</select>
+			<button id="useButton" onclick="vtoolsUse()">Add annotation</button>
+			<p id="useFinished"></p>
+		</fieldset>
+
+		<fieldset id="addPhenotype" style="display:none;">
+			<legend>Add Phenotype</legend>
+			<p style="display:inline" id="selectPhenotypeFile"></p>
+			<button id="addPhenotypeButton" onclick="addPhenotype()">Add Phenotype</button>
+			<p id="phenotypeAdded"></p>
+		</fieldset>
+
+		<fieldset id="outputData">
+			<legend>Data Output</legend>
+			<button id="outputButton" onclick="outputData()">Output</button>
+		</fieldset>
+
+
+	</div>
 </div>
 <div style="float:left; margin-left: 50px;">
 	<p id="showText"></p>
