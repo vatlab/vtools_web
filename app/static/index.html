@@ -40,7 +40,16 @@
 	</fieldset>
 
 	<div id="dataDetail" style="display:none;">
-		<fieldset id="vtoolsShow" >
+		
+		<div class="tab">
+		  <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'Show')">Show</button>
+		  <button class="tablinks" onclick="openTab(event, 'Output')">Output</button>
+		  <button class="tablinks" onclick="openTab(event, 'Associate')">Associate</button>
+		</div>
+
+		<div id="Show" class="tabcontent">
+		  <h3>Show</h3>
+		  <fieldset id="vtoolsShow" >
 			<legend>Show project info</legend>
 			<select id="showProjectOptions" size="1" onchange="vtoolsShow(this.value)">
 			  <option></option>
@@ -48,6 +57,7 @@
 			  <option>tables</option>
 			  <option>samples</option>
 			  <option>genotypes</option>
+			  <option>phenotypes</option>
 			</select>
 			<legend>Show vtools info</legend>
 			<select id="showVtoolsOptions" size="1" onchange="vtoolsShow(this.value)">
@@ -59,26 +69,48 @@
 			  <option>runtime_options</option>
 			</select>
 		</fieldset>
+		</div>
 
-		<fieldset id="dataAnnotation" style="display:none;">
-			<legend>Data Annotation</legend>
-			<select id="annotationOptions" size="1">
-			</select>
-			<button id="useButton" onclick="vtoolsUse()">Add annotation</button>
-			<p id="useFinished"></p>
-		</fieldset>
-
-		<fieldset id="addPhenotype" style="display:none;">
-			<legend>Add Phenotype</legend>
-			<p style="display:inline" id="selectPhenotypeFile"></p>
-			<button id="addPhenotypeButton" onclick="addPhenotype()">Add Phenotype</button>
-			<p id="phenotypeAdded"></p>
-		</fieldset>
-
-		<fieldset id="outputData">
+		<div id="Output" class="tabcontent">
+		  <h3>Output</h3>
+		  <fieldset id="outputData">
 			<legend>Data Output</legend>
 			<button id="outputButton" onclick="outputData()">Output</button>
-		</fieldset>
+			</fieldset>
+		</div>
+
+		<div id="Associate" class="tabcontent">
+		  <h3>Associate</h3>
+			  <fieldset id="dataAnnotation" style="display:none;">
+				<legend>Data Annotation</legend>
+				<select id="annotationOptions" size="1">
+				</select>
+				<button id="useButton" onclick="vtoolsUse()">Add annotation</button>
+				<p id="useFinished"></p>
+			</fieldset>
+
+			<fieldset id="addPhenotype" style="display:none;">
+				<legend>Add Phenotype</legend>
+				<p style="display:inline" id="selectPhenotypeFile"></p>
+				<button id="addPhenotypeButton" onclick="addPhenotype()">Add Phenotype</button>
+				<p id="phenotypeAdded"></p>
+			</fieldset>
+			<fieldset id="vtoolsAssociate">
+				<legend>Associate</legend>
+				<label  class="formLabel1" for="projectTables">Tables</label>
+				<select class="dropdowns" name="projectTables" id="projectTables" ></select>
+				<label  class="formLabel1" for="projectPhenotypes">Phenotypes</label>
+				<select class="dropdowns" name="projectPhenotypes" id="projectPhenotypes" ></select>
+				<label  class="formLabel1" for="associateMethods">Methods</label>
+				<select class="dropdowns" name="associateMethods" id="associateMethods" ></select>
+				<label  class="formLabel1" for="discardVariants">Discard variants</label>
+				<input class="std_input" id="discardVariants" type="text" value='"%(NA)>0.1"'>
+
+			</fieldset>
+			<button id="runAssociation" onclick="runAssociation()" style="display:none">Run association</button>
+		</div>
+
+
 
 
 	</div>

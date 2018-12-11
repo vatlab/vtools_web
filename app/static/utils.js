@@ -1,6 +1,8 @@
-
+       
+    	var server="10.105.39.124/vtoolsweb"
     	
-    	function addOption(id,content){
+
+        function addOption(id,content){
     		var dropdown = document.getElementById(id);
     		var optn = document.createElement("option");
 		    optn.text = content;
@@ -46,19 +48,24 @@
     		var fileName=$("#existingSourceName").val()
     		var genomeVersion=$("#genomeVersion").val()
     		console.log(fileName, genomeVersion)
-    		$.get("http://localhost:5000/import",{
+            $.get("http://"+server+"/import",{
+    		// $.get("http://localhost:5000/import",{
     			fileName:fileName,genomeVersion:genomeVersion
     		}, function(data){
     			console.log(data)
     			$('#dataDetail').show()
                 vtoolsShow("annotations -v0")
+                vtoolsShow("tests")
+                document.getElementById("defaultOpen").click();
+                vtoolsShow("tables")
 
 
     		})
     	}
 
     	function outputData(){
-    		$.get("http://localhost:5000/output",{
+    		// $.get("http://localhost:5000/output",{
+            $.get("http://"+server+"/output",{
     		}, function(data){
     			var rows=data.split("\n")
                 
@@ -96,7 +103,8 @@
 
     	function vtoolsShow(option){
     		
-    		$.get("http://localhost:5000/show",{option:option
+    		// $.get("http://localhost:5000/show",{option:option
+            $.get("http://"+server+"/show",{option:option
     		}, function(data){
     			// $("#showText").text(data)
                 var rows=data.split("\n")
@@ -109,23 +117,37 @@
                     })
                     $("#annotationOptions").val("refGene");
                     $("#dataAnnotation").show()
-                }
-                else{
+                }else{
                     addRowToTableTab('#dataTable',rows)
+                    if (option==="tables"){
+                        var tables=rows.slice(1).map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+                        console.log(tables)
+                        tables.forEach((table)=>{
+                            addOption("projectTables",table)
+                        })
+                    }else if (option==="phenotypes"){     
+                        var phenotypes=rows[0].split(/(\s+)/)
+                        phenotypes=phenotypes.filter((phenotype)=>phenotype.trim().length>0).slice(2)
+                        phenotypes.forEach((phenotype)=>{
+                            addOption("projectPhenotypes",phenotype)
+                        })
+                    }else if (option==="tests"){
+                        var methods=rows.map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+                        console.log(methods)
+                        methods.forEach((method)=>{
+                            addOption("associateMethods",method)
+                        })
 
-                    
-                    // $('#dataTable').empty()
-                    // rows.forEach((row)=>{
-                    //     row="<tr><td>"+row+"</td></tr>"
-                    //     $('#dataTable').append(row)
-                    // })
+                    }
+
                 }
     		})
     	}
 
         function vtoolsUse(){
             var option=$("#annotationOptions").val();
-            $.post("http://localhost:5000/use",{
+            // $.post("http://localhost:5000/use",{
+            $.post("http://"+server+"/use",{
                 option:option
             },function(result){
                 console.log(option+ "imported")
@@ -137,11 +159,57 @@
 
         function addPhenotype(){
             var fileName=$("#existingSourceName").val()
-            $.post("http://localhost:5000/addPhenotype",{
+            // $.post("http://localhost:5000/addPhenotype",{
+            $.post("http://"+server+"/addPhenotype",{
                 fileName:fileName
             },function(data){
-                console.log(data)
-                console.log(fileName)
                 $("#phenotypeAdded").text(fileName+" added")
+                vtoolsShow("phenotypes")
+                $("#runAssociation").show()
             })
         }
+
+        function openTab(evt, tabName) {
+            // Declare all variables
+            var i, tabcontent, tablinks;
+
+            // Get all elements with class="tabcontent" and hide them
+            tabcontent = document.getElementsByClassName("tabcontent");
+            for (i = 0; i < tabcontent.length; i++) {
+                tabcontent[i].style.display = "none";
+            }
+
+            // Get all elements with class="tablinks" and remove the class "active"
+            tablinks = document.getElementsByClassName("tablinks");
+            for (i = 0; i < tablinks.length; i++) {
+                tablinks[i].className = tablinks[i].className.replace(" active", "");
+            }
+
+            // Show the current tab, and add an "active" class to the link that opened the tab
+            document.getElementById(tabName).style.display = "block";
+            evt.currentTarget.className += " active";
+        }
+
+        function runAssociation(){
+            var table=$("#projectTables option:selected").text()
+            var phenotype=$("#projectPhenotypes option:selected").text()
+            var method=$("#associateMethods option:selected").text()
+            var discard=$("#discardVariants").val()
+            var groupby=$("#annotationOptions option:selected").text()
+            if (groupby==="refGene"){
+                groupby="refGene.name2"
+            }
+            console.log(table,phenotype,method,discard,groupby)
+            $.post("http://"+server+"/runAssociation",{
+            // $.post("http://localhost:5000/runAssociation",{
+                table:table,phenotype:phenotype,method:method,discard:discard,groupby:groupby
+            },function(data){
+                console.log(data)
+                var rows=data.split("\n")
+                addRowToTable('#dataTable',rows)
+                
+            })
+
+
+        }
+

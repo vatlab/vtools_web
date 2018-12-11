@@ -65,6 +65,23 @@ def vtools_use():
     return result.stderr
 
 
+@app.route("/runAssociation",methods=['POST'])
+def vtools_associate():
+    table=request.form["table"]
+    phenotype=request.form["phenotype"]
+    method=request.form["method"]
+    discard=request.form["discard"]
+    groupby=request.form["groupby"]
+    print(table,phenotype,method,discard,groupby)
+    command="vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db test.DB -f -j 8 -v 2" 
+    print(command)
+    result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    print("stdout", result.stdout)
+    print("stderr", result.stderr)
+    return result.stdout
+
+
+
 @app.route("/show",methods=['GET'])
 def vtools_show():
     option=request.args.get("option",None,type=None)
