@@ -71,20 +71,28 @@ function addToLog(log){
 }
 
 
-function addOption(id,content){
-    var dropdown = document.getElementById(id);
-    var optn = document.createElement("option");
-    optn.text = content;
-    optn.value = content;
-    dropdown.options.add(optn);
+function addOption(id,contents){
+
+    contents.forEach((content)=>{
+        var dropdown = document.getElementById(id);
+        var optn = document.createElement("option");
+        optn.text = content;
+        optn.value = content;
+        dropdown.options.add(optn);
+    })
+
+    // var dropdown = document.getElementById(id);
+    // var optn = document.createElement("option");
+    // optn.text = content;
+    // optn.value = content;
+    // dropdown.options.add(optn);
 }
 
 
 function uploadData(){
     var fileName = $('#uploadData')[0].files[0].name;
     $("#localFileName").val(fileName);
-    addOption("existingSourceName"," ")
-    addOption("existingSourceName",fileName)
+    addOption("existingSourceName",["",fileName])
     $('#dataSources').show();
     $('#addPhenotype').show();  
 }
@@ -97,8 +105,7 @@ function uploadPheno(){
 function loadSampleData(){
     var fileName="1000_test_2k.vcf"
     $("#localFileName").val(fileName);
-    addOption("existingSourceName"," ")
-    addOption("existingSourceName",fileName)
+    addOption("existingSourceName",["",fileName])
     $('#dataSources').show();
     $('#addPhenotype').show();
 
@@ -140,8 +147,10 @@ function importFile(){
         $('#dataDetail').show()
         vtoolsShow("annotations -v0")
         vtoolsShow("tests")
-        document.getElementById("defaultOpen").click();
         vtoolsShow("tables")
+        vtoolsShow("fields")
+        document.getElementById("defaultOpen").click();
+        
 
 
     })
@@ -238,40 +247,39 @@ function vtoolsShow(option){
             generateDataTable("#dataTable",rows)
         }else if (option==="annotations -v0"){
             var uniqAnnotations=Array.from(new Set(rows.map((row)=>row.split("-")[0])))
-            uniqAnnotations.forEach((uniqAnnotation)=>{
-                addOption("annotationOptions",uniqAnnotation)
-            })
+
+            addOption("annotationOptions",uniqAnnotations)
             $("#annotationOptions").val("refGene");
             $("#dataAnnotation").show()
-        }else{
+
+        
+        }else if (option==="tables"){
+        
             
-            if (option==="tables"){
-                addRowToTableTab('#dataTable',rows)
-                var tables=rows.slice(1).map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
-                console.log(tables)
-                tables.forEach((table)=>{
-                    addOption("projectTables",table)
-                })
-            }else if (option==="phenotypes"){     
-                var phenotypes=rows[0].split(/(\s+)/)
-                phenotypes=phenotypes.filter((phenotype)=>phenotype.trim().length>0).slice(2)
-                phenotypes.forEach((phenotype)=>{
-                    addOption("projectPhenotypes",phenotype)
-                })
-
-                
-
-                generateDataTable("#dataTable",rows)
-            }else if (option==="tests"){
-                // addRowToTableTab('#dataTable',rows)
-                var methods=rows.map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
-                
-                methods.forEach((method)=>{
-                    addOption("associateMethods",method)
-                })
-
-            }
-
+            var tables=rows.slice(1).map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+            addOption("projectTables",tables)
+            addRowToTableTab('#dataTable',rows)
+        
+        }else if (option==="phenotypes"){     
+        
+            var phenotypes=rows[0].split(/(\s+)/)
+            phenotypes=phenotypes.filter((phenotype)=>phenotype.trim().length>0).slice(2)
+            addOption("projectPhenotypes",phenotypes)
+            generateDataTable("#dataTable",rows)
+        
+        }else if (option==="tests"){
+        
+            var methods=rows.map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+            addOption("associateMethods",methods)
+        
+        }else if (option==="fields"){
+            
+            var fields=rows.map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+            addOption("fields",fields)
+        
+        }
+        else{
+            addRowToTableTab('#dataTable',rows)
         }
     })
 }

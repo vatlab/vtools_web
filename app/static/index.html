@@ -48,8 +48,10 @@
 		
 		<div class="tab">
 		  <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'Show')">Show</button>
+		  <button class="tablinks" onclick="openTab(event, 'Data')">Data</button>
 		  <button class="tablinks" onclick="openTab(event, 'Output')">Output</button>
 		  <button class="tablinks" onclick="openTab(event, 'Associate')">Associate</button>
+		  <button class="tablinks" onclick="openTab(event, 'Admin')">Admin</button>
 		  <fieldset id="logs">
 		  	<legend>Logs</legend>
 		  	<textarea id="logsText" style="width:100%;height:200px"></textarea>
@@ -58,7 +60,7 @@
 
 		<div id="Show" class="tabcontent">
 		  <h3>Show</h3>
-		  <fieldset id="vtoolsShow" >
+		  <fieldset id="vtoolsShowProject" >
 			<legend>Show project info</legend>
 			<select id="showProjectOptions" size="1">
 			  <option></option>
@@ -68,6 +70,8 @@
 			  <option>genotypes</option>
 			  <option>phenotypes</option>
 			</select>
+		 </fieldset>
+		 <fieldset id="vtoolsShowInfo">
 			<legend>Show vtools info</legend>
 			<select id="showVtoolsOptions" size="1">
 			  <option></option>
@@ -80,12 +84,60 @@
 		</fieldset>
 		</div>
 
+		<div id="Data" class="tabcontent">
+			<h3> Data </h3>
+			<fieldset id="vtoolsSelect">
+				<legend>Select</legend>
+				<label  class="formLabel1" for="fields">Fields</label>
+				<select id="fields" size="1"></select><br>
+				<label  class="formLabel1" for="selectCondition">Condition</label>
+				<input class="std_input" id="selectCondition" type="text"><br>
+				<button id="selectButton">Select</button>
+			</fieldset>
+			<fieldset id="vtoolsUpdate">
+				<legend>Update</legend>
+				<label  class="formLabel1" for="existingSourceName">From file</label>
+        		<select  class="dropdowns" name="existingSourceName" id="existingSourceName"></select>
+        		<label  class="formLabel1" for="updateVarInfo">var_info</label>
+        		<select  class="dropdowns" name="updateVarInfo" id="updateVarInfo"></select>
+        		<label  class="formLabel1" for="updateGenoInfo">geno_info</label>
+        		<select  class="dropdowns" name="updateGenoInfo" id="updateGenoInfo"></select>
+        		<label  class="formLabel1" for="updateCondition">From stat</label>
+        		<input class="std_input" id="updateCondition" type="text">
+        		<button id="updateButton">Update</button>   
+			</fieldset>
+			<fieldset id="vtoolsRemove">
+				<legend>Remove</legend>
+				<label  class="formLabel1" for="fields">Fields</label>
+				<select id="fields" size="1"></select><br>
+<!-- 				<label  class="formLabel1" for="projectTables">Tables</label>
+				<select class="dropdowns" name="projectTables" id="projectTables" ></select><br> -->
+				<label  class="formLabel1" for="removeGenotype">Genotypes</label>
+        		<input class="std_input" id="removeGenotype" type="text"><br>
+        		<label  class="formLabel1" for="removePhenotype">Phenotypes</label>
+        		<input class="std_input" id="removePhenotype" type="text"><br>
+        		<label  class="formLabel1" for="removeVariants">Variants</label>
+        		<select id="removeVariants" size="1"></select><br>
+        		<label  class="formLabel1" for="removeSamples">samples</label>
+        		<input class="std_input" id="removeSamples" type="text"><br>
+        		<label  class="formLabel1" for="removeAnnotation">Annotations</label>
+        		<select id="removeAnnotation" size="1"></select> <br>
+        		<button id="removeButton">Remove</button>       
+
+			</fieldset>
+		</div>
+
+
+
 		<div id="Output" class="tabcontent">
 		  <h3>Output</h3>
 		  <fieldset id="outputData">
 			<legend>Data Output</legend>
 			<button id="outputButton">Output</button>
-			</fieldset>
+		  </fieldset>
+		  <fieldset id="vtoolsCompare">
+			<legend>Compare</legend>
+		  </fieldset>
 		</div>
 
 		<div id="Associate" class="tabcontent">
@@ -124,6 +176,11 @@
 
 			</fieldset>
 			<button id="runAssociation"  style="display:none">Run association</button>
+		</div>
+
+		<div id="Admin" class="tabcontent">
+		  <h3>Admin</h3>
+
 		</div>
 
 
