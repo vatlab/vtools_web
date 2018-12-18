@@ -54,9 +54,39 @@ $(document).ready(function(){
         uploadPheno();
     })
 
+    $("#selectRemoveOptions").change(function(){
+        vtoolsRemove();
+    })
 
 
 })
+
+
+function vtoolsRemove(){
+   var removeOption=$("#selectRemoveOptions").val()
+   console.log(removeOption)
+   $('#vtoolsRemove div').css('display', 'none');
+   switch (removeOption){
+    case "Fields":
+        $("#divRemoveFields").show()
+        break;
+    case "Genotypes":
+        $("#divRemoveGenotype").show()
+        break;
+    case "Phenotypes":
+        $("#divRemovePhenotype").show()
+        break;
+    case "Variants":
+        $("#divRemoveVariants").show()
+        break;
+    case "Samples":
+        $("#divRemoveSamples").show()
+        break;
+    case "Annotations":
+        $("#divRemoveAnnotation").show()
+        break;
+   }
+}
 
 
 function addToLog(log){

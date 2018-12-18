@@ -108,20 +108,42 @@
 			</fieldset>
 			<fieldset id="vtoolsRemove">
 				<legend>Remove</legend>
-				<label  class="formLabel1" for="fields">Fields</label>
-				<select id="fields" size="1"></select><br>
+				<select id="selectRemoveOptions">
+					<option></option>
+					<option>Fields</option>
+					<option>Genotypes</option>
+					<option>Phenotypes</option>
+					<option>Variants</option>
+					<option>Samples</option>
+					<option>Annotations</option>
+				</select>
+
+				<div id="divRemoveFields" style="display:none">
+					<label  class="formLabel1" for="fields">Fields</label>
+					<select id="fields" size="1"></select><br>
+				</div >
 <!-- 				<label  class="formLabel1" for="projectTables">Tables</label>
 				<select class="dropdowns" name="projectTables" id="projectTables" ></select><br> -->
-				<label  class="formLabel1" for="removeGenotype">Genotypes</label>
-        		<input class="std_input" id="removeGenotype" type="text"><br>
-        		<label  class="formLabel1" for="removePhenotype">Phenotypes</label>
-        		<input class="std_input" id="removePhenotype" type="text"><br>
-        		<label  class="formLabel1" for="removeVariants">Variants</label>
-        		<select id="removeVariants" size="1"></select><br>
-        		<label  class="formLabel1" for="removeSamples">samples</label>
-        		<input class="std_input" id="removeSamples" type="text"><br>
-        		<label  class="formLabel1" for="removeAnnotation">Annotations</label>
-        		<select id="removeAnnotation" size="1"></select> <br>
+				<div id="divRemoveGenotype" style="display:none">
+					<label  class="formLabel1" for="removeGenotype">Genotypes</label>
+	        		<input class="std_input" id="removeGenotype" type="text"><br>
+        		</div>
+        		<div id="divRemovePhenotype" style="display:none">
+	        		<label  class="formLabel1" for="removePhenotype">Phenotypes</label>
+	        		<input class="std_input" id="removePhenotype" type="text"><br>
+        		</div>
+        		<div id="divRemoveVariants" style="display:none">
+	        		<label  class="formLabel1" for="removeVariants">Variants</label>
+	        		<select id="removeVariants" size="1"></select><br>
+        		</div>
+        		<div id="divRemoveSamples" style="display:none">
+	        		<label  class="formLabel1" for="removeSamples">Samples</label>
+	        		<input class="std_input" id="removeSamples" type="text"><br>
+        		</div>
+        		<div id="divRemoveAnnotation" style="display:none">
+	        		<label  class="formLabel1" for="removeAnnotation">Annotations</label>
+	        		<select id="removeAnnotation" size="1"></select> <br>
+        		</div>
         		<button id="removeButton">Remove</button>       
 
 			</fieldset>

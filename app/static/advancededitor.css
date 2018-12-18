@@ -312,8 +312,15 @@ h2, h3, h4 {
   margin-bottom: 15px;
 }
 
-legend, label {
+legend {
     font-family: Helvetica, sans-serif;
     color: #000;
+    font-size: 14px;
+}
+
+label {
+    font-family: Helvetica, sans-serif;
+    color: #000;
+    font-size: 13px;
 
 }
