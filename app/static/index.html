@@ -6,26 +6,31 @@
     <link rel="stylesheet" href="advancededitor.css">
     <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.1.min.js"></script>
     <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <script src="./utils.js"></script>
+    <script src="./env.js"></script>
+    
+    
 </head>
 <body>
 	<h1>Variant Tools</h1>
 	<div style="width:500px;float:left">
 	<fieldset id="localFileSource">
 		<legend>Select a vcf file to upload</legend>
-		<form action="http://localhost:5000/uploader"  method="POST" enctype="multipart/form-data">
+		<form id="dataUpload" action="http://localhost:5000/data"  method="POST" enctype="multipart/form-data">
 		    <label class="formLabel1" for="localFileName">File Name</label>
 		    <input class="std_input" id="localFileName" type="text">
-		    <input id="upload" type = "file" name = "file" onchange='uploadFile()'>
+		    <input id="uploadData" type = "file" name = "datafile" >
          	<input type = "submit">
 		</form>
-		<button id="sampleData" onclick="loadSampleData()">sampleData</button>
+		<button id="sampleData">sampleData</button>
 		
 	</fieldset>
 	<fieldset id="dataSources" style="display:none;">
 		<legend>Data Sources</legend>
         <label  class="formLabel1" for="existingSourceName">Sources</label>
-        <select  class="dropdowns" name="existingSourceName" id="existingSourceName" onchange='selectDataSource(this.value);'>   
+        <select  class="dropdowns" name="existingSourceName" id="existingSourceName">   
         </select>
 	</fieldset>
 
@@ -36,7 +41,7 @@
 		  <option Selected>hg19</option>
 		  <option>hg18</option>
 		</select>
-		<button id="importButton" onclick="importFile()">Import</button>
+		<button id="importButton">Import</button>
 	</fieldset>
 
 	<div id="dataDetail" style="display:none;">
@@ -45,13 +50,17 @@
 		  <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'Show')">Show</button>
 		  <button class="tablinks" onclick="openTab(event, 'Output')">Output</button>
 		  <button class="tablinks" onclick="openTab(event, 'Associate')">Associate</button>
+		  <fieldset id="logs">
+		  	<legend>Logs</legend>
+		  	<textarea id="logsText" style="width:100%;height:200px"></textarea>
+		  </fieldset>
 		</div>
 
 		<div id="Show" class="tabcontent">
 		  <h3>Show</h3>
 		  <fieldset id="vtoolsShow" >
 			<legend>Show project info</legend>
-			<select id="showProjectOptions" size="1" onchange="vtoolsShow(this.value)">
+			<select id="showProjectOptions" size="1">
 			  <option></option>
 			  <option >show</option>
 			  <option>tables</option>
@@ -60,7 +69,7 @@
 			  <option>phenotypes</option>
 			</select>
 			<legend>Show vtools info</legend>
-			<select id="showVtoolsOptions" size="1" onchange="vtoolsShow(this.value)">
+			<select id="showVtoolsOptions" size="1">
 			  <option></option>
 			  <option>fields</option>
 			  <option >annotations</option>
@@ -75,7 +84,7 @@
 		  <h3>Output</h3>
 		  <fieldset id="outputData">
 			<legend>Data Output</legend>
-			<button id="outputButton" onclick="outputData()">Output</button>
+			<button id="outputButton">Output</button>
 			</fieldset>
 		</div>
 
@@ -85,15 +94,22 @@
 				<legend>Data Annotation</legend>
 				<select id="annotationOptions" size="1">
 				</select>
-				<button id="useButton" onclick="vtoolsUse()">Add annotation</button>
+				<button id="useButton">Add annotation</button>
 				<p id="useFinished"></p>
 			</fieldset>
 
 			<fieldset id="addPhenotype" style="display:none;">
 				<legend>Add Phenotype</legend>
-				<p style="display:inline" id="selectPhenotypeFile"></p>
-				<button id="addPhenotypeButton" onclick="addPhenotype()">Add Phenotype</button>
+				<form action="http://localhost:5000/phenotype"  method="POST" enctype="multipart/form-data">
+				    <label class="formLabel1" for="localPhenoFileName">File Name</label>
+				    <input class="std_input" id="localPhenoFileName" type="text">
+				    <input id="uploadPheno" type = "file" name = "phenofile">
+		         	<input type = "submit">
+				</form>
+				<button id="samplePhenotype">sampleData</button>
+				<button id="addPhenotypeButton">Add phenotype</button>
 				<p id="phenotypeAdded"></p>
+				
 			</fieldset>
 			<fieldset id="vtoolsAssociate">
 				<legend>Associate</legend>
@@ -107,7 +123,7 @@
 				<input class="std_input" id="discardVariants" type="text" value='"%(NA)>0.1"'>
 
 			</fieldset>
-			<button id="runAssociation" onclick="runAssociation()" style="display:none">Run association</button>
+			<button id="runAssociation"  style="display:none">Run association</button>
 		</div>
 
 

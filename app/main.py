@@ -5,7 +5,7 @@ from flask import Flask, send_file,request,redirect
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
-WORK_FOLDER="/Users/jma7/Development/vtools_website/"
+WORK_FOLDER=os.getenv("WORK_FOLDER")
 
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
 app.config['WORK_FOLDER'] = WORK_FOLDER
@@ -16,10 +16,10 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/uploader', methods = ['POST'])
+@app.route('/data', methods = ['POST'])
 def upload_file():
    if request.method == 'POST':
-      f = request.files['file']
+      f = request.files['datafile']
       f.save(os.path.join(app.config['WORK_FOLDER']+"testData",secure_filename(f.filename)))
       return ('',204)
 
@@ -35,15 +35,23 @@ def vtools_import():
     run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
     return "import sucess"
 
-@app.route('/addPhenotype',methods=['POST'])
-def vtools_add_phenotype():
-    fileName=request.form["fileName"]
-    command="vtools phenotype --from_file "+app.config['WORK_FOLDER']+"testData/"+fileName
-    result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    print("stdout", result.stdout)
-    print("stderr", result.stderr)
-    return result.stderr
+@app.route('/phenotype',methods=['POST','PUT'])
+def upload_phenotype():
+    if request.method == 'POST':
+      f = request.files['phenofile']
+      f.save(os.path.join(app.config['WORK_FOLDER']+"testData",secure_filename(f.filename)))
+      return ('',204)
+    elif request.method=='PUT':
+     
+      fileName=request.get_data().decode("utf-8")
+      command="vtools phenotype --from_file "+app.config['WORK_FOLDER']+"testData/"+fileName
+      result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+      print("stdout", result.stdout)
+      print("stderr", result.stderr)
+      return result.stdout
 
+
+   
 
 
 @app.route('/output', methods = ['GET'])
@@ -85,11 +93,11 @@ def vtools_associate():
 @app.route("/show",methods=['GET'])
 def vtools_show():
     option=request.args.get("option",None,type=None)
-    command="vtools show "+option+" -l 200"
+    command="vtools show "+option
     if option=="show":
         command="vtools show"
     elif option=="anotations -v0":
-        command="vtools show annotations -l 200 -v0 "
+        command="vtools show annotations -v0 "
     result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
     print(result.returncode)
     print("stdout", result.stdout)
