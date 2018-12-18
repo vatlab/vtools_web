@@ -172,7 +172,7 @@ function importFile(){
     $.get("http://"+server+"/import",{
     // $.get("http://localhost:5000/import",{
         fileName:fileName,genomeVersion:genomeVersion
-    }, function(data){
+    }).done( function(data){
         console.log(data)
         $('#dataDetail').show()
         vtoolsShow("annotations -v0")
@@ -180,9 +180,10 @@ function importFile(){
         vtoolsShow("tables")
         vtoolsShow("fields")
         document.getElementById("defaultOpen").click();
+        $("#showError").hide()
         
-
-
+    }).fail(function(xhr,status,error){
+        alert(error)
     })
 }
 
@@ -192,9 +193,13 @@ function importFile(){
 function outputData(){
     // $.get("http://localhost:5000/output",{
     $.get("http://"+server+"/output",{
-    }, function(data){
+    })
+    .done(function(data){
         var rows=data.split("\n")
         generateDataTable("#dataTable",rows)
+    })
+    .fail(function(xhr,status,error){
+        alert(error)
     })  
 }
 
@@ -271,7 +276,7 @@ function vtoolsShow(option){
     
     // $.get("http://localhost:5000/show",{option:option
     $.get("http://"+server+"/show",{option:option
-    }, function(data){
+    }).done(function(data){
         var rows=data.split("\n")
         if (option==="genotypes" || option==="samples"){
             generateDataTable("#dataTable",rows)
@@ -311,6 +316,8 @@ function vtoolsShow(option){
         else{
             addRowToTableTab('#dataTable',rows)
         }
+    }).fail(function(xhr,status,error){
+        alert(error)
     })
 }
 
@@ -320,11 +327,13 @@ function vtoolsUse(){
     addToLog("vtools use "+option)
     $.post("http://"+server+"/use",{
         option:option
-    },function(result){
+    }).done(function(result){
         console.log(option+ "imported")
         
         $("#useFinished").text(option+" imported")
 
+    }).fail(function(xhr,status,error){
+        alert(error)
     })
 }
 
@@ -341,9 +350,40 @@ function addPhenotype(){
             vtoolsShow("phenotypes")
             addToLog("vtools phenotype --from_file "+fileName)
             $("#runAssociation").show()
-
+        },
+        error:function(XMLHttpRequest, textStatus, errorThrown) {
+            alert(errorThrown);
         }
-    });  
+      }); 
+}
+
+
+
+function runAssociation(){
+    var table=$("#projectTables option:selected").text()
+    var phenotype=$("#projectPhenotypes option:selected").text()
+    var method=$("#associateMethods option:selected").text()
+    var discard=$("#discardVariants").val()
+    var groupby=$("#annotationOptions option:selected").text()
+    if (groupby==="refGene"){
+        groupby="refGene.name2"
+    }
+    console.log(table,phenotype,method,discard,groupby)
+    $("#runAssociation").hide()
+    $.post("http://"+server+"/runAssociation",{
+    // $.post("http://localhost:5000/runAssociation",{
+        table:table,phenotype:phenotype,method:method,discard:discard,groupby:groupby
+    }).done(function(data){
+        addToLog("vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby)
+        var rows=data.split("\n")
+        generateDataTable("#dataTable",rows)
+        $("#runAssociation").show()
+        
+    }).fail(function(xhr,status,error){
+        alert(error)
+        $("#runAssociation").show()
+    })
+
 }
 
 function openTab(evt, tabName) {
@@ -365,29 +405,4 @@ function openTab(evt, tabName) {
     // Show the current tab, and add an "active" class to the link that opened the tab
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
-}
-
-function runAssociation(){
-    var table=$("#projectTables option:selected").text()
-    var phenotype=$("#projectPhenotypes option:selected").text()
-    var method=$("#associateMethods option:selected").text()
-    var discard=$("#discardVariants").val()
-    var groupby=$("#annotationOptions option:selected").text()
-    if (groupby==="refGene"){
-        groupby="refGene.name2"
-    }
-    console.log(table,phenotype,method,discard,groupby)
-    $("#runAssociation").hide()
-    $.post("http://"+server+"/runAssociation",{
-    // $.post("http://localhost:5000/runAssociation",{
-        table:table,phenotype:phenotype,method:method,discard:discard,groupby:groupby
-    },function(data){
-        addToLog("vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby)
-        var rows=data.split("\n")
-        generateDataTable("#dataTable",rows)
-        $("#runAssociation").show()
-        
-    })
-
-
 }

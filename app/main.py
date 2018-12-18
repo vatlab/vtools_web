@@ -21,47 +21,50 @@ def upload_file():
    if request.method == 'POST':
       f = request.files['datafile']
       f.save(os.path.join(app.config['WORK_FOLDER']+"testData",secure_filename(f.filename)))
-      return ('',204)
+      return 'uploaded',204
 
 @app.route('/import', methods = ['GET'])
 def vtools_import():
     fileName=request.args.get('fileName',None,type=None)
     genomeVersion=request.args.get("genomeVersion",None,type=None)
-    print(fileName,genomeVersion)
     os.chdir(app.config["WORK_FOLDER"]+"testProject")
     run("vtools init test -f".split(" "))
     command="vtools import "+app.config['WORK_FOLDER']+"testData/"+fileName+" --build "+ genomeVersion+" -f"
-    print(command)
-    run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    return "import sucess"
+    # print(command)
+    result=run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    
+    if "ERROR" in result.stderr:
+        return "Internal error", 500
+    else:
+        return "Import sucess" ,200
 
 @app.route('/phenotype',methods=['POST','PUT'])
 def upload_phenotype():
     if request.method == 'POST':
       f = request.files['phenofile']
       f.save(os.path.join(app.config['WORK_FOLDER']+"testData",secure_filename(f.filename)))
-      return ('',204)
+      return 'upload',204
     elif request.method=='PUT':
      
       fileName=request.get_data().decode("utf-8")
       command="vtools phenotype --from_file "+app.config['WORK_FOLDER']+"testData/"+fileName
       result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-      print("stdout", result.stdout)
-      print("stderr", result.stderr)
-      return result.stdout
+      
+      if "ERROR" in result.stderr:
+        return "Internal error", 500
+      else:
+        return  result.stdout,200
 
-
-   
 
 
 @app.route('/output', methods = ['GET'])
 def vtools_output():
     command="vtools output variant chr pos ref alt --limit 20 --header"
     result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    print(result.returncode)
-    print("stdout", result.stdout)
-    print("stderr", result.stderr)
-    return result.stdout
+    if "ERROR" in result.stderr:
+        return "Internal error", 500
+    else:
+        return  result.stdout,200
 
 @app.route("/use",methods=['POST'])
 def vtools_use():
@@ -86,7 +89,10 @@ def vtools_associate():
     result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
     print("stdout", result.stdout)
     print("stderr", result.stderr)
-    return result.stdout
+    if "ERROR" in result.stderr or "cannot" in result.stderr:
+        return "Internal error", 500
+    else:
+        return  result.stdout,200
 
 
 
@@ -99,10 +105,13 @@ def vtools_show():
     elif option=="anotations -v0":
         command="vtools show annotations -v0 "
     result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    print(result.returncode)
-    print("stdout", result.stdout)
-    print("stderr", result.stderr)
-    return result.stdout
+    # print(result.returncode)
+    # print("stdout", result.stdout)
+    # print("stderr", result.stderr)
+    if "ERROR" in result.stderr:
+        return "Internal error", 500
+    else:
+        return  result.stdout,200
 
 
 
