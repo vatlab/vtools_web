@@ -16,9 +16,14 @@
 <body>
 	<h1>Variant Tools</h1>
 	<div style="width:500px;float:left">
-	<fieldset id="localFileSource">
+    <fieldset id="createProject">
+    	<legend>Create project</legend>
+    	<button id="createRandomProject">Create</button>
+    	<p style="display:inline" id="projectName"></p>
+    </fieldset>
+	<fieldset id="localFileSource" style="display:none;">
 		<legend>Select a vcf file to upload</legend>
-		<form id="dataUpload" action="http://localhost:5000/data"  method="POST" enctype="multipart/form-data">
+		<form id="dataUpload"  enctype="multipart/form-data">
 		    <label class="formLabel1" for="localFileName">File Name</label>
 		    <input class="std_input" id="localFileName" type="text">
 		    <input id="uploadData" type = "file" name = "datafile" >
@@ -174,7 +179,7 @@
 
 			<fieldset id="addPhenotype" style="display:none;">
 				<legend>Add Phenotype</legend>
-				<form action="http://localhost:5000/phenotype"  method="POST" enctype="multipart/form-data">
+				<form   id="phenoUpload"  enctype="multipart/form-data">
 				    <label class="formLabel1" for="localPhenoFileName">File Name</label>
 				    <input class="std_input" id="localPhenoFileName" type="text">
 				    <input id="uploadPheno" type = "file" name = "phenofile">

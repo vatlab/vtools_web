@@ -1,4 +1,5 @@
 import os
+import uuid
 from subprocess import PIPE,run
 
 from flask import Flask, send_file,request,redirect
@@ -16,19 +17,36 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/data', methods = ['POST'])
-def upload_file():
+@app.route('/project',methods=['POST'])
+def create_project():
+    if request.method=='POST':
+        projectID=uuid.uuid4().hex
+        
+        projectID="VT"+projectID
+        directory=app.config["WORK_FOLDER"]+"testProject/"+projectID
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        os.chdir(directory)
+        command="vtools init "+projectID+" -f"
+        result=run(command.split(" "),stdout=PIPE, stderr=PIPE, universal_newlines=True)
+        if "ERROR" in result.stderr:
+            return "Internal error", 500
+        else:
+            return projectID ,200
+
+
+@app.route('/data/<projectID>', methods = ['POST'])
+def upload_file(projectID):
    if request.method == 'POST':
       f = request.files['datafile']
-      f.save(os.path.join(app.config['WORK_FOLDER']+"testData",secure_filename(f.filename)))
+      f.save(os.path.join(app.config['WORK_FOLDER']+"testProject/"+projectID,secure_filename(f.filename)))
       return 'uploaded',204
 
 @app.route('/import', methods = ['GET'])
 def vtools_import():
     fileName=request.args.get('fileName',None,type=None)
     genomeVersion=request.args.get("genomeVersion",None,type=None)
-    os.chdir(app.config["WORK_FOLDER"]+"testProject")
-    run("vtools init test -f".split(" "))
+    
     command="vtools import "+app.config['WORK_FOLDER']+"testData/"+fileName+" --build "+ genomeVersion+" -f"
     # print(command)
     result=run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
@@ -38,16 +56,18 @@ def vtools_import():
     else:
         return "Import sucess" ,200
 
-@app.route('/phenotype',methods=['POST','PUT'])
-def upload_phenotype():
+@app.route('/phenotype/<projectID>',methods=['POST','PUT'])
+def upload_phenotype(projectID):
     if request.method == 'POST':
       f = request.files['phenofile']
-      f.save(os.path.join(app.config['WORK_FOLDER']+"testData",secure_filename(f.filename)))
+      print(os.path.join(app.config['WORK_FOLDER']+"testProject/"+projectID,secure_filename(f.filename)))
+      f.save(os.path.join(app.config['WORK_FOLDER']+"testProject/"+projectID,secure_filename(f.filename)))
       return 'upload',204
     elif request.method=='PUT':
      
       fileName=request.get_data().decode("utf-8")
-      command="vtools phenotype --from_file "+app.config['WORK_FOLDER']+"testData/"+fileName
+      print(app.config['WORK_FOLDER']+"testProject/"+projectID+"/"+fileName)
+      command="vtools phenotype --from_file "+app.config['WORK_FOLDER']+"testProject/"+projectID+"/"+fileName
       result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
       
       if "ERROR" in result.stderr:

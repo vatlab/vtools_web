@@ -1,10 +1,59 @@
 var server;
 var dataTable;
 var logs=[];
+var projectID;
 
 $(document).ready(function(){
     server=env.server+"/vtoolsweb/"
 	console.log(server)
+
+    $("#createRandomProject").click(function(){
+        createProject();
+    })
+
+    $("#dataUpload").submit(function(e){
+        e.preventDefault();
+        var formData= new FormData()
+        var fileName = $('#uploadData')[0].files[0].name;
+        $("#localFileName").val(fileName);
+        formData.append('datafile',$('#uploadData')[0].files[0])
+        $.ajax({
+            url:"http://"+server+"/data/"+projectID,
+            data:formData,
+            type:'POST',
+            contentType:false,
+            processData:false, 
+            success:function(data){
+                console.log("sucess")
+                addOption("existingSourceName",["",fileName])
+                $('#dataSources').show();
+                $('#addPhenotype').show();  
+            },
+         
+        });
+
+    })
+
+    $("#phenoUpload").submit(function(e){
+        e.preventDefault();
+        var formData= new FormData()
+        formData.append('phenofile',$('#uploadPheno')[0].files[0])
+        var fileName = $('#uploadPheno')[0].files[0].name;
+        $("#localPhenoFileName").val(fileName);
+        $.ajax({
+            url:"http://"+server+"/phenotype/"+projectID,
+            data:formData,
+            type:'POST',
+            contentType:false,
+            processData:false, 
+            success:function(data){
+                console.log("sucess")
+                    
+            },
+         
+        });
+
+    })
 
     $("#importButton").click(function(){
         importFile();
@@ -46,13 +95,8 @@ $(document).ready(function(){
         vtoolsShow(this.value);
     });
 
-    $("#uploadData").change(function(){
-        uploadData();
-    })
 
-    $("#uploadPheno").change(function(){
-        uploadPheno();
-    })
+
 
     $("#selectRemoveOptions").change(function(){
         vtoolsRemove();
@@ -60,6 +104,19 @@ $(document).ready(function(){
 
 
 })
+
+function createProject(){
+    $.post("http://"+server+"/project",{
+    }).done(function(result){
+        $("#localFileSource").show()
+        projectID=result
+        console.log(projectID)
+        $("#projectName").text(projectID)
+    }).fail(function(xhr,status,error){
+        alert(error)
+    })
+
+}
 
 
 function vtoolsRemove(){
@@ -119,18 +176,7 @@ function addOption(id,contents){
 }
 
 
-function uploadData(){
-    var fileName = $('#uploadData')[0].files[0].name;
-    $("#localFileName").val(fileName);
-    addOption("existingSourceName",["",fileName])
-    $('#dataSources').show();
-    $('#addPhenotype').show();  
-}
 
-function uploadPheno(){
-    var fileName = $('#uploadPheno')[0].files[0].name;
-    $("#localPhenoFileName").val(fileName);
-}
 
 function loadSampleData(){
     var fileName="1000_test_2k.vcf"
@@ -342,7 +388,7 @@ function addPhenotype(){
     var fileName=$("#localPhenoFileName").val()
     console.log(fileName)
     $.ajax({
-        url: "http://"+server+"/phenotype",
+        url: "http://"+server+"/phenotype/"+projectID,
         type:"PUT",
         data:fileName,
         success:function(data){
