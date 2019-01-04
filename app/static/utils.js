@@ -55,6 +55,10 @@ $(document).ready(function(){
 
     })
 
+    $("#getProjectButton").click(function(){
+        getProject()
+    })
+
     $("#importButton").click(function(){
         importFile();
     });
@@ -106,8 +110,7 @@ $(document).ready(function(){
 })
 
 function createProject(){
-    $.post("http://"+server+"/project",{
-    }).done(function(result){
+    $.post("http://"+server+"/project",function(result){
         $("#localFileSource").show()
         projectID=result
         console.log(projectID)
@@ -116,6 +119,27 @@ function createProject(){
         alert(error)
     })
 
+}
+
+function getProject(){
+    projectID=$("#projectID").val()
+    $.get("http://"+server+"/project/"+projectID,function(result){
+        $('#dataDetail').show()
+        vtoolsShow("annotations -v0")
+        vtoolsShow("tests")
+        vtoolsShow("tables")
+        vtoolsShow("fields")
+        
+        $('#addPhenotype').show();
+        vtoolsShow("phenotypes")
+        $("#runAssociation").show()
+        
+        document.getElementById("defaultOpen").click();
+        $("#showError").hide()
+        
+    }).fail(function(xhr,status,error){
+        alert(error)
+    })
 }
 
 
@@ -238,8 +262,7 @@ function importFile(){
         fileName:fileName,genomeVersion:genomeVersion
     }).done( function(data){
         console.log(data)
-        setTimeout(checkImportProgress,2000)
-              
+        setTimeout(checkImportProgress,2000)         
     }).fail(function(xhr,status,error){
         alert(error)
     })
@@ -416,6 +439,23 @@ function addPhenotype(){
 }
 
 
+function checkAssociateProgress(){
+    $.get("http://"+server+"/check/associate/"+projectID,function(data){
+            console.log(data)
+            if (data.includes("Testing for association")){
+                $("#associateProgress").text(data)
+            }
+            if (data.includes("Testing for association: 100%")){
+                // var rows=data.split("\n")
+                // generateDataTable("#dataTable",rows)
+                // $("#runAssociation").show()
+                console.log("association done")
+            }else{
+                setTimeout(checkAssociateProgress,2000)
+            }
+        })
+}
+
 
 function runAssociation(){
     var table=$("#projectTables option:selected").text()
@@ -428,14 +468,14 @@ function runAssociation(){
     }
     console.log(table,phenotype,method,discard,groupby)
     $("#runAssociation").hide()
-    $.post("http://"+server+"/runAssociation",{
+    $.post("http://"+server+"/runAssociation/"+projectID,{
     // $.post("http://localhost:5000/runAssociation",{
         table:table,phenotype:phenotype,method:method,discard:discard,groupby:groupby
     }).done(function(data){
         addToLog("vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby)
-        var rows=data.split("\n")
-        generateDataTable("#dataTable",rows)
-        $("#runAssociation").show()
+        setTimeout(checkAssociateProgress,2000)  
+
+        
         
     }).fail(function(xhr,status,error){
         alert(error)

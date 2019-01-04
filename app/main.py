@@ -36,6 +36,19 @@ def create_project():
         else:
             return projectID ,200
 
+@app.route('/project/<projectID>',methods=['GET'])
+def get_project(projectID):
+    if request.method=="GET":
+        directory=app.config["WORK_FOLDER"]+"testProject/"+projectID
+        print(directory)
+        if not os.path.exists(directory):
+            return "project doesn't exist",200
+        else:
+            os.chdir(directory)
+            return projectID,200
+
+
+
 
 @app.route('/data/<projectID>', methods = ['POST'])
 def upload_file(projectID):
@@ -129,23 +142,63 @@ def vtools_use():
     return result.stderr
 
 
-@app.route("/runAssociation",methods=['POST'])
-def vtools_associate():
+@app.route("/runAssociation/<projectID>",methods=['POST'])
+def vtools_associate(projectID):
     table=request.form["table"]
     phenotype=request.form["phenotype"]
     method=request.form["method"]
     discard=request.form["discard"]
     groupby=request.form["groupby"]
     print(table,phenotype,method,discard,groupby)
-    command="vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db test.DB -f -j 8 -v 2" 
+
+    associate_process=Process(target=run_vtools_associate,args=(projectID,table,phenotype,method,groupby))
+    associate_process.start()
+    return "associate running",200
+    # command="vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db test.DB -f -j 8 -v 2" 
+    # print(command)
+    # result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+
+
+
+
+def run_vtools_associate(projectID,table,phenotype,method,groupby):
+    command="vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db test.DB -f -j 8 -v 1" 
+    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_output.txt"
+    if os.path.exists(logfile):
+        os.remove(logfile)
+
     print(command)
-    result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    print("stdout", result.stdout)
-    print("stderr", result.stderr)
-    if "ERROR" in result.stderr or "cannot" in result.stderr:
-        return "Internal error", 500
+    # result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    # print("stderr",result.stderr)
+    # print("stdout",result.stdout)
+    
+    # with open (app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_output.txt","a+") as output:
+    #     Popen(command.split(" "), stderr=output, universal_newlines=True)
+
+    result=Popen(command.split(" "),  stderr=PIPE, universal_newlines=True)
+    tee = Popen(['tee', app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_output.txt"], stdin=result.stderr)
+    tee.communicate()
+
+
+@app.route('/check/associate/<projectID>',methods=['GET'])
+def checkAssociateProgress(projectID):
+    last=""
+    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_output.txt"
+
+    if os.path.exists(logfile) and os.path.getsize(logfile) > 5:
+        with open(logfile, "rb") as f:
+            f.seek(-2, os.SEEK_END)     # Jump to the second last byte.
+            
+            while f.read(1) != b"\r":   # Until EOL is found...
+                try:
+                    f.seek(-2, os.SEEK_CUR) # ...jump back the read byte plus one more.
+                except OSError:
+                    f.seek(0, 0)
+                    break
+            last = f.readline()
+        return last,200
     else:
-        return  result.stdout,200
+        return "preparing",200
 
 
 
