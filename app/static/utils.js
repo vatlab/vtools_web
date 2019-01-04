@@ -207,27 +207,39 @@ function selectDataSource(fileName){
 }
 
 
+function checkImportProgress(){
+    $.get("http://"+server+"/check/import/"+projectID,function(data){
+            console.log(data)
+            if (data.includes("Importing")){
+                $("#importProgress").text(data)
+            }
+            if (data.includes("Importing genotypes: 100%")){
+                $('#dataDetail').show()
+                vtoolsShow("annotations -v0")
+                vtoolsShow("tests")
+                vtoolsShow("tables")
+                vtoolsShow("fields")
+                document.getElementById("defaultOpen").click();
+                $("#showError").hide()
 
+            }else{
+                setTimeout(checkImportProgress,2000)
+            }
+        })
+}
 
 
 function importFile(){
     var fileName=$("#existingSourceName").val()
     var genomeVersion=$("#genomeVersion").val()
     addToLog("vtools import "+fileName+" --build "+genomeVersion)
-    
-    $.get("http://"+server+"/import",{
+    $.get("http://"+server+"/import/"+projectID,{
     // $.get("http://localhost:5000/import",{
         fileName:fileName,genomeVersion:genomeVersion
     }).done( function(data){
         console.log(data)
-        $('#dataDetail').show()
-        vtoolsShow("annotations -v0")
-        vtoolsShow("tests")
-        vtoolsShow("tables")
-        vtoolsShow("fields")
-        document.getElementById("defaultOpen").click();
-        $("#showError").hide()
-        
+        setTimeout(checkImportProgress,2000)
+              
     }).fail(function(xhr,status,error){
         alert(error)
     })

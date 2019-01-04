@@ -1,6 +1,8 @@
 import os
 import uuid
-from subprocess import PIPE,run
+from subprocess import PIPE,run,Popen
+import sys
+from multiprocessing import Process
 
 from flask import Flask, send_file,request,redirect
 from werkzeug.utils import secure_filename
@@ -42,19 +44,50 @@ def upload_file(projectID):
       f.save(os.path.join(app.config['WORK_FOLDER']+"testProject/"+projectID,secure_filename(f.filename)))
       return 'uploaded',204
 
-@app.route('/import', methods = ['GET'])
-def vtools_import():
+@app.route('/import/<projectID>', methods = ['GET'])
+def vtools_import(projectID):
     fileName=request.args.get('fileName',None,type=None)
     genomeVersion=request.args.get("genomeVersion",None,type=None)
-    
-    command="vtools import "+app.config['WORK_FOLDER']+"testData/"+fileName+" --build "+ genomeVersion+" -f"
+    import_process=Process(target=run_vtools_import,args=(projectID,fileName,genomeVersion))
+    import_process.start()
+    return "import running",200
+
+
+def run_vtools_import(projectID,fileName,genomeVersion):
+    command="vtools import "+app.config['WORK_FOLDER']+"testProject/"+projectID+"/"+fileName+" --build "+ genomeVersion+" -f"
     # print(command)
-    result=run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    # result=run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+
+    # result=Popen(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    # tee = Popen(['tee', app.config['WORK_FOLDER']+"testProject/"+projectID+"/output.txt"], stdin=result.stderr)
+    # tee.communicate()
     
-    if "ERROR" in result.stderr:
-        return "Internal error", 500
+    with open (app.config['WORK_FOLDER']+"testProject/"+projectID+"/output.txt","a+") as output:
+        Popen(command.split(" "),stdout=output, stderr=output, universal_newlines=True)
+
+
+
+@app.route('/check/import/<projectID>',methods=['GET'])
+def checkImportProgress(projectID):
+    last=""
+    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/output.txt"
+
+    if os.path.exists(logfile) and os.path.getsize(logfile) > 5:
+        with open(logfile, "rb") as f:
+            f.seek(-2, os.SEEK_END)     # Jump to the second last byte.
+            
+            while f.read(1) != b"\r":   # Until EOL is found...
+                try:
+                    f.seek(-2, os.SEEK_CUR) # ...jump back the read byte plus one more.
+                except OSError:
+                    f.seek(0, 0)
+                    break
+            last = f.readline()
+        return last,200
     else:
-        return "Import sucess" ,200
+        return "preparing",200
+
+
 
 @app.route('/phenotype/<projectID>',methods=['POST','PUT'])
 def upload_phenotype(projectID):
