@@ -228,6 +228,8 @@ def vtools_show():
         command="vtools show"
     elif option=="anotations -v0":
         command="vtools show annotations -v0 "
+    elif option=="genotypes":
+        command="vtools show genotypes -l 10"
     result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
     # print(result.returncode)
     # print("stdout", result.stdout)

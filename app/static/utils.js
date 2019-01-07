@@ -92,11 +92,11 @@ $(document).ready(function(){
     });
 
     $('#showProjectOptions').change(function(){
-        vtoolsShow(this.value);
+        vtoolsShow(this.value,true);
     });
 
     $('#showVtoolsOptions').change(function(){
-        vtoolsShow(this.value);
+        vtoolsShow(this.value,true);
     });
 
 
@@ -125,13 +125,14 @@ function getProject(){
     projectID=$("#projectID").val()
     $.get("http://"+server+"/project/"+projectID,function(result){
         $('#dataDetail').show()
-        vtoolsShow("annotations -v0")
-        vtoolsShow("tests")
-        vtoolsShow("tables")
-        vtoolsShow("fields")
+        vtoolsShow("annotations -v0",false)
+        vtoolsShow("tests",false)
+        vtoolsShow("tables",false)
+        vtoolsShow("fields",false)
+        vtoolsShow("show",true)
         
         $('#addPhenotype').show();
-        vtoolsShow("phenotypes")
+        vtoolsShow("phenotypes",false)
         $("#runAssociation").show()
         
         document.getElementById("defaultOpen").click();
@@ -239,10 +240,10 @@ function checkImportProgress(){
             }
             if (data.includes("Importing genotypes: 100%")){
                 $('#dataDetail').show()
-                vtoolsShow("annotations -v0")
-                vtoolsShow("tests")
-                vtoolsShow("tables")
-                vtoolsShow("fields")
+                vtoolsShow("annotations -v0",false)
+                vtoolsShow("tests",false)
+                vtoolsShow("tables",true)
+                vtoolsShow("fields",false)
                 document.getElementById("defaultOpen").click();
                 $("#showError").hide()
 
@@ -256,6 +257,10 @@ function checkImportProgress(){
 function importFile(){
     var fileName=$("#existingSourceName").val()
     var genomeVersion=$("#genomeVersion").val()
+    if (fileName==="" || genomeVersion===""){
+        alert("Please select a file name from dropdown list for importing.")
+        return
+    }
     addToLog("vtools import "+fileName+" --build "+genomeVersion)
     $.get("http://"+server+"/import/"+projectID,{
     // $.get("http://localhost:5000/import",{
@@ -292,6 +297,7 @@ function generateDataTable(table,rows){
     if (dataTable !== undefined){
         dataTable.destroy()
     }
+    $("#infoTable").empty()
     $(table).empty()
     var headers=rows[0].split(/(\s+)/).filter( function(e) { return e.trim().length > 0; } );
     var columns=[]
@@ -339,8 +345,9 @@ function addRowToTable(table,rows){
 
 }
 
-function addRowToTableTab(table,rows){
-    $('#dataTable').empty()
+function generateInfoTable(table,rows){
+    $('#dataTable').parents('div.dataTables_wrapper').first().hide();
+    $(table).empty()
     rows.forEach((row)=>{
         cells=row.split(/(\t)/).filter( function(e) { return e.trim().length > 0; } );
         var row="<tr>"
@@ -353,49 +360,73 @@ function addRowToTableTab(table,rows){
 
 }
 
-function vtoolsShow(option){
+function vtoolsShow(option,display){
     
     // $.get("http://localhost:5000/show",{option:option
     $.get("http://"+server+"/show",{option:option
     }).done(function(data){
         var rows=data.split("\n")
-        if (option==="genotypes" || option==="samples"){
-            generateDataTable("#dataTable",rows)
-        }else if (option==="annotations -v0"){
-            var uniqAnnotations=Array.from(new Set(rows.map((row)=>row.split("-")[0])))
+        switch(option){
+            case "genotypes":
+                rows=rows.filter((line)=>!line.includes("omitted"))
+                if (display){
+                    generateDataTable("#dataTable",rows)
+                }
+                break;
+            case "samples":
+                if(display){
+                    generateDataTable("#dataTable",rows)
+                }
+                break;
+            case "annotations -v0":
+                var uniqAnnotations=Array.from(new Set(rows.map((row)=>row.split("-")[0])))
 
-            addOption("annotationOptions",uniqAnnotations)
-            $("#annotationOptions").val("refGene");
-            $("#dataAnnotation").show()
+                addOption("annotationOptions",uniqAnnotations)
+                $("#annotationOptions").val("refGene");
+                $("#dataAnnotation").show()
+                break;
 
-        
-        }else if (option==="tables"){
-        
+            case "tables":
+                var tables=rows.slice(1).map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+                addOption("projectTables",tables)
+                if(display){
+                    generateInfoTable('#infoTable',rows)
+                }
+                break;
             
-            var tables=rows.slice(1).map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
-            addOption("projectTables",tables)
-            addRowToTableTab('#dataTable',rows)
-        
-        }else if (option==="phenotypes"){     
-        
-            var phenotypes=rows[0].split(/(\s+)/)
-            phenotypes=phenotypes.filter((phenotype)=>phenotype.trim().length>0).slice(2)
-            addOption("projectPhenotypes",phenotypes)
-            generateDataTable("#dataTable",rows)
-        
-        }else if (option==="tests"){
-        
-            var methods=rows.map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
-            addOption("associateMethods",methods)
-        
-        }else if (option==="fields"){
-            
-            var fields=rows.map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
-            addOption("fields",fields)
-        
-        }
-        else{
-            addRowToTableTab('#dataTable',rows)
+            case "phenotypes":  
+                var phenotypes=rows[0].split(/(\s+)/)
+                phenotypes=phenotypes.filter((phenotype)=>phenotype.trim().length>0).slice(2)
+                addOption("projectPhenotypes",phenotypes)
+                if (display){
+                    generateDataTable("#dataTable",rows)
+                }
+                break;
+
+            case "tests":
+                var methods=rows.map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+                addOption("associateMethods",methods)
+                break;
+
+            case "fields":
+                var fields=rows.map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+                addOption("fields",fields)
+                break;
+
+            case "show":
+                info={}
+                rows.forEach((row)=>{
+                    cols=row.split(":")
+                    info[cols[0]]=row.replace(cols[0]+":","").replace(/^\s+|\s+$/g, '')
+                })
+                if ("Annotation databases" in info){
+                    $("#useFinished").text(info["Annotation databases"].split("(")[0]+" imported")  
+                } 
+
+            default:
+                if(display){
+                    generateInfoTable('#infoTable',rows)
+                }
         }
     }).fail(function(xhr,status,error){
         alert(error)
@@ -428,7 +459,7 @@ function addPhenotype(){
         data:fileName,
         success:function(data){
              $("#phenotypeAdded").text(fileName+" added")
-            vtoolsShow("phenotypes")
+            vtoolsShow("phenotypes",true)
             addToLog("vtools phenotype --from_file "+fileName)
             $("#runAssociation").show()
         },
