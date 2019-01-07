@@ -446,10 +446,14 @@ function checkAssociateProgress(){
                 $("#associateProgress").text(data)
             }
             if (data.includes("Testing for association: 100%")){
-                // var rows=data.split("\n")
-                // generateDataTable("#dataTable",rows)
-                // $("#runAssociation").show()
+                
                 console.log("association done")
+                $.get("http://"+server+"/associationResult/"+projectID,function(data){
+                    console.log(data)
+                    var rows=data.split("\n")
+                    generateDataTable("#dataTable",rows)
+                    $("#runAssociation").show()
+                })
             }else{
                 setTimeout(checkAssociateProgress,2000)
             }

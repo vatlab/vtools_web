@@ -1,8 +1,10 @@
 import os
 import uuid
-from subprocess import PIPE,run,Popen
+from subprocess import PIPE,run,Popen, STDOUT
 import sys
 from multiprocessing import Process
+
+import time
 
 from flask import Flask, send_file,request,redirect
 from werkzeug.utils import secure_filename
@@ -68,14 +70,9 @@ def vtools_import(projectID):
 
 def run_vtools_import(projectID,fileName,genomeVersion):
     command="vtools import "+app.config['WORK_FOLDER']+"testProject/"+projectID+"/"+fileName+" --build "+ genomeVersion+" -f"
-    # print(command)
-    # result=run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
-    # result=Popen(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    # tee = Popen(['tee', app.config['WORK_FOLDER']+"testProject/"+projectID+"/output.txt"], stdin=result.stderr)
-    # tee.communicate()
     
-    with open (app.config['WORK_FOLDER']+"testProject/"+projectID+"/output.txt","a+") as output:
+    with open (app.config['WORK_FOLDER']+"testProject/"+projectID+"/import_log.txt","a+") as output:
         Popen(command.split(" "),stdout=output, stderr=output, universal_newlines=True)
 
 
@@ -83,7 +80,7 @@ def run_vtools_import(projectID,fileName,genomeVersion):
 @app.route('/check/import/<projectID>',methods=['GET'])
 def checkImportProgress(projectID):
     last=""
-    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/output.txt"
+    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/import_log.txt"
 
     if os.path.exists(logfile) and os.path.getsize(logfile) > 5:
         with open(logfile, "rb") as f:
@@ -159,31 +156,52 @@ def vtools_associate(projectID):
     # result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
 
+@app.route("/associationResult/<projectID>",methods=['GET'])
+def get_AssociationResult(projectID):
+    resultfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_result.txt"
+    while not os.path.exists(resultfile):
+        time.sleep(2)
+    f=open(resultfile,"r")
+    data=f.readlines()
+    f.close()
+    return ("\n").join(data),200
+
+
+
 
 
 def run_vtools_associate(projectID,table,phenotype,method,groupby):
     command="vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db test.DB -f -j 8 -v 1" 
-    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_output.txt"
+    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_log.txt"
+    resultfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_result.txt"
+    
     if os.path.exists(logfile):
         os.remove(logfile)
+    if os.path.exists(resultfile):
+        os.remove(resultfile)
 
     print(command)
+
+    # with open (app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_log.txt","a+") as output:
+    #     run(command.split(" "),  stderr=output, universal_newlines=True,check=True)
+
     # result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
     # print("stderr",result.stderr)
     # print("stdout",result.stdout)
     
-    # with open (app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_output.txt","a+") as output:
-    #     Popen(command.split(" "), stderr=output, universal_newlines=True)
-
-    result=Popen(command.split(" "),  stderr=PIPE, universal_newlines=True)
-    tee = Popen(['tee', app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_output.txt"], stdin=result.stderr)
+    result=Popen(command.split(" "), stdout=PIPE,stderr=PIPE, universal_newlines=True)
+    tee = Popen(['tee', logfile], stdin=result.stderr)
     tee.communicate()
+    tee2 = Popen(['tee', resultfile], stdin=result.stdout)
+    tee2.communicate()
+
+
 
 
 @app.route('/check/associate/<projectID>',methods=['GET'])
 def checkAssociateProgress(projectID):
     last=""
-    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_output.txt"
+    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_log.txt"
 
     if os.path.exists(logfile) and os.path.getsize(logfile) > 5:
         with open(logfile, "rb") as f:
