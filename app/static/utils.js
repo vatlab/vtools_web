@@ -417,11 +417,18 @@ function vtoolsShow(option,display){
                 info={}
                 rows.forEach((row)=>{
                     cols=row.split(":")
-                    info[cols[0]]=row.replace(cols[0]+":","").replace(/^\s+|\s+$/g, '')
+                    if(row===cols[0] && row!=="" && ! row.includes("test")){
+                        info["Annotation databases"].push(row.replace(/^\s+|\s+$/g, ''))
+                    }else{
+                        info[cols[0]]=[row.replace(cols[0]+":","").replace(/^\s+|\s+$/g, '')]
+                    }
+                    
                 })
                 if ("Annotation databases" in info){
-                    $("#useFinished").text(info["Annotation databases"].split("(")[0]+" imported")  
-                } 
+                    annoText=info["Annotation databases"].map((anno)=>anno.split("(")[0]).join(",")
+                    $("#useFinished").text(annoText+" imported")  
+                }
+                console.log(info) 
 
             default:
                 if(display){
