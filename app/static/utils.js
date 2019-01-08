@@ -99,6 +99,16 @@ $(document).ready(function(){
         vtoolsShow(this.value,true);
     });
 
+    $("#showAssociation").click(function(){
+        $.get("http://"+server+"/associationResult/"+projectID,function(data){
+            var rows=data.split("\n")
+            generateDataTable("#dataTable",rows)
+            $("#runAssociation").show()
+            $("#showAssociation").hide()
+        })
+
+    })
+
 
 
 
@@ -137,6 +147,23 @@ function getProject(){
         
         document.getElementById("defaultOpen").click();
         $("#showError").hide()
+
+        
+
+        $.get("http://"+server+"/logs/"+projectID,function(logstring){
+            logs=logstring.split("\n").filter((log)=>log!=="")
+            console.log(logs)
+            var i;
+            var outputLog="";
+            for (i=0;i<logs.length;i++){
+                  var ii=i+1
+                  outputLog+=ii+"."+logs[i]+"\n"
+                  if (logs[i].includes("vtools associate")){
+                    $("#showAssociation").show()
+                  }
+            }
+                $("#logsText").val(outputLog)
+            })
         
     }).fail(function(xhr,status,error){
         alert(error)
@@ -180,6 +207,14 @@ function addToLog(log){
           outputLog+=ii+"."+logs[i]+"\n"
     }
     $("#logsText").val(outputLog)
+
+    $.post("http://"+server+"/logs/"+projectID,{
+        "log":log
+    }).done(function(result){
+        console.log("log saved.")
+    }).fail(function(xhr,status,error){
+        alert(error)
+    })
 }
 
 
@@ -204,11 +239,15 @@ function addOption(id,contents){
 
 
 function loadSampleData(){
-    var fileName="1000_test_2k.vcf"
+    var fileName="10k_test_2k.vcf"
     $("#localFileName").val(fileName);
     addOption("existingSourceName",["",fileName])
     $('#dataSources').show();
     $('#addPhenotype').show();
+    $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"data"}).done(function(message){
+        console.log(message)
+    })
+
 
 }
 
@@ -216,6 +255,9 @@ function loadSampleData(){
 function loadSamplePhenotype(){
     var fileName="simulated.tsv"
     $("#localPhenoFileName").val(fileName)
+    $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"pheno"}).done(function(message){
+        console.log(message)
+    })
 }
 
 
@@ -278,9 +320,7 @@ function importFile(){
 
 function outputData(){
     // $.get("http://localhost:5000/output",{
-    $.get("http://"+server+"/output",{
-    })
-    .done(function(data){
+    $.get("http://"+server+"/output",function(data){
         var rows=data.split("\n")
         generateDataTable("#dataTable",rows)
     })
@@ -487,10 +527,11 @@ function checkAssociateProgress(){
                 
                 console.log("association done")
                 $.get("http://"+server+"/associationResult/"+projectID,function(data){
-                    console.log(data)
-                    var rows=data.split("\n")
-                    generateDataTable("#dataTable",rows)
-                    $("#runAssociation").show()
+                    if (data!=="Association result is not available."){
+                        var rows=data.split("\n")
+                        generateDataTable("#dataTable",rows)
+                        $("#runAssociation").show()
+                    }
                 })
             }else{
                 setTimeout(checkAssociateProgress,2000)

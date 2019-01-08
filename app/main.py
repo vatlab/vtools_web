@@ -3,6 +3,7 @@ import uuid
 from subprocess import PIPE,run,Popen, STDOUT
 import sys
 from multiprocessing import Process
+from shutil import copy2
 
 import time
 
@@ -10,15 +11,31 @@ from flask import Flask, send_file,request,redirect
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
-WORK_FOLDER=os.getenv("WORK_FOLDER")
+WORK_FOLDER=os.getenv("WORK_FOLDER")+"/testProject/"
 
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
-app.config['WORK_FOLDER'] = WORK_FOLDER
+# app.config['WORK_FOLDER'] = WORK_FOLDER
 
 
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@app.route('/loadSampleData/<projectID>',methods=['GET'])
+def load_sampleData(projectID):
+    if request.method=="GET":
+        print("copy file")
+        fileType=request.args.get('fileType',None,type=None)
+        if fileType=="data" and os.path.exists("../10k_test_2k.vcf"):
+            src=os.path.realpath("../10k_test_2k.vcf")
+            copy2(src,WORK_FOLDER+projectID+"/")
+        elif fileType=="pheno"  and os.path.exists("../simulated.tsv"):
+            src=os.path.realpath("../simulated.tsv")
+            copy2(src,WORK_FOLDER+projectID+"/")
+
+        return "copy file",200
+
 
 
 @app.route('/project',methods=['POST'])
@@ -27,7 +44,7 @@ def create_project():
         projectID=uuid.uuid4().hex
         
         projectID="VT"+projectID
-        directory=app.config["WORK_FOLDER"]+"testProject/"+projectID
+        directory=WORK_FOLDER+projectID
         if not os.path.exists(directory):
             os.makedirs(directory)
         os.chdir(directory)
@@ -41,7 +58,7 @@ def create_project():
 @app.route('/project/<projectID>',methods=['GET'])
 def get_project(projectID):
     if request.method=="GET":
-        directory=app.config["WORK_FOLDER"]+"testProject/"+projectID
+        directory=WORK_FOLDER+projectID
         print(directory)
         if not os.path.exists(directory):
             return "project doesn't exist",200
@@ -50,13 +67,30 @@ def get_project(projectID):
             return projectID,200
 
 
+@app.route('/logs/<projectID>',methods=['POST','GET'])
+def logs(projectID):
+    logfile=WORK_FOLDER+projectID+"/"+projectID+"_log.txt"
+    if request.method=="POST":
+        log=request.form["log"]
+        with open(logfile,"a+") as f:
+            f.write(log+"\n")
+        return "log added",200
+    if request.method=="GET":
+        while not os.path.exists(logfile):
+            return "log file doesn't exist",200
+        f=open(logfile,"r")
+        data=f.readlines()
+        f.close()
+        return ("\n").join(data),200
+
+
 
 
 @app.route('/data/<projectID>', methods = ['POST'])
 def upload_file(projectID):
    if request.method == 'POST':
       f = request.files['datafile']
-      f.save(os.path.join(app.config['WORK_FOLDER']+"testProject/"+projectID,secure_filename(f.filename)))
+      f.save(os.path.join(WORK_FOLDER+projectID,secure_filename(f.filename)))
       return 'uploaded',204
 
 @app.route('/import/<projectID>', methods = ['GET'])
@@ -69,10 +103,10 @@ def vtools_import(projectID):
 
 
 def run_vtools_import(projectID,fileName,genomeVersion):
-    command="vtools import "+app.config['WORK_FOLDER']+"testProject/"+projectID+"/"+fileName+" --build "+ genomeVersion+" -f"
+    command="vtools import "+WORK_FOLDER+projectID+"/"+fileName+" --build "+ genomeVersion+" -f"
 
     
-    with open (app.config['WORK_FOLDER']+"testProject/"+projectID+"/import_log.txt","a+") as output:
+    with open (WORK_FOLDER+projectID+"/import_log.txt","a+") as output:
         Popen(command.split(" "),stdout=output, stderr=output, universal_newlines=True)
 
 
@@ -80,7 +114,7 @@ def run_vtools_import(projectID,fileName,genomeVersion):
 @app.route('/check/import/<projectID>',methods=['GET'])
 def checkImportProgress(projectID):
     last=""
-    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/import_log.txt"
+    logfile=WORK_FOLDER+projectID+"/import_log.txt"
 
     if os.path.exists(logfile) and os.path.getsize(logfile) > 5:
         with open(logfile, "rb") as f:
@@ -103,14 +137,14 @@ def checkImportProgress(projectID):
 def upload_phenotype(projectID):
     if request.method == 'POST':
       f = request.files['phenofile']
-      print(os.path.join(app.config['WORK_FOLDER']+"testProject/"+projectID,secure_filename(f.filename)))
-      f.save(os.path.join(app.config['WORK_FOLDER']+"testProject/"+projectID,secure_filename(f.filename)))
+      print(os.path.join(WORK_FOLDER+projectID,secure_filename(f.filename)))
+      f.save(os.path.join(WORK_FOLDER+projectID,secure_filename(f.filename)))
       return 'upload',204
     elif request.method=='PUT':
      
       fileName=request.get_data().decode("utf-8")
-      print(app.config['WORK_FOLDER']+"testProject/"+projectID+"/"+fileName)
-      command="vtools phenotype --from_file "+app.config['WORK_FOLDER']+"testProject/"+projectID+"/"+fileName
+      print(WORK_FOLDER+projectID+"/"+fileName)
+      command="vtools phenotype --from_file "+WORK_FOLDER+projectID+"/"+fileName
       result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
       
       if "ERROR" in result.stderr:
@@ -158,13 +192,17 @@ def vtools_associate(projectID):
 
 @app.route("/associationResult/<projectID>",methods=['GET'])
 def get_AssociationResult(projectID):
-    resultfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_result.txt"
-    while not os.path.exists(resultfile):
+    resultfile=WORK_FOLDER+projectID+"/associate_result.txt"
+    starttime=time.time()
+    while not os.path.exists(resultfile) and time.time()-starttime<5:
         time.sleep(2)
-    f=open(resultfile,"r")
-    data=f.readlines()
-    f.close()
-    return ("\n").join(data),200
+    if os.path.exists(resultfile):
+        f=open(resultfile,"r")
+        data=f.readlines()
+        f.close()
+        return ("\n").join(data),200
+    else:
+        return "Association result is not available.",200
 
 
 
@@ -172,8 +210,8 @@ def get_AssociationResult(projectID):
 
 def run_vtools_associate(projectID,table,phenotype,method,groupby):
     command="vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db test.DB -f -j 8 -v 1" 
-    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_log.txt"
-    resultfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_result.txt"
+    logfile=WORK_FOLDER+projectID+"/associate_log.txt"
+    resultfile=WORK_FOLDER+projectID+"/associate_result.txt"
     
     if os.path.exists(logfile):
         os.remove(logfile)
@@ -201,7 +239,7 @@ def run_vtools_associate(projectID,table,phenotype,method,groupby):
 @app.route('/check/associate/<projectID>',methods=['GET'])
 def checkAssociateProgress(projectID):
     last=""
-    logfile=app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_log.txt"
+    logfile=WORK_FOLDER+projectID+"/associate_log.txt"
 
     if os.path.exists(logfile) and os.path.getsize(logfile) > 5:
         with open(logfile, "rb") as f:
