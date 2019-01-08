@@ -277,9 +277,9 @@ function selectDataSource(fileName){
 function checkImportProgress(){
     $.get("http://"+server+"/check/import/"+projectID,function(data){
             console.log(data)
-            if (data.includes("Importing")){
-                $("#importProgress").text(data)
-            }
+            
+            $("#importProgress").text(data)
+            
             if (data.includes("Importing genotypes: 100%")){
                 $('#dataDetail').show()
                 vtoolsShow("annotations -v0",false)
@@ -520,9 +520,9 @@ function addPhenotype(){
 function checkAssociateProgress(){
     $.get("http://"+server+"/check/associate/"+projectID,function(data){
             console.log(data)
-            if (data.includes("Testing for association")){
-                $("#associateProgress").text(data)
-            }
+            // if (data.includes("Testing for association")){
+            $("#associateProgress").text(data)
+            // }
             if (data.includes("Testing for association: 100%")){
                 
                 console.log("association done")

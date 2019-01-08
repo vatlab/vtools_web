@@ -116,7 +116,7 @@ def checkImportProgress(projectID):
     last=""
     logfile=WORK_FOLDER+projectID+"/import_log.txt"
 
-    if os.path.exists(logfile) and os.path.getsize(logfile) > 5:
+    if os.path.exists(logfile) and os.path.getsize(logfile) > 100:
         with open(logfile, "rb") as f:
             f.seek(-2, os.SEEK_END)     # Jump to the second last byte.
             
@@ -127,9 +127,12 @@ def checkImportProgress(projectID):
                     f.seek(0, 0)
                     break
             last = f.readline()
-        return last,200
+        if b"Importing genotypes" in last:
+            return last,200
+        else:
+            return "Preparing",200
     else:
-        return "preparing",200
+        return "Preparing",200
 
 
 
@@ -252,7 +255,10 @@ def checkAssociateProgress(projectID):
                     f.seek(0, 0)
                     break
             last = f.readline()
-        return last,200
+        if b"Testing for association" in last:
+            return last,200
+        else:
+            return "Preparing",200
     else:
         return "preparing",200
 
