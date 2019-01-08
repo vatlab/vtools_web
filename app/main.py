@@ -12,6 +12,8 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
 WORK_FOLDER=os.getenv("WORK_FOLDER")+"/testProject/"
+if not os.path.exists(WORK_FOLDER):
+     os.makedirs(WORK_FOLDER)
 
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
 # app.config['WORK_FOLDER'] = WORK_FOLDER

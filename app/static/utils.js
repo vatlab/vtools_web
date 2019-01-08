@@ -5,6 +5,7 @@ var projectID;
 
 $(document).ready(function(){
     server=env.server+"/vtoolsweb/"
+    // server=env.server+":8082"
 	console.log(server)
 
     $("#createRandomProject").click(function(){
