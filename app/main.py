@@ -214,7 +214,7 @@ def get_AssociationResult(projectID):
 
 
 def run_vtools_associate(projectID,table,phenotype,method,groupby):
-    command="vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db test.DB -f -j 8 -v 1" 
+    command="vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db association_result.DB -f -j 8 -v 1" 
     logfile=WORK_FOLDER+projectID+"/associate_log.txt"
     resultfile=WORK_FOLDER+projectID+"/associate_result.txt"
     

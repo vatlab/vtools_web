@@ -456,20 +456,39 @@ function vtoolsShow(option,display){
 
             case "show":
                 info={}
+
+
+                onTable=false
+                onDatabases=false
                 rows.forEach((row)=>{
                     cols=row.split(":")
-                    if(row===cols[0] && row!=="" && ! row.includes("test")){
-                        info["Annotation databases"].push(row.replace(/^\s+|\s+$/g, ''))
-                    }else{
+                    if (row.includes(":") && cols[0]!=="Variant tables" && cols[0]!=="Annotation databases"){
+                        info[cols[0]]=row.replace(cols[0]+":","").replace(/^\s+|\s+$/g, '')
+                    }else if (cols[0]==="Variant tables"){
                         info[cols[0]]=[row.replace(cols[0]+":","").replace(/^\s+|\s+$/g, '')]
+                        onTable=true
+                        onDatabases=false
+
+                    }else if (cols[0]==="Annotation databases"){
+                        info[cols[0]]=[row.replace(cols[0]+":","").split("(")[0].replace(/^\s+|\s+$/g, '')]
+                        onTable=false
+                        onDatabases=true
+                    }else if (! row.includes(":")){
+                        if (onTable){
+                            info["Variant tables"].push(row.replace(/^\s+|\s+$/g, ''))
+                        }else if (onDatabases){
+                            database=row.split("(")[0].replace(/^\s+|\s+$/g, '')
+                            if (database!==""){
+                                info["Annotation databases"].push(database)
+                            }
+                        }
                     }
-                    
                 })
                 if ("Annotation databases" in info){
-                    annoText=info["Annotation databases"].map((anno)=>anno.split("(")[0]).join(",")
+                    annoText=info["Annotation databases"].join(",")
                     $("#useFinished").text(annoText+" imported")  
                 }
-                console.log(info) 
+                break;
 
             default:
                 if(display){
