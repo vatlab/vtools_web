@@ -2,6 +2,7 @@ var server;
 var dataTable;
 var logs=[];
 var projectID;
+var fieldMap={};
 
 $(document).ready(function(){
     server=env.server+"/vtoolsweb/"
@@ -110,12 +111,28 @@ $(document).ready(function(){
 
     })
 
+    $("#addToCondition").click(function(){
+        console.log($("#selectCondition").val())
+        var condition=$("#selectCondition").val()+" "+$("#thirdSelection").val()+$("#fourthSelection").val()+$("#selectionInput").val()
+        if ($("#selectionFields").val()==="Annotation_databases"){
+            condition=$("#selectCondition").val()+" "+$("#secondSelection").val()+"."+$("#thirdSelection").val()+"_"+$("#fourthSelection").val()+$("#selectionInput").val()
+        }
+        $("#selectCondition").val(condition)
+        $("#newTable").val($("#secondSelection").val()+"-"+$("#thirdSelection").val()+"-"+$("#fourthSelection").val()+"-"+$("#selectionInput").val())
+    })  
+
 
 
 
     $("#selectRemoveOptions").change(function(){
         vtoolsRemove();
     })
+
+    $("#selectButton").click(function(){
+        vtoolsSelect()
+    })
+
+
 
 
 })
@@ -129,17 +146,29 @@ function createProject(){
     }).fail(function(xhr,status,error){
         alert(error)
     })
+}
 
+
+function vtoolsSelect(){
+    $.post("http://"+server+"/select",{"condition":$("#selectCondition").val(),"tableName":$("#newTable").val()},function(result){
+        console.log(result)
+        vtoolsShow("fields",false)
+        vtoolsShow("tables",true)
+        vtoolsShow("show",false)
+        
+    }).fail(function(xhr,status,error){
+        alert(error)
+    })
 }
 
 function getProject(){
     projectID=$("#projectID").val()
     $.get("http://"+server+"/project/"+projectID,function(result){
-        $('#dataDetail').show()
+        
+        vtoolsShow("fields",false)
         vtoolsShow("annotations -v0",false)
         vtoolsShow("tests",false)
         vtoolsShow("tables",false)
-        vtoolsShow("fields",false)
         vtoolsShow("show",true)
         
         $('#addPhenotype').show();
@@ -149,9 +178,9 @@ function getProject(){
         document.getElementById("defaultOpen").click();
         $("#showError").hide()
 
-        
 
         $.get("http://"+server+"/logs/"+projectID,function(logstring){
+            $('#dataDetail').show()
             logs=logstring.split("\n").filter((log)=>log!=="")
             console.log(logs)
             var i;
@@ -287,6 +316,7 @@ function checkImportProgress(){
                 vtoolsShow("tests",false)
                 vtoolsShow("tables",true)
                 vtoolsShow("fields",false)
+                vtoolsShow("show",false)
                 document.getElementById("defaultOpen").click();
                 $("#showError").hide()
 
@@ -401,6 +431,89 @@ function generateInfoTable(table,rows){
 
 }
 
+
+function populateDropDown(info){
+    $("#selectionFields").prop('selectedIndex',0);
+    $("#secondSelection").hide()
+    $("#thirdSelection").hide()
+    $("#fourthSelection").hide()
+    $("#selectionInput").hide()
+    $("#addToCondition").hide()
+    $("#selectCondition").val("")
+    $("#newTable").val("")
+
+    $("#selectionTables").empty()
+    $.each(info["Variant_tables"],(index,value)=>{
+        $("#selectionTables").append("<option value="+value+">"+value+"</option>")
+    })
+    $("#selectionTables").append("<option selected value='Please select'>Please select</option>");
+    $("#selectionTables").change(function(){
+        $("#selectCondition").val(this.value)
+    })
+
+
+    $("#selectionFields").change(function(){
+        var key=this.value
+        var vals=[]
+
+        switch(key) {
+            case "Variant_tables":
+                vals=info["Variant_tables"]
+                break;
+            case "Annotation_databases":
+                vals=info["Annotation_databases"]
+                break;
+        }
+        
+        $("#secondSelection").empty()
+        
+        $.each(vals,(index,value)=>{
+           $("#secondSelection").append("<option value="+value+">"+value+"</option>");
+        })
+        $("#secondSelection").append("<option selected value='Please select'>Please select</option>");
+        $("#secondSelection").show()
+        $("#secondSelection").change(function(){
+     
+            vals=fieldMap[this.value]
+            $("#thirdSelection").empty()
+            var typeMap={}
+            $.each(vals,(index,value)=>{
+                var field=value.split("(")[0].replace(/^\s+|\s+$/g, '')
+                var fieldType=value.split("(")[1]
+                typeMap[field]=fieldType
+                $("#thirdSelection").append("<option>"+field+"</option>")  
+            })
+            $("#thirdSelection").show()
+            $("#thirdSelection").append("<option selected value='Please select'>Please select</option>");
+            $("#thirdSelection").change(function(){
+               
+                $("#fourthSelection").empty()
+                if (typeMap[this.value]==="char"){
+                    $.each(["IS_NOT_NULL","IS_NULL","="],(index,value)=>{
+                        $("#fourthSelection").append("<option>"+value+"</option>")
+                    })
+                }else if (typeMap[this.value]==="int"){
+                    $.each([">","<","="],(index,value)=>{
+                        $("#fourthSelection").append("<option>"+value+"</option>")
+                    })
+
+                }
+                
+                $("#fourthSelection").show()
+                $("#fourthSelection").append("<option selected value='Please select'>Please select</option>");
+                $("#fourthSelection").change(function(){
+                    $("#selectionInput").show()
+                    $("#addToCondition").show()
+
+                })
+
+            })
+            
+        })
+    })
+}
+
+
 function vtoolsShow(option,display){
     
     // $.get("http://localhost:5000/show",{option:option
@@ -450,8 +563,22 @@ function vtoolsShow(option,display){
                 break;
 
             case "fields":
-                var fields=rows.map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
-                addOption("fields",fields)
+                var fields=rows.map((row)=>row.split(")")[0]).filter( function(e) { return (e.includes("("));} )
+             
+                fields.forEach((field)=>{
+                  
+                    var cols=field.split(".")
+                    if (!(cols[0] in fieldMap)){
+                        fieldMap[cols[0]]=[cols[1]]
+                    }else{
+                        if (!(fieldMap[cols[0]].includes(cols[1]))){
+                            fieldMap[cols[0]].push(cols[1])
+                        }
+                    }
+            
+                })
+             
+                // addOption("fields",fields)
                 break;
 
             case "show":
@@ -465,29 +592,31 @@ function vtoolsShow(option,display){
                     if (row.includes(":") && cols[0]!=="Variant tables" && cols[0]!=="Annotation databases"){
                         info[cols[0]]=row.replace(cols[0]+":","").replace(/^\s+|\s+$/g, '')
                     }else if (cols[0]==="Variant tables"){
-                        info[cols[0]]=[row.replace(cols[0]+":","").replace(/^\s+|\s+$/g, '')]
+                        info["Variant_tables"]=[row.replace(cols[0]+":","").replace(/^\s+|\s+$/g, '')]
                         onTable=true
                         onDatabases=false
 
                     }else if (cols[0]==="Annotation databases"){
-                        info[cols[0]]=[row.replace(cols[0]+":","").split("(")[0].replace(/^\s+|\s+$/g, '')]
+                        info["Annotation_databases"]=[row.replace(cols[0]+":","").split("(")[0].replace(/^\s+|\s+$/g, '')]
                         onTable=false
                         onDatabases=true
                     }else if (! row.includes(":")){
                         if (onTable){
-                            info["Variant tables"].push(row.replace(/^\s+|\s+$/g, ''))
+                            info["Variant_tables"].push(row.replace(/^\s+|\s+$/g, ''))
                         }else if (onDatabases){
                             database=row.split("(")[0].replace(/^\s+|\s+$/g, '')
                             if (database!==""){
-                                info["Annotation databases"].push(database)
+                                info["Annotation_databases"].push(database)
                             }
                         }
                     }
                 })
-                if ("Annotation databases" in info){
-                    annoText=info["Annotation databases"].join(",")
+                if ("Annotation_databases" in info && info["Annotation_databases"].length!==0){
+                    annoText=info["Annotation_databases"].join(",")
                     $("#useFinished").text(annoText+" imported")  
                 }
+                console.log(info)
+                populateDropDown(info)
                 break;
 
             default:
@@ -509,6 +638,9 @@ function vtoolsUse(){
     }).done(function(result){
         console.log(option+ "imported")
         
+        vtoolsShow("show",false)
+        vtoolsShow("fields",false)
+
         $("#useFinished").text(option+" imported")
 
     }).fail(function(xhr,status,error){

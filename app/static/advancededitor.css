@@ -322,3 +322,8 @@ label {
     font-size: 13px;
 
 }
+
+.selectionBox{
+    float:right;
+    width:200px;
+}

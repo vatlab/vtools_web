@@ -150,32 +150,48 @@ def upload_phenotype(projectID):
       fileName=request.get_data().decode("utf-8")
       print(WORK_FOLDER+projectID+"/"+fileName)
       command="vtools phenotype --from_file "+WORK_FOLDER+projectID+"/"+fileName
-      result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-      
-      if "ERROR" in result.stderr:
+      return runCommand(command)
+
+
+def runCommand(command):
+    commandCols=[]
+    for col in command.split(" "):
+        if "_" in col:
+            col=(" ").join(col.split("_"))
+        commandCols.append(col)
+    print(commandCols)
+    result = run(commandCols, stdout=PIPE, stderr=PIPE, universal_newlines=True)
+    print("stderr "+result.stderr)
+    print("stdout "+result.stdout)
+    if "ERROR" in result.stderr:
         return "Internal error", 500
-      else:
-        return  result.stdout,200
+    else:
+        if result.stdout=="":
+            return result.stderr,200
+        else:
+            return result.stdout,200
 
 
 
 @app.route('/output', methods = ['GET'])
 def vtools_output():
     command="vtools output variant chr pos ref alt --limit 20 --header"
-    result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    if "ERROR" in result.stderr:
-        return "Internal error", 500
-    else:
-        return  result.stdout,200
+    return runCommand(command)
 
 @app.route("/use",methods=['POST'])
 def vtools_use():
     option=request.form["option"]
     command="vtools use "+option
-    result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    print("stdout", result.stdout)
-    print("stderr", result.stderr)
-    return result.stderr
+    return runCommand(command)
+
+
+@app.route("/select",methods=['POST'])
+def vtools_select():
+    condition=request.form["condition"]
+    newTable=request.form["tableName"]
+    command="vtools select "+condition+" -t "+newTable
+    return runCommand(command)
+
 
 
 @app.route("/runAssociation/<projectID>",methods=['POST'])

@@ -97,13 +97,53 @@
 
 		<div id="Data" class="tabcontent">
 			<h3> Data </h3>
+			<fieldset id="dataAnnotation" style="display:none;">
+				<legend>Data Annotation</legend>
+				<select id="annotationOptions" size="1">
+				</select>
+				<button id="useButton">Add annotation</button>
+				<p id="useFinished"></p>
+			</fieldset>
+
 			<fieldset id="vtoolsSelect">
 				<legend>Select</legend>
-				<label  class="formLabel1" for="fields">Fields</label>
-				<select id="fields" size="1"></select><br>
-				<label  class="formLabel1" for="selectCondition">Condition</label>
-				<input class="std_input" id="selectCondition" type="text"><br>
-				<button id="selectButton">Select</button>
+				<!-- <select id="fields" size="1"></select><br> -->
+				<div id="fields" style="width:300px">
+					<label class="formLabel1" for="selectionTables">Tables</label>
+					<select id="selectionTables" class="selectionBox">
+						<option selected value="Plsease selection">Please select</option>
+					</select>
+
+					<label  class="formLabel1" for="fields">Fields</label>
+					<select id="selectionFields" class="selectionBox">
+						<option selected value="Plsease select">Please select</option>
+						<option value="Variant_tables">Variant_tables</option>
+						<option value="Annotation_databases">Annotation_databases</option>
+					</select>
+					<br>
+					<select id="secondSelection" style="display:none" class="selectionBox">
+						<option selected value="Plsease selection">Please select</option>
+					</select>
+					<br>
+					<select id="thirdSelection" style="display:none" class="selectionBox">
+						<option selected value="Plsease selection">Please select</option>
+					</select>
+					<select id="fourthSelection" style="display:none" class="selectionBox">
+						<option selected value="Plsease selection">Please select</option>
+					</select>
+					<input class="std_input" id="selectionInput" type="text" style="display:none;float:right"></input>
+
+					<button id="addToCondition" style="display:none; float:right">Add to Condition</button>
+					<br>
+				</div>
+				<br>	
+				<div style="float:left">
+					<label  class="formLabel1" for="selectCondition">Condition</label>
+					<input class="std_input" id="selectCondition" type="text"><br>
+					<label class="formLabel1" for="newTable">New table</label>
+					<input class="std_input" id="newTable" type="text"><br>
+					<button id="selectButton">Select</button>
+				<div>
 			</fieldset>
 			<fieldset id="vtoolsUpdate">
 				<legend>Update</legend>
@@ -175,13 +215,7 @@
 
 		<div id="Associate" class="tabcontent">
 		  <h3>Associate</h3>
-			  <fieldset id="dataAnnotation" style="display:none;">
-				<legend>Data Annotation</legend>
-				<select id="annotationOptions" size="1">
-				</select>
-				<button id="useButton">Add annotation</button>
-				<p id="useFinished"></p>
-			</fieldset>
+			  
 
 			<fieldset id="addPhenotype" style="display:none;">
 				<legend>Add Phenotype</legend>
