@@ -4,6 +4,7 @@ from subprocess import PIPE,run,Popen, STDOUT
 import sys
 from multiprocessing import Process
 from shutil import copy2
+import glob
 
 import time
 
@@ -66,7 +67,8 @@ def get_project(projectID):
             return "project doesn't exist",200
         else:
             os.chdir(directory)
-            return projectID,200
+            vcfFiles=glob.glob(directory+"/*.vcf")
+            return os.path.basename(vcfFiles[0]),200
 
 
 @app.route('/logs/<projectID>',methods=['POST','GET'])

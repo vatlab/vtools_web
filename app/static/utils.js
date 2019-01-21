@@ -26,8 +26,11 @@ $(document).ready(function(){
             contentType:false,
             processData:false, 
             success:function(data){
-                console.log("sucess")
-                addOption("existingSourceName",["",fileName])
+                // addOption("existingSourceName",["",fileName])
+                $(".existingSourceNameClass").each((idx,obj)=>{
+                  addOption(obj.id,["",fileName])
+                })
+
                 $('#dataSources').show();
                 $('#addPhenotype').show();  
             },
@@ -163,8 +166,11 @@ function vtoolsSelect(){
 
 function getProject(){
     projectID=$("#projectID").val()
-    $.get("http://"+server+"/project/"+projectID,function(result){
-        
+    $.get("http://"+server+"/project/"+projectID,function(fileName){
+        $(".existingSourceNameClass").each((idx,obj)=>{
+          addOption(obj.id,["",fileName])
+        })
+
         vtoolsShow("fields",false)
         vtoolsShow("annotations -v0",false)
         vtoolsShow("tests",false)
@@ -271,9 +277,13 @@ function addOption(id,contents){
 function loadSampleData(){
     var fileName="10k_test_2k.vcf"
     $("#localFileName").val(fileName);
-    addOption("existingSourceName",["",fileName])
+    
     $('#dataSources').show();
     $('#addPhenotype').show();
+    $(".existingSourceNameClass").each((idx,obj)=>{
+      addOption(obj.id,["",fileName])
+  
+    })
     $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"data"}).done(function(message){
         console.log(message)
     })
