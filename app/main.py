@@ -8,7 +8,7 @@ import glob
 
 import time
 
-from flask import Flask, send_file,request,redirect
+from flask import Flask, send_file,request,redirect,jsonify
 from werkzeug.utils import secure_filename
 app = Flask(__name__)
 
@@ -87,6 +87,38 @@ def logs(projectID):
         f.close()
         return ("\n").join(data),200
 
+@app.route('/fileInfo/<projectID>',methods=['GET'])
+def get_fileInfo(projectID):
+    varFields=[]
+    genoFields=[]
+    genoExists=[]
+    varExists=[]
+    firstLine=""
+    if request.method=='GET':
+        fileName=request.args.get('fileName',None,type=None)
+        if fileName !="":
+            with open (WORK_FOLDER+projectID+"/"+fileName,"r") as lines:
+                for line in lines:
+                    if line.startswith("#"):
+                        if "##INFO=<ID=" in line:
+                            varFields.append(line.split(",")[0].replace("##INFO=<ID=",""))
+                        elif "##FORMAT=<ID=" in line:
+                            genoFields.append(line.split(",")[0].replace("##FORMAT=<ID=",""))
+                    else:
+                        firstLine=line
+                        break
+            cols=firstLine.split("\t")
+            
+            for var in varFields:
+                if var in cols[7]:
+                    varExists.append(var)
+            for geno in genoFields:
+                if geno in cols[8]:
+                    genoExists.append(geno)
+            return jsonify({"genoFields":genoExists,"varFields":varExists}),200
+        else: 
+            return "file name is empty",500
+
 
 
 
@@ -158,8 +190,8 @@ def upload_phenotype(projectID):
 def runCommand(command):
     commandCols=[]
     for col in command.split(" "):
-        if "_" in col:
-            col=(" ").join(col.split("_"))
+        # if "-" in col:
+        #     col=(" ").join(col.split("-"))
         commandCols.append(col)
     print(commandCols)
     result = run(commandCols, stdout=PIPE, stderr=PIPE, universal_newlines=True)
@@ -193,6 +225,30 @@ def vtools_select():
     newTable=request.form["tableName"]
     command="vtools select "+condition+" -t "+newTable
     return runCommand(command)
+
+
+@app.route("/update",methods=['POST'])
+def vtools_update():
+    table=request.form["table"]
+    method=request.form["method"]
+    command="vtools update "+table
+    if method=="fromFile":
+        fromFile=request.form["fileName"]
+        selectedGeno=request.form["selectedGeno"]
+        selectedVar=request.form["selectedVar"]
+        if fromFile!="":
+            command+=" --from_file "+fromFile
+        if len(selectedGeno)>0:
+            command+=" --geno_info "+selectedGeno
+        if len(selectedVar)>0:
+            command+=" --var_info "+selectedVar
+    elif method=="fromStat":
+        stat=request.form["stat"]
+        if stat!="":
+            command+=" --from_stat "+stat
+    print(command)
+    return runCommand(command)
+
 
 
 

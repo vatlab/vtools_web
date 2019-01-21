@@ -110,7 +110,7 @@
 				<!-- <select id="fields" size="1"></select><br> -->
 				<div id="fields" style="width:300px">
 					<label class="formLabel1" for="selectionTables">Tables</label>
-					<select id="selectionTables" class="selectionBox">
+					<select id="selectionTables" class="selectionBox existingTables">
 						<option selected value="Plsease selection">Please select</option>
 					</select>
 
@@ -147,14 +147,47 @@
 			</fieldset>
 			<fieldset id="vtoolsUpdate">
 				<legend>Update</legend>
-				<label  class="formLabel1" for="existingSourceName">From file</label>
-        		<select  class="dropdowns existingSourceNameClass" name="existingSourceName" id="existingSourceName1"></select>
-        		<label  class="formLabel1" for="updateVarInfo">var_info</label>
-        		<select  class="dropdowns" name="updateVarInfo" id="updateVarInfo"></select>
-        		<label  class="formLabel1" for="updateGenoInfo">geno_info</label>
-        		<select  class="dropdowns" name="updateGenoInfo" id="updateGenoInfo"></select>
-        		<label  class="formLabel1" for="updateCondition">From stat</label>
-        		<input class="std_input" id="updateCondition" type="text">
+				<label class="formLabel1" for="updateTables">Tables</label>
+					<select id="updateTables" class="selectionBox existingTables">
+						<option selected value="Plsease selection">Please select</option>
+					</select>
+
+				<label  class="formLabel1" for="updateCheckbox">Update from stat:</label>
+				<input type="checkbox" id="updateCheckbox">
+
+				<div id="div_fromFile">
+					<label  class="formLabel1" for="existingSourceName">From file</label>
+	        		<select  class="dropdowns existingSourceNameClass" name="existingSourceName" id="existingSourceNameUpdate"></select>
+	        		<!-- <legend>Select an external file to upload</legend>
+					<form id="dataUploadExternal"  enctype="multipart/form-data">
+					    <label class="formLabel1" for="externalFile">File Name</label>
+					    <input class="std_input" id="externalFile" type="text">
+					    <input id="uploadExternalFile" type = "file" name = "datafile" >
+			         	<input type = "submit">
+					</form> -->
+					<div id="div_varInfo" style="display:none">
+		        		<label  class="formLabel1" for="updateVarInfo">var_info</label>
+		        		<select  class="dropdowns" name="updateVarInfo" id="updateVarInfo" multiple></select>
+	        		</div>
+	        		<div id="div_genoInfo" style="display:none">
+	        			<label  class="formLabel1" for="updateGenoInfo">geno_info</label>
+	        			<select  class="dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
+	        		</div>
+	        	</div>
+        		<div id="div_fromStat" style="display:none">
+        			<label  class="formLabel1" for="updateStates">From stat</label>
+	        		<select id="updateStates" multiple> 
+						<option>GT=#(GT)</option>
+						<option>alt=#(alt)</option>
+						<option>hom=#(hom)</option>
+						<option>het=#(het)</option>
+						<option>other=#(other)</option>
+						<option>wtGT=#(wtGT)</option>
+						<option>mutGT=#(mutGT)</option>
+						<option>missing=#(missing)</option>
+						<option>maf=maf()</option>
+	        		</select>
+        		</div>
         		<button id="updateButton">Update</button>   
 			</fieldset>
 			<fieldset id="vtoolsRemove">

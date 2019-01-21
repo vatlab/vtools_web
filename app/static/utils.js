@@ -16,6 +16,29 @@ $(document).ready(function(){
     $("#dataUpload").submit(function(e){
         e.preventDefault();
         var formData= new FormData()
+        var fileName = $('#uploadExternalFile')[0].files[0].name;
+        $("#externalFile").val(fileName);
+        formData.append('datafile',$('#uploadExternalFile')[0].files[0])
+        $.ajax({
+            url:"http://"+server+"/data/"+projectID,
+            data:formData,
+            type:'POST',
+            contentType:false,
+            processData:false, 
+            success:function(data){
+                // addOption("existingSourceName",["",fileName])
+                $(".existingSourceNameClass").each((idx,obj)=>{
+                  addOption(obj.id,["",fileName])
+                })
+            }
+        });
+
+    })
+
+
+    $("#dataUploadExternal").submit(function(e){
+        e.preventDefault();
+        var formData= new FormData()
         var fileName = $('#uploadData')[0].files[0].name;
         $("#localFileName").val(fileName);
         formData.append('datafile',$('#uploadData')[0].files[0])
@@ -36,6 +59,8 @@ $(document).ready(function(){
             },
          
         });
+
+
 
     })
 
@@ -96,6 +121,11 @@ $(document).ready(function(){
         selectDataSource(this.value);
     });
 
+    $('#existingSourceNameUpdate').change(function() {
+        getFileInfo(this.value)
+    });
+
+
     $('#showProjectOptions').change(function(){
         vtoolsShow(this.value,true);
     });
@@ -132,11 +162,17 @@ $(document).ready(function(){
     })
 
     $("#selectButton").click(function(){
-        vtoolsSelect()
+        vtoolsSelect();
     })
 
+    $("#updateButton").click(function(){
+        vtoolsUpdate();
+    })
 
-
+    $("#updateCheckbox").click(function(){
+        $("#div_fromStat").toggle()
+        $("#div_fromFile").toggle()
+    })
 
 })
 
@@ -162,6 +198,47 @@ function vtoolsSelect(){
     }).fail(function(xhr,status,error){
         alert(error)
     })
+}
+
+
+function vtoolsUpdate(){
+
+    if ($("#updateCheckbox").is(":checked")){
+        console.log($("#updateStates").val().join(" "))
+        $.post("http://"+server+"/update",{
+            "table":$("#updateTables").val(),
+            "stat":$("#updateStates").val().join(" "),
+            "method":"fromStat"
+        },function(result){
+            vtoolsShow("show",false)
+            vtoolsShow("fields",false)
+        }).fail(function(xhr,status,error){
+            alert(error)
+        })
+    }else{
+        var selectedGeno=""
+        var selectedVar=""
+        if ($("#updateGenoInfo").val()!==undefined){
+            selectedGeno=$("#updateGenoInfo").val().join(",")
+        }
+        if ($("updateVarInfo").val()!==undefined){
+            selectedVar=$("#updateVarInfo").val().join(",")
+        }
+
+        $.post("http://"+server+"/update",{
+            "table":$("#updateTables").val(),
+            "fileName":$("#existingSourceNameUpdate").val(),
+            "selectedGeno":selectedGeno,
+            "selectedVar":selectedVar,
+            "method":"fromFile"
+        },function(result){
+            vtoolsShow("show",false)
+            vtoolsShow("fields",false)
+        }).fail(function(xhr,status,error){
+            alert(error)
+        })
+    }
+
 }
 
 function getProject(){
@@ -271,6 +348,26 @@ function addOption(id,contents){
     // dropdown.options.add(optn);
 }
 
+
+function getFileInfo(fileName){
+
+    $.get("http://"+server+"/fileInfo/"+projectID,{"fileName":fileName}).done(function(result){
+        if (result["genoFields"].length>0){
+            $("#div_genoInfo").show()
+            addOption("updateGenoInfo",result["genoFields"])
+        }else{
+            $("#div_genoInfo").hide()
+        }
+        if (result["varFields"].length>0){
+            $("#div_varInfo").show()
+            addOption("updateVarInfo",result["varFields"])
+        }else{
+            $("#div_varInfo").hide()
+        }
+    })
+
+
+}
 
 
 
@@ -452,13 +549,26 @@ function populateDropDown(info){
     $("#selectCondition").val("")
     $("#newTable").val("")
 
-    $("#selectionTables").empty()
-    $.each(info["Variant_tables"],(index,value)=>{
-        $("#selectionTables").append("<option value="+value+">"+value+"</option>")
-    })
-    $("#selectionTables").append("<option selected value='Please select'>Please select</option>");
-    $("#selectionTables").change(function(){
-        $("#selectCondition").val(this.value)
+    // $("#selectionTables").empty()
+    // $.each(info["Variant_tables"],(index,value)=>{
+    //     $("#selectionTables").append("<option value="+value+">"+value+"</option>")
+    // })
+    // $("#selectionTables").append("<option selected value='Please select'>Please select</option>");
+    // $("#selectionTables").change(function(){
+    //     $("#selectCondition").val(this.value)
+    // })
+
+
+    $(".existingTables").each((id,object)=>{
+        console.log(object.id)
+        $("#"+object.id).empty()
+        $.each(info["Variant_tables"],(index,value)=>{
+            $("#"+object.id).append("<option value="+value+">"+value+"</option>")
+        })
+        $("#"+object.id).append("<option selected value='Please select'>Please select</option>");
+        $("#selectionTables").change(function(){
+            $("#selectCondition").val(this.value)
+        })
     })
 
 
@@ -657,6 +767,9 @@ function vtoolsUse(){
         alert(error)
     })
 }
+
+
+
 
 
 function addPhenotype(){
