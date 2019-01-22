@@ -209,7 +209,16 @@ def runCommand(command):
 
 @app.route('/output', methods = ['GET'])
 def vtools_output():
-    command="vtools output variant chr pos ref alt --limit 20 --header"
+    outputTable=request.args.get("outputTable",None,type=None)
+    outputTableFields=request.args.get("outputTableFields",None,type=None)
+    # outputAnno=request.args.get("outputAnno",None,type=None)
+    outputAnnoFields=request.args.get("outputAnnoFields",None,type=None)
+    command="vtools output "+outputTable+" "
+    if len(outputTableFields)>0:
+        command+=outputTableFields+" "
+    if len(outputAnnoFields)>0:
+        command+=outputAnnoFields
+    command+=" --limit 20 --header"
     return runCommand(command)
 
 @app.route("/use",methods=['POST'])

@@ -102,7 +102,7 @@ $(document).ready(function(){
     });
 
     $("#outputButton").click(function(){
-        outputData();
+        vtoolsOutput();
     });
 
     $("#sampleData").click(function(){
@@ -174,7 +174,26 @@ $(document).ready(function(){
         $("#div_fromFile").toggle()
     })
 
+
+    $('legend.togvis').click(function() {
+        var $this = $(this);
+        var parent = $this.parent();
+        var contents = parent.contents().not(this);
+        if (contents.length > 0) {
+            $this.data("contents", contents.remove());
+        } else {
+            $this.data("contents").appendTo(parent);
+        }
+        return false;
+    });
+
+    
+
 })
+
+
+
+
 
 function createProject(){
     $.post("http://"+server+"/project",function(result){
@@ -456,9 +475,14 @@ function importFile(){
 
 
 
-function outputData(){
+function vtoolsOutput(){
     // $.get("http://localhost:5000/output",{
-    $.get("http://"+server+"/output",function(data){
+    $.get("http://"+server+"/output",{
+            "outputTable":$("#outputTables").val(),
+            "outputTableFields":$("#outputTableFields").val().join(" "),
+            // "outputAnno":$("#outputAnnos").val(),
+            "outputAnnoFields":$("#outputAnnoFields").val().join(" "),
+    }).done(function(data){
         var rows=data.split("\n")
         generateDataTable("#dataTable",rows)
     })
@@ -539,7 +563,34 @@ function generateInfoTable(table,rows){
 }
 
 
-function populateDropDown(info){
+function populateDropDownOutput(info){
+
+    $("#outputTables").change(function(){
+        vals=fieldMap[this.value]
+        $("#outputTableFields").empty()
+        $.each(vals,(index,value)=>{
+            var field=value.split("(")[0].replace(/^\s+|\s+$/g, '')
+            $("#outputTableFields").append("<option>"+field+"</option>")  
+        })
+    })
+
+
+    $("#outputAnnoFields").empty()
+    info["Annotation_databases"].forEach((key)=>{        
+        vals=fieldMap[key]
+        $.each(vals,(index,value)=>{
+            var field=value.split("(")[0].replace(/^\s+|\s+$/g, '')
+            $("#outputAnnoFields").append("<option>"+key+"."+field+"</option>")  
+        })
+
+    })
+
+
+
+}
+
+
+function populateDropDownSelect(info){
     $("#selectionFields").prop('selectedIndex',0);
     $("#secondSelection").hide()
     $("#thirdSelection").hide()
@@ -586,6 +637,12 @@ function populateDropDown(info){
         }
         
         $("#secondSelection").empty()
+        $("#thirdSelection").empty()
+        $("#fourthSelection").empty()
+        $("#secondSelection").hide()
+        $("#thirdSelection").hide()
+        $("#fourthSelection").hide()
+        $("#selectionInput").hide()
         
         $.each(vals,(index,value)=>{
            $("#secondSelection").append("<option value="+value+">"+value+"</option>");
@@ -593,6 +650,8 @@ function populateDropDown(info){
         $("#secondSelection").append("<option selected value='Please select'>Please select</option>");
         $("#secondSelection").show()
         $("#secondSelection").change(function(){
+            
+
      
             vals=fieldMap[this.value]
             $("#thirdSelection").empty()
@@ -608,6 +667,9 @@ function populateDropDown(info){
             $("#thirdSelection").change(function(){
                
                 $("#fourthSelection").empty()
+                $("#fourthSelection").hide()
+                $("#selectionInput").hide()
+
                 if (typeMap[this.value]==="char"){
                     $.each(["IS_NOT_NULL","IS_NULL","="],(index,value)=>{
                         $("#fourthSelection").append("<option>"+value+"</option>")
@@ -736,7 +798,8 @@ function vtoolsShow(option,display){
                     $("#useFinished").text(annoText+" imported")  
                 }
                 console.log(info)
-                populateDropDown(info)
+                populateDropDownSelect(info)
+                populateDropDownOutput(info)
                 break;
 
             default:
@@ -862,3 +925,6 @@ function openTab(evt, tabName) {
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
 }
+
+
+

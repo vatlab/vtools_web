@@ -323,6 +323,17 @@ label {
 
 }
 
+/*label,select {
+    display: inline-block;
+}*/
+
+.multiSelection{
+    display: inline-block;
+    vertical-align: middle;
+
+}
+
+
 .selectionBox{
     float:right;
     width:200px;

@@ -104,9 +104,9 @@
 				<button id="useButton">Add annotation</button>
 				<p id="useFinished"></p>
 			</fieldset>
-
+			<div>
 			<fieldset id="vtoolsSelect">
-				<legend>Select</legend>
+				<legend class="togvis">Select</legend>
 				<!-- <select id="fields" size="1"></select><br> -->
 				<div id="fields" style="width:300px">
 					<label class="formLabel1" for="selectionTables">Tables</label>
@@ -120,11 +120,11 @@
 						<option value="Variant_tables">Variant_tables</option>
 						<option value="Annotation_databases">Annotation_databases</option>
 					</select>
-					<br>
+			
 					<select id="secondSelection" style="display:none" class="selectionBox">
 						<option selected value="Plsease selection">Please select</option>
 					</select>
-					<br>
+			
 					<select id="thirdSelection" style="display:none" class="selectionBox">
 						<option selected value="Plsease selection">Please select</option>
 					</select>
@@ -134,9 +134,9 @@
 					<input class="std_input" id="selectionInput" type="text" style="display:none;float:right"></input>
 
 					<button id="addToCondition" style="display:none; float:right">Add to Condition</button>
-					<br>
+					
 				</div>
-				<br>	
+			
 				<div style="float:left">
 					<label  class="formLabel1" for="selectCondition">Condition</label>
 					<input class="std_input" id="selectCondition" type="text"><br>
@@ -145,8 +145,9 @@
 					<button id="selectButton">Select</button>
 				<div>
 			</fieldset>
+			</div>
 			<fieldset id="vtoolsUpdate">
-				<legend>Update</legend>
+				<legend class="togvis">Update</legend>
 				<label class="formLabel1" for="updateTables">Tables</label>
 					<select id="updateTables" class="selectionBox existingTables">
 						<option selected value="Plsease selection">Please select</option>
@@ -190,6 +191,8 @@
         		</div>
         		<button id="updateButton">Update</button>   
 			</fieldset>
+
+	
 			<fieldset id="vtoolsRemove">
 				<legend>Remove</legend>
 				<select id="selectRemoveOptions">
@@ -239,7 +242,35 @@
 		  <h3>Output</h3>
 		  <fieldset id="outputData">
 			<legend>Data Output</legend>
+			<div class="form-group">
+				<div>
+					<label for="outputTables"  >Tables</label>
+						<select id="outputTables" class="selectionBox existingTables" >
+							<option selected value="Plsease selection">Please select</option>
+						</select>
+				</div>
+			</div>
+			<div style="height:60px">
+				<div>
+					<label for="outputTableFields" >Table Fields</label>
+						<select id="outputTableFields" class="selectionBox" multiple >
+						</select>
+				</div>
+			</div>	
+			<!-- <div >
+			<label  for="outputAnnos">Annotations</label>
+				<select id="outputAnnos" class="selectionBox" >
+					<option selected value="Plsease selection">Please select</option>
+				</select>
+			</div> -->
+			<div style="height:60px">
+			<label  for="outputAnnoFields" >Anno Fields</label>
+				<select id="outputAnnoFields" class="selectionBox" multiple>
+				</select>
+			</div>
+			
 			<button id="outputButton">Output</button>
+		
 		  </fieldset>
 		  <fieldset id="vtoolsCompare">
 			<legend>Compare</legend>
