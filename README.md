@@ -1,7 +1,8 @@
 Vtools website
-1. creat an env.js file in static folder, the content of env.js file is:
+1. For variant tools, checkout branch vtools_web from gitlab (https://bcbgitlab1.mdanderson.edu/jma7/VariantTools), assume variant tools has been installed and running.
+   Creat an env.js file in app/static folder, the content of env.js file is:
    ```
-   env={server: server IP address}
+   env={server: server IP address(for example, localhost)}
    ```
 2.	```
 	cd vtools_website/app/
