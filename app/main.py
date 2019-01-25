@@ -189,7 +189,7 @@ def upload_phenotype(projectID):
 
 def runCommand(command):
     commandCols=[]
-    for col in command.split(" "):
+    for col in command.split():
         # if "-" in col:
         #     col=(" ").join(col.split("-"))
         commandCols.append(col)
@@ -215,9 +215,9 @@ def vtools_output():
     outputAnnoFields=request.args.get("outputAnnoFields",None,type=None)
     command="vtools output "+outputTable+" "
     if len(outputTableFields)>0:
-        command+=outputTableFields+" "
+        command+=outputTableFields
     if len(outputAnnoFields)>0:
-        command+=outputAnnoFields
+        command+=" "+outputAnnoFields
     command+=" --limit 20 --header"
     return runCommand(command)
 

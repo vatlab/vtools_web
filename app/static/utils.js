@@ -13,30 +13,30 @@ $(document).ready(function(){
         createProject();
     })
 
+    // $("#dataUploadExternal").submit(function(e){
+    //     e.preventDefault();
+    //     var formData= new FormData()
+    //     var fileName = $('#uploadExternalFile')[0].files[0].name;
+    //     $("#externalFile").val(fileName);
+    //     formData.append('datafile',$('#uploadExternalFile')[0].files[0])
+    //     $.ajax({
+    //         url:"http://"+server+"/data/"+projectID,
+    //         data:formData,
+    //         type:'POST',
+    //         contentType:false,
+    //         processData:false, 
+    //         success:function(data){
+    //             // addOption("existingSourceName",["",fileName])
+    //             $(".existingSourceNameClass").each((idx,obj)=>{
+    //               addOption(obj.id,["",fileName])
+    //             })
+    //         }
+    //     });
+
+    // })
+
+
     $("#dataUpload").submit(function(e){
-        e.preventDefault();
-        var formData= new FormData()
-        var fileName = $('#uploadExternalFile')[0].files[0].name;
-        $("#externalFile").val(fileName);
-        formData.append('datafile',$('#uploadExternalFile')[0].files[0])
-        $.ajax({
-            url:"http://"+server+"/data/"+projectID,
-            data:formData,
-            type:'POST',
-            contentType:false,
-            processData:false, 
-            success:function(data){
-                // addOption("existingSourceName",["",fileName])
-                $(".existingSourceNameClass").each((idx,obj)=>{
-                  addOption(obj.id,["",fileName])
-                })
-            }
-        });
-
-    })
-
-
-    $("#dataUploadExternal").submit(function(e){
         e.preventDefault();
         var formData= new FormData()
         var fileName = $('#uploadData')[0].files[0].name;
@@ -477,11 +477,19 @@ function importFile(){
 
 function vtoolsOutput(){
     // $.get("http://localhost:5000/output",{
+    let outputTableFields=""
+    let outputAnnoFields=""
+    if ($("#outputTableFields").val()!==null){
+        outputTableFields=$("#outputTableFields").val().join(" ")
+    }
+    if ($("#outputAnnoFields").val()!==null){
+        outputAnnoFields=$("#outputAnnoFields").val().join(" ")
+    }
     $.get("http://"+server+"/output",{
             "outputTable":$("#outputTables").val(),
-            "outputTableFields":$("#outputTableFields").val().join(" "),
+            "outputTableFields":outputTableFields,
             // "outputAnno":$("#outputAnnos").val(),
-            "outputAnnoFields":$("#outputAnnoFields").val().join(" "),
+            "outputAnnoFields":outputAnnoFields,
     }).done(function(data){
         var rows=data.split("\n")
         generateDataTable("#dataTable",rows)
