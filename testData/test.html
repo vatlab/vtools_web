@@ -60,13 +60,15 @@
     d3.tsv("fake_pvalue.tsv",function(fdata){
         var numberPoints = fdata.length
         var chrs= new Set (fdata.map((ele)=>ele.chr))
+        var myColor = d3.scale.category10()
+        
         var offSets={0:{max:0,start:0}}
         for (let chr of chrs){
             var filterData=fdata.filter((ele)=>ele.chr===chr).map((ele)=>Number(ele.pos))
             offSets[chr]={min:Math.min(...filterData),max:Math.max(...filterData),start:offSets[chr-1].start+offSets[chr-1].max}
         }
         delete offSets[0]
-        var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,selected:false}))
+        var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false}))
         console.log(data)
             // generate random dataset
         // var randomX = d3.random.normal(0, 30);
@@ -213,6 +215,7 @@
             context.beginPath();
             context.arc(cx, cy, r, 0, 2 * Math.PI);
             context.closePath();
+            context.fillStyle=myColor(point.chr)
             context.fill();
             context.stroke();
         }
