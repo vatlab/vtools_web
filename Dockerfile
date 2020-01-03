@@ -9,3 +9,4 @@ ENV NGINX_MAX_UPLOAD 4g
 # ENV STATIC_INDEX 0
 
 COPY ./app /app
+
