@@ -187,6 +187,7 @@
 
         // get the canvas drawing context
         var context = canvas.node().getContext('2d');
+        console.log("main")
 
         draw();
 
@@ -204,18 +205,20 @@
             // if an index parameter is supplied, we only want to draw points
             // with indices in that array
             if(index) {
+                console.log("draw chr")
                 index.forEach(function(i) {
                     var point = data[i];
-                    if(!point.selected) {
+                    // if(!point.selected) {
                         drawPoint(point, pointRadius);
-                    }
-                    else {
-                        active = point;
-                    }
+                    // }
+                    // else {
+                        // active = point;
+                    // }
                 });
             }
             // draw the full dataset otherwise
             else {
+                console.log("draw all")
                 data.forEach(function(point) {
                     if(!point.selected) {
                         drawPoint(point, pointRadius);
@@ -257,31 +260,34 @@
             // map the clicked point to the data space
             var xClicked = xScale.invert(mouse[0]);
             var yClicked = yScale.invert(mouse[1]);
-
             // find the closest point in the dataset to the clicked point
             var closest = quadTree.find([xClicked, yClicked]);
 
             // map the co-ordinates of the closest point to the canvas space
             var dX = xScale(closest.x);
             var dY = yScale(closest.y);
+            var chrData = data.filter((ele)=>ele.chr===closest.chr).map((ele)=>ele.i)
+            draw(chrData)
+        
 
-            // register the click if the clicked point is in the radius of the point
-            var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
+            // // register the click if the clicked point is in the radius of the point
+            // var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
 
-            if(distance < pointRadius) {
-                if(selectedPoint) {
-                    data[selectedPoint].selected = false;
-                }
-                closest.selected = true;
-                selectedPoint = closest.i;
+            // if(distance < pointRadius) {
+            //     if(selectedPoint) {
+            //         data[selectedPoint].selected = false;
+            //     }
+            //     closest.selected = true;
+            //     selectedPoint = closest.i;
 
-                // redraw the points
-                draw();
-            }
+            //     // redraw the points
+            //     draw();
+            // }
         }
 
         function onZoom() {
             clearTimeout(zoomEndTimeout);
+            console.log("On zoom")
             draw(randomIndex);
             xAxisSvg.call(xAxis);
             // yAxisSvg.call(yAxis);
@@ -290,6 +296,7 @@
         function onZoomEnd() {
             // when zooming is stopped, create a delay before
             // redrawing the full plot
+            console.log("On zoom end")
             zoomEndTimeout = setTimeout(function() {
                 draw();
             }, zoomEndDelay);
