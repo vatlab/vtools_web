@@ -187,7 +187,6 @@
 
         // get the canvas drawing context
         var context = canvas.node().getContext('2d');
-        console.log("main")
 
         draw();
 
@@ -205,7 +204,6 @@
             // if an index parameter is supplied, we only want to draw points
             // with indices in that array
             if(index) {
-                console.log("draw chr")
                 index.forEach(function(i) {
                     var point = data[i];
                     // if(!point.selected) {
@@ -238,10 +236,64 @@
             }
         }
 
+
+        function drawChr(index,selectedChr){
+            clearTimeout(zoomEndTimeout);
+            console.log("draw chr")
+            context.clearRect(0, 0, fullWidth, fullHeight);
+            context.strokeWidth = 1;
+            context.strokeStyle = 'white';
+            var scale=1
+            // var translate=[offSets[selectedChr].start,offSets[selectedChr].start+offSets[selectedChr].max]
+            var chr_scale=d3.scale.linear()
+                .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
+                .range([0, width]);
+            svg.selectAll(".axis").remove();
+            // var chrxAxis = d3.svg.axis().tickSize(0)
+
+            // var chrxAxisSvg = svg.append('g')
+            //     .attr('class', 'x axis')
+            //     .attr('transform', 'translate(0,' + height + ')')
+            //     .call(chrxAxis);
+     
+            index.forEach(function(i) {
+                var point = data[i];
+                drawChrPoint(point, pointRadius,chr_scale);
+                // chrxAxisSvg.call(chrxAxis);
+
+            });
+            svg.append("text")
+                .attr("text-anchor", "middle") 
+                .attr("transform", "translate("+ (width/2) +","+(height+20)+")") 
+                .text("chr"+selectedChr);
+            
+            svg.append('g')
+            .attr('class', 'y axis')
+            .call(yAxis);
+            
+            // chrxAxisSvg.call(chrxAxis);
+            // yAxisSvg.call(yAxis);
+
+                
+        }
+
+        function drawChrPoint(point,r,chr_scale){
+            var cx = chr_scale(point.x);
+            var cy = yScale(point.y);
+            context.beginPath();
+            context.arc(cx, cy, r, 0, 2 * Math.PI);
+            context.closePath();
+            context.fillStyle=myColor(point.chr)
+            context.fill();
+            context.stroke();
+
+        }
+
+
+
         function drawPoint(point, r) {
             var cx = xScale(point.x);
             var cy = yScale(point.y);
-
             // NOTE; each point needs to be drawn as its own path
             // as every point needs its own stroke. you can get an insane
             // speed up if the path is closed after all the points have been drawn
@@ -266,9 +318,13 @@
             // map the co-ordinates of the closest point to the canvas space
             var dX = xScale(closest.x);
             var dY = yScale(closest.y);
-            var chrData = data.filter((ele)=>ele.chr===closest.chr).map((ele)=>ele.i)
-            draw(chrData)
-        
+            var selectedChr= closest.chr
+            var chrData = data.filter((ele)=>ele.chr===selectedChr).map((ele)=>ele.i)
+
+            
+
+            drawChr(chrData,selectedChr)
+
 
             // // register the click if the clicked point is in the radius of the point
             // var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
@@ -285,9 +341,11 @@
             // }
         }
 
+        
+
         function onZoom() {
             clearTimeout(zoomEndTimeout);
-            console.log("On zoom")
+            console.log("On zoom ", randomIndex.length)
             draw(randomIndex);
             xAxisSvg.call(xAxis);
             // yAxisSvg.call(yAxis);
@@ -296,7 +354,6 @@
         function onZoomEnd() {
             // when zooming is stopped, create a delay before
             // redrawing the full plot
-            console.log("On zoom end")
             zoomEndTimeout = setTimeout(function() {
                 draw();
             }, zoomEndDelay);
