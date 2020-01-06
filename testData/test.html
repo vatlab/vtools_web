@@ -57,6 +57,18 @@
     var width = fullWidth - margin.left - margin.right;
     var height = fullHeight - margin.top - margin.bottom;
 
+    function median(values){
+      if(values.length ===0) return 0;
+
+      values.sort(function(a,b){
+        return a-b;
+      });
+
+      var half = Math.floor(values.length / 2);
+      return values[half];
+
+    }
+
     d3.tsv("fake_pvalue.tsv",function(fdata){
         var numberPoints = fdata.length
         var chrs= new Set (fdata.map((ele)=>ele.chr))
@@ -65,10 +77,11 @@
         var offSets={0:{max:0,start:0}}
         for (let chr of chrs){
             var filterData=fdata.filter((ele)=>ele.chr===chr).map((ele)=>Number(ele.pos))
-            offSets[chr]={min:Math.min(...filterData),max:Math.max(...filterData),start:offSets[chr-1].start+offSets[chr-1].max}
+            offSets[chr]={min:Math.min(...filterData),max:Math.max(...filterData),start:offSets[chr-1].start+offSets[chr-1].max,median:median(filterData)}
         }
         delete offSets[0]
         var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false}))
+        console.log(offSets)
         console.log(data)
             // generate random dataset
         // var randomX = d3.random.normal(0, 30);
@@ -117,7 +130,15 @@
             .domain([0, yRange[1] + 3])
             .range([height, 0]);
 
-        var xdata = ["1", "100", "1000", "5000", "10000", "150000", "300000", "500000", "800000", "1800000"];
+        var xdata =[]
+        var xdataMap={}
+        Object.keys(offSets).forEach(key=>{
+            let value=offSets[key].median+offSets[key].start;
+            xdata.push(value);
+            xdataMap[value]=key;
+        })
+        console.log(xdata)
+        console.log(xdataMap)
         var xAxis = d3.svg.axis()
             .scale(xScale)
             .innerTickSize(-height)
@@ -127,7 +148,11 @@
             .ticks(10)
             .tickValues(xdata)
             .tickFormat(function(d){
-                return d === "500000" ? "22" :d
+                if (d in xdataMap){
+                    return xdataMap[d];
+                }else{
+                    return d;
+                }
             })
 
         var yAxis = d3.svg.axis()
