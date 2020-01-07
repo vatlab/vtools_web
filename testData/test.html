@@ -34,11 +34,19 @@
             visibility: hidden;
         }
 
+        .resetButton {
+            position: absolute;
+            top:60%;
+        }
+
     </style>
 </head>
 <body>
     <svg id="axis-svg" class="plot"></svg>
     <canvas id="plot-canvas" class="plot"></canvas>
+    <div class = "resetButton">
+        <button type="button" onclick="reset()">Reset</button>
+    </div>
 </body>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js" charset="utf-8"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.0.0/lodash.min.js"></script>
@@ -74,6 +82,7 @@
 
     }
 
+
     d3.tsv("fake_pvalue.tsv",function(fdata){
         var numberPoints = fdata.length
         var chrs= new Set (fdata.map((ele)=>ele.chr))
@@ -88,6 +97,16 @@
         var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false}))
         console.log(offSets)
         console.log(data)
+
+        var xdata =[]
+        var xdataMap={}
+        Object.keys(offSets).forEach(key=>{
+            let value=offSets[key].median+offSets[key].start;
+            xdata.push(value);
+            xdataMap[value]=key;
+        })
+        console.log(xdata)
+        console.log(xdataMap)
             // generate random dataset
         // var randomX = d3.random.normal(0, 30);
         // var randomY = d3.random.normal(0, 30);
@@ -135,15 +154,7 @@
             .domain([0, yRange[1] + 3])
             .range([height, 0]);
 
-        var xdata =[]
-        var xdataMap={}
-        Object.keys(offSets).forEach(key=>{
-            let value=offSets[key].median+offSets[key].start;
-            xdata.push(value);
-            xdataMap[value]=key;
-        })
-        console.log(xdata)
-        console.log(xdataMap)
+
         var xAxis = d3.svg.axis()
             .scale(xScale)
             .innerTickSize(-height)
@@ -183,11 +194,8 @@
             .on("zoom", onZoom)
             .on("zoomend", onZoomEnd);
 
-    // add zoom behaviour
+        // add zoom behaviour
         canvas.call(zoomBehaviour);
-
-
-
 
         // get the canvas drawing context
         var context = canvas.node().getContext('2d');
@@ -210,11 +218,8 @@
             .attr('transform', 'translate(0,' + height + ')')
             .call(xAxis);
 
-
             // on onclick handler
             canvas.on("click", onClick);
-
-            
 
             context.clearRect(0, 0, fullWidth, fullHeight);
             context.fillStyle = 'steelblue';
@@ -257,71 +262,6 @@
         }
 
 
-        function drawChr(index,selectedChr){
-            clearTimeout(zoomEndTimeout);
-            console.log("draw chr")
-            context.clearRect(0, 0, fullWidth, fullHeight);
-            context.strokeWidth = 1;
-            context.strokeStyle = 'white';
-            var scale=1
-            // var translate=[offSets[selectedChr].start,offSets[selectedChr].start+offSets[selectedChr].max]
-            var chr_scale=d3.scale.linear()
-                .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
-                .range([0, width]);
-            svg.select(".xaxis").remove();
-            svg.select("#chr").remove();
-            // var chrxAxis = d3.svg.axis().tickSize(0)
-
-            // var chrxAxisSvg = svg.append('g')
-            //     .attr('class', 'x axis')
-            //     .attr('transform', 'translate(0,' + height + ')')
-            //     .call(chrxAxis);
-     
-            index.forEach(function(i) {
-                var point = data[i];
-                drawChrPoint(point, pointRadius,chr_scale);
-                // chrxAxisSvg.call(chrxAxis);
-
-            });
-            svg.append("text")
-                .attr("id","chr")
-                .attr("text-anchor", "middle") 
-                .attr("transform", "translate("+ (width/2) +","+(height+20)+")") 
-                .text("chr"+selectedChr);
-
-
-            function onChrClick() {
-                console.log("onChrClick called")
-                 var mouse = d3.mouse(this);
-
-                // map the clicked point to the data space
-                var xClicked = chr_scale.invert(mouse[0]);
-                var yClicked = yScale.invert(mouse[1]);
-                var closest = quadTree.find([xClicked, yClicked]);
-                console.log(closest)
-
-            
-            }
-
-            canvas.on("click", onChrClick);
-
-                
-        }
-
-        function drawChrPoint(point,r,chr_scale){
-            var cx = chr_scale(point.x);
-            var cy = yScale(point.y);
-            context.beginPath();
-            context.arc(cx, cy, r, 0, 2 * Math.PI);
-            context.closePath();
-            context.fillStyle=myColor(point.chr)
-            context.fill();
-            context.stroke();
-
-        }
-
-
-
         function drawPoint(point, r) {
             var cx = xScale(point.x);
             var cy = yScale(point.y);
@@ -336,6 +276,31 @@
             context.fill();
             context.stroke();
         }
+
+
+        function onZoom() {
+            clearTimeout(zoomEndTimeout);
+            console.log("On zoom ", randomIndex.length)
+            draw(randomIndex);
+            xAxisSvg.call(xAxis);
+            // yAxisSvg.call(yAxis);
+        }
+
+        function onZoomEnd() {
+            // when zooming is stopped, create a delay before
+            // redrawing the full plot
+            console.log("on Zoom End")
+            zoomEndTimeout = setTimeout(function() {
+                draw();
+            }, zoomEndDelay);
+        }
+
+        
+
+        function euclideanDistance(x1, y1, x2, y2) {
+            return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+        }
+
 
          function onClick() {
             console.log("onClick called")
@@ -354,55 +319,97 @@
             var chrData = data.filter((ele)=>ele.chr===selectedChr)
 
             quadTree = d3.geom.quadtree(chrData);
+            var index=chrData.map((ele)=>ele.i)
+            var chrrandomIndex = _.sampleSize(index, subsetSize);
+            var chr_scale=d3.scale.linear()
+                .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
+                .range([0, width]);
 
-            drawChr(chrData.map((ele)=>ele.i),selectedChr)
 
-            // // register the click if the clicked point is in the radius of the point
-            // var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
+            canvas.on("click", onChrClick);
 
-            // if(distance < pointRadius) {
-            //     if(selectedPoint) {
-            //         data[selectedPoint].selected = false;
-            //     }
-            //     closest.selected = true;
-            //     selectedPoint = closest.i;
+            var chrzoomBehaviour=d3.behavior.zoom()
+                .x(chr_scale)
+                // .y(yScale)
+                .scaleExtent([1, 20])
+                .on("zoom", onchrZoom)
+                .on("zoomend", onchrZoomEnd)
+              
 
-            //     // redraw the points
-            //     draw();
-            // }
+
+            canvas.call(chrzoomBehaviour)
+                .on("dblclick.zoom", null)
+            drawChr(index,selectedChr)
+
+            function drawChr(index,selectedChr){
+                clearTimeout(zoomEndTimeout);
+                console.log("draw chr")
+                context.clearRect(0, 0, fullWidth, fullHeight);
+                context.strokeWidth = 1;
+                context.strokeStyle = 'white';
+                               
+                svg.select(".xaxis").remove();
+                svg.select("#chr").remove();
+                
+                index.forEach(function(i) {
+                    var point = data[i];
+                    drawChrPoint(point, pointRadius);
+                    // chrxAxisSvg.call(chrxAxis);
+
+                });
+                svg.append("text")
+                    .attr("id","chr")
+                    .attr("text-anchor", "middle") 
+                    .attr("transform", "translate("+ (width/2) +","+(height+20)+")") 
+                    .text("chr"+selectedChr);
+                    
+            }
+
+
+            function onchrZoom() {
+                clearTimeout(zoomEndTimeout);
+                console.log("On chr zoom ", chrrandomIndex.length)
+                drawChr(chrrandomIndex,selectedChr);
+                // chrxAxisSvg.call(chrxAxis);
+                // yAxisSvg.call(yAxis);
+            }
+
+            function onchrZoomEnd() {
+                // when zooming is stopped, create a delay before
+                // redrawing the full plot
+                console.log("on chr Zoom End")
+                zoomEndTimeout = setTimeout(function() {
+                    drawChr(index,selectedChr);
+                }, zoomEndDelay);
+            }
+
+            function onChrClick() {
+                console.log("onChrClick called")
+                var mouse = d3.mouse(this);
+                // map the clicked point to the data space
+                var xClicked = chr_scale.invert(mouse[0]);
+                var yClicked = yScale.invert(mouse[1]);
+                var closest = quadTree.find([xClicked, yClicked]);
+                console.log(closest)
+            
+            }
+
+            function drawChrPoint(point,r){
+                var cx = chr_scale(point.x);
+                var cy = yScale(point.y);
+                context.beginPath();
+                context.arc(cx, cy, r, 0, 2 * Math.PI);
+                context.closePath();
+                context.fillStyle=myColor(point.chr)
+                context.fill();
+                context.stroke();
+
+            }
+
         }
 
-
-
-
-        
-
-        function onZoom() {
-            clearTimeout(zoomEndTimeout);
-            console.log("On zoom ", randomIndex.length)
-            draw(randomIndex);
-            xAxisSvg.call(xAxis);
-            // yAxisSvg.call(yAxis);
-        }
-
-        function onZoomEnd() {
-            // when zooming is stopped, create a delay before
-            // redrawing the full plot
-            zoomEndTimeout = setTimeout(function() {
-                draw();
-            }, zoomEndDelay);
-        }
-
-        
-
-        function euclideanDistance(x1, y1, x2, y2) {
-            return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
-        }
 
     })
-
-
-
 
    
 </script>
