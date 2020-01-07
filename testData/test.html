@@ -97,8 +97,7 @@
                     delete offSets[0]
                     var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false}))
                     console.log(offSets)
-                    console.log(data)
-
+              
                     var xdata =[]
                     var xdataMap={}
                     Object.keys(offSets).forEach(key=>{
@@ -329,15 +328,9 @@
             // find the closest point in the dataset to the clicked point
             var closest = quadTree.find([xClicked, yClicked]);
 
-            // map the co-ordinates of the closest point to the canvas space
-            var dX = xScale(closest.x);
-            var dY = yScale(closest.y);
-            
-            var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
-            console.log("on click", mouse[0],mouse[1],closest.x,closest.y,closest.i,dX,dY,distance)
             var selectedChr= closest.chr
             var chrData = data.filter((ele)=>ele.chr===selectedChr)
-
+            console.log(chrData)
             var chrquadTree = d3.geom.quadtree(chrData);
             var index=chrData.map((ele)=>ele.i)
             var chrrandomIndex = _.sampleSize(index, subsetSize);
@@ -388,6 +381,7 @@
                     .text("chr"+selectedChr);
 
                 if(active) {
+                    console.log("draw active point", active)
                     context.fillStyle = 'red';
                     drawChrPoint(active, pointRadius);
                 }
@@ -422,14 +416,15 @@
 
                 var dX = chr_scale(closest.x);
                 var dY = yScale(closest.y);
-                console.log(mouse[0], mouse[1], dX, dY)
+                console.log(mouse[0], mouse[1], xClicked,yClicked,closest.x, closest.y, dX, dY)
 
                 // register the click if the clicked point is in the radius of the point
                 var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
                 console.log(distance,pointRadius)
                 if(distance < pointRadius) {
                     if(selectedPoint) {
-                        data[selectedPoint].selected = false;
+                        var selectedIndex=index.indexOf(selectedPoint.toString())
+                        chrData[selectedIndex].selected = false;
                     }
                     closest.selected = true;
                     selectedPoint = closest.i;
