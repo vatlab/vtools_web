@@ -29,6 +29,11 @@
         .tick line{
             opacity: 0.2;
         }
+
+        .xaxis .tick line{
+            visibility: hidden;
+        }
+
     </style>
 </head>
 <body>
@@ -155,11 +160,20 @@
                 }
             })
 
+        var xAxisSvg = svg.append('g')
+            .attr('class', 'xaxis axis')
+            .attr('transform', 'translate(0,' + height + ')')
+            .call(xAxis);
+
         var yAxis = d3.svg.axis()
             .scale(yScale)
             .innerTickSize(-width)
             .outerTickSize(0)
             .orient('left');
+
+       var yAxisSvg = svg.append('g')
+            .attr('class', 'yaxis axis')
+            .call(yAxis);
 
         // create zoom behaviour
         var zoomBehaviour = d3.behavior.zoom()
@@ -169,21 +183,11 @@
             .on("zoom", onZoom)
             .on("zoomend", onZoomEnd);
 
-        // append x-axis, y-axis
-        var xAxisSvg = svg.append('g')
-            .attr('class', 'x axis')
-            .attr('transform', 'translate(0,' + height + ')')
-            .call(xAxis);
-
-        var yAxisSvg = svg.append('g')
-            .attr('class', 'y axis')
-            .call(yAxis);
-
-        // on onclick handler
-        canvas.on("click", onClick);
-
-        // add zoom behaviour
+    // add zoom behaviour
         canvas.call(zoomBehaviour);
+
+
+
 
         // get the canvas drawing context
         var context = canvas.node().getContext('2d');
@@ -195,6 +199,22 @@
         // to the indices in the index parameter
         function draw(index) {
             var active;
+
+            quadTree = d3.geom.quadtree(data);
+            svg.select("#chr").remove();
+            svg.select(".xaxis").remove();
+
+
+            svg.append('g')
+            .attr('class', 'xaxis axis')
+            .attr('transform', 'translate(0,' + height + ')')
+            .call(xAxis);
+
+
+            // on onclick handler
+            canvas.on("click", onClick);
+
+            
 
             context.clearRect(0, 0, fullWidth, fullHeight);
             context.fillStyle = 'steelblue';
@@ -248,7 +268,8 @@
             var chr_scale=d3.scale.linear()
                 .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
                 .range([0, width]);
-            svg.selectAll(".axis").remove();
+            svg.select(".xaxis").remove();
+            svg.select("#chr").remove();
             // var chrxAxis = d3.svg.axis().tickSize(0)
 
             // var chrxAxisSvg = svg.append('g')
@@ -263,16 +284,26 @@
 
             });
             svg.append("text")
+                .attr("id","chr")
                 .attr("text-anchor", "middle") 
                 .attr("transform", "translate("+ (width/2) +","+(height+20)+")") 
                 .text("chr"+selectedChr);
+
+
+            function onChrClick() {
+                console.log("onChrClick called")
+                 var mouse = d3.mouse(this);
+
+                // map the clicked point to the data space
+                var xClicked = chr_scale.invert(mouse[0]);
+                var yClicked = yScale.invert(mouse[1]);
+                var closest = quadTree.find([xClicked, yClicked]);
+                console.log(closest)
+
             
-            svg.append('g')
-            .attr('class', 'y axis')
-            .call(yAxis);
-            
-            // chrxAxisSvg.call(chrxAxis);
-            // yAxisSvg.call(yAxis);
+            }
+
+            canvas.on("click", onChrClick);
 
                 
         }
@@ -307,6 +338,7 @@
         }
 
          function onClick() {
+            console.log("onClick called")
             var mouse = d3.mouse(this);
 
             // map the clicked point to the data space
@@ -319,12 +351,11 @@
             var dX = xScale(closest.x);
             var dY = yScale(closest.y);
             var selectedChr= closest.chr
-            var chrData = data.filter((ele)=>ele.chr===selectedChr).map((ele)=>ele.i)
+            var chrData = data.filter((ele)=>ele.chr===selectedChr)
 
-            
+            quadTree = d3.geom.quadtree(chrData);
 
-            drawChr(chrData,selectedChr)
-
+            drawChr(chrData.map((ele)=>ele.i),selectedChr)
 
             // // register the click if the clicked point is in the radius of the point
             // var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
@@ -340,6 +371,9 @@
             //     draw();
             // }
         }
+
+
+
 
         
 
