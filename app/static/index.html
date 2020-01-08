@@ -4,12 +4,16 @@
     <meta charset="UTF-8">
     <title>Variant Tools</title>
     <link rel="stylesheet" href="advancededitor.css">
+    <link rel="stylesheet" type="text/css" href="manhattan.css">
     <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.1.min.js"></script>
     <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js" charset="utf-8"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.0.0/lodash.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <script src="./utils.js"></script>
     <script src="./env.js"></script>
+    <script src="./manhattan.js"></script>
     
     
 </head>
@@ -324,6 +328,11 @@
 <div style="float:left; margin-left: 50px;">
 	<table id="dataTable"></table>
 	<table id="infoTable"></table>
+	<svg id="axis-svg" class="plot"></svg>
+    <canvas id="plot-canvas" class="plot"></canvas>
+    <div class = "resetButton">
+        <button type="button" onclick="reset()">Reset</button>
+    </div>
 </div>
 </body>
 </html>
