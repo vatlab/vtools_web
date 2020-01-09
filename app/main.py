@@ -17,7 +17,7 @@ if not os.path.exists(WORK_FOLDER):
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
 # app.config['WORK_FOLDER'] = WORK_FOLDER
 
-
+print("start")
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -44,6 +44,7 @@ def create_project():
         projectID = uuid.uuid4().hex
         projectID = "VT"+projectID
         directory = WORK_FOLDER+projectID
+        print(directory)
         if not os.path.exists(directory):
             os.makedirs(directory)
         os.chdir(directory)
@@ -125,6 +126,7 @@ def upload_file(projectID):
     return 'uploaded', 204
 
 
+
 @app.route('/import/<projectID>', methods=['GET'])
 def vtools_import(projectID):
     fileName = request.args.get('fileName', None, type=None)
@@ -175,6 +177,12 @@ def upload_phenotype(projectID):
         print(WORK_FOLDER+projectID+"/"+fileName)
         command = "vtools phenotype --from_file " + WORK_FOLDER+projectID + "/" + fileName
         return runCommand(command)
+
+@app.route("/ngchmtest", methods=['GET'])
+def download_ngchm():
+    print("donwload NGCHM")
+    path="./static/Galaxy400x400-noCovariates.ngchm"
+    return send_file(path)
 
 
 def runCommand(command):
@@ -345,6 +353,11 @@ def vtools_show():
         return "Internal error", 500
     else:
         return result.stdout, 200
+
+
+
+
+
 
 
 @app.route("/hello")

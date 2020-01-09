@@ -14,7 +14,7 @@
     <script src="./utils.js"></script>
     <script src="./env.js"></script>
     <script src="./manhattan.js"></script>
-    
+
     
 </head>
 <body>
@@ -23,6 +23,7 @@
     <fieldset id="createProject">
     	<legend>Create project</legend>
     	<button id="createRandomProject">Create</button>
+    	<button id="checkNGCHM">NGCHM</button>
     	<p style="display:inline" id="projectName"></p>
     </fieldset>
     <fieldset id="getProject">
@@ -333,6 +334,20 @@
     <div class = "resetButton">
         <button type="button" onclick="reset()">Reset</button>
     </div>
+    <div id="NGCHM" style="width:100%; height:500px"></div>
+   	<div id='NGCHMEmbed' style="background-color:white; height:99% ; width:99%; border: 2px solid gray; padding: 5px"></div>
+   	<script type="text/javascript" src="ngchmWidget-min.js"></script>
+   	<script type="text/Javascript" src="./NGCHM_viewer.js"></script>
+   	
 </div>
 </body>
+	<style>
+
+        #summary_chm{
+            min-height:350px;
+        }
+        .resizerHelper{
+            height:345px;
+        }
+    </style>
 </html>

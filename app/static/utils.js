@@ -4,14 +4,16 @@ var logs=[];
 var projectID;
 var fieldMap={};
 
+
 $(document).ready(function(){
-    server=env.server+"/vtoolsweb/"
-    // server=env.server+":8082"
-	console.log(server)
+    // server=env.server+"/vtoolsweb/"
+    server=env.server+":5000"
 
     $("#createRandomProject").click(function(){
+        console.log(server)
         createProject();
     })
+
 
     // $("#dataUploadExternal").submit(function(e){
     //     e.preventDefault();
@@ -196,6 +198,7 @@ $(document).ready(function(){
 
 
 function createProject(){
+    console.log(server)
     $.post("http://"+server+"/project",function(result){
         $("#localFileSource").show()
         projectID=result
