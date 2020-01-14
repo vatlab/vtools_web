@@ -24,6 +24,7 @@
 	    	<legend>Create project</legend>
 	    	<button id="createRandomProject">Create</button>
 	    	<button id="checkNGCHM">NGCHM</button>
+	        <button id="reset" >Reset</button>
 	    	<p style="display:inline" id="projectName"></p>
 	    </fieldset>
 	    <fieldset id="getProject">
@@ -331,14 +332,14 @@
 		<table id="infoTable"></table>
 		<svg id="axis-svg" class="plot"></svg>
 	    <canvas id="plot-canvas" class="plot"></canvas>
-	    <div class = "resetButton">
-	        <button type="button" onclick="reset()">Reset</button>
-	    </div>
+	    
 	</div>
-    <div id="NGCHM" style="width:500px; height:500px"></div>
-   	<div id='NGCHMEmbed' style="background-color:white; height:500px ; width:500px; border: 2px solid gray; padding: 5px"></div>
-   	<script type="text/javascript" src="ngchmWidget-min.js"></script>
-   	<script type="text/Javascript" src="./NGCHM_viewer.js"></script>
+	<div id="plotNGCHM" style="display:none">
+	    <div id="NGCHM" style="width:500px; height:500px"></div>
+	   	<div id='NGCHMEmbed' style="background-color:white; height:500px ; width:500px; border: 2px solid gray; padding: 5px"></div>
+	   	<script type="text/javascript" src="ngchmWidget-min.js"></script>
+	   	<script type="text/Javascript" src="./NGCHM_viewer.js"></script>
+   </div>
    	
 </div>
 </body>

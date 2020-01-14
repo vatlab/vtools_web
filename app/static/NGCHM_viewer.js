@@ -2,6 +2,7 @@
 $(document).ready(function(){
 
     $("#checkNGCHM").click(function(){
+        $("#plotNGCHM").show();
         var ajaxUrl="http://"+server+"/ngchmtest"
         console.log(ajaxUrl)
         

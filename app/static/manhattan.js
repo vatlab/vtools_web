@@ -41,6 +41,10 @@ $(document).ready(function(){
         drawManhattan(result)
     }
 
+     $("#reset").click(function(){
+        drawManhattan(result)
+    })
+
     loadData().then((processedData)=>{
         result=processedData
         drawManhattan(result)
