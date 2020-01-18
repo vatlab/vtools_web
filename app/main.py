@@ -178,10 +178,12 @@ def upload_phenotype(projectID):
         command = "vtools phenotype --from_file " + WORK_FOLDER+projectID + "/" + fileName
         return runCommand(command)
 
+
 @app.route("/ngchmtest", methods=['GET'])
 def download_ngchm():
     print("donwload NGCHM")
-    path="./static/Galaxy400x400-noCovariates.ngchm"
+    path = "./static/fake.ngchm"
+    # path="./static/Galaxy400x400-noCovariates.ngchm"
     return send_file(path)
 
 

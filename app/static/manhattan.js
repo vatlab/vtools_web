@@ -1,5 +1,5 @@
 
-var subsetSize = 150;
+var subsetSize = 10;
 var pointRadius = 6;
 var zoomEndDelay = 250;
 
@@ -65,13 +65,17 @@ $(document).ready(function(){
 
     function loadData(){
         return new Promise((resolve,reject)=>{
-            d3.tsv("fake_pvalue.tsv",function(fdata){
+                  // d3.tsv("fake_pvalue.tsv",function(fdata){
+               d3.tsv("EA_RV.asso.res.pvalue.tsv",function(fdata){
                     var numberPoints = fdata.length
-                    var chrs= new Set (fdata.map((ele)=>ele.chr))
-                    
+                    var chrs= Array.from(new Set (fdata.map((ele)=>ele.chr)))
+                    var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
+                    chrs=chrs.sort(collator.compare)
+                    console.log(chrs)
                     var offSets={0:{max:0,start:0}}
                     for (let chr of chrs){
                         var filterData=fdata.filter((ele)=>ele.chr===chr).map((ele)=>Number(ele.pos))
+                        console.log(filterData)
                         offSets[chr]={min:Math.min(...filterData),max:Math.max(...filterData),start:offSets[chr-1].start+offSets[chr-1].max,median:median(filterData)}
                     }
                     delete offSets[0]
@@ -379,6 +383,7 @@ $(document).ready(function(){
                 var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
                 console.log(distance,pointRadius)
                 if(distance < pointRadius) {
+                    console.log("selected point", selectedPoint)
                     if(selectedPoint) {
                         var selectedIndex=index.indexOf(selectedPoint.toString())
                         chrData[selectedIndex].selected = false;
