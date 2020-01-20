@@ -79,7 +79,7 @@ $(document).ready(function(){
                         offSets[chr]={min:Math.min(...filterData),max:Math.max(...filterData),start:offSets[chr-1].start+offSets[chr-1].max,median:median(filterData)}
                     }
                     delete offSets[0]
-                    var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false}))
+                    var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false,name:ele.name}))
                     console.log(offSets)
               
                     var xdata =[]
@@ -294,6 +294,7 @@ $(document).ready(function(){
             console.log(chrData)
             var chrquadTree = d3.geom.quadtree(chrData);
             var index=chrData.map((ele)=>ele.i)
+            
             var chrrandomIndex = _.sampleSize(index, subsetSize);
             var chr_scale=d3.scale.linear()
                 .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
@@ -315,7 +316,6 @@ $(document).ready(function(){
             function drawChr(index,selectedChr){
                 var active;
                 clearTimeout(zoomEndTimeout);
-                console.log("draw chr")
                 context.clearRect(0, 0, fullWidth, fullHeight);
                 context.strokeWidth = 1;
                 context.strokeStyle = 'white';
@@ -326,7 +326,8 @@ $(document).ready(function(){
                 
                 
                 index.forEach(function(i) {
-                    var point = data[i];
+                    var point = data.filter((ele)=>ele.i===i)[0];
+           
                     if (!point.selected){
                         drawChrPoint(point, pointRadius);
                     }else{
@@ -352,7 +353,7 @@ $(document).ready(function(){
 
             function onchrZoom() {
                 clearTimeout(zoomEndTimeout);
-                console.log("On chr zoom ", chrrandomIndex.length)
+                // console.log("On chr zoom ", chrrandomIndex.length)
                 drawChr(chrrandomIndex,selectedChr);
                 // chrxAxisSvg.call(chrxAxis);
                 // yAxisSvg.call(yAxis);
