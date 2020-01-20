@@ -19,31 +19,62 @@ if not os.path.exists(WORK_FOLDER):
 
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
 # app.config['WORK_FOLDER'] = WORK_FOLDER
-
 print("start")
+
+
 def allowed_file(filename):
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-@app.route('/showNGCHM/',methods=['GET'])
+
+@app.route('/showNGCHM/', methods=['GET'])
 def show_NGCHM():
-    chr= request.args.get('chr', None, type=None)
+    
+    chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
+    print("showNGCHM", chr, name)
+    HDFfileNames = glob.glob("/Users/jma7/Development/VAT_ref/test_2k/test2k/tmp*_genotypes_multi_genes.h5")
+    HDFfileNames = sorted(HDFfileNames, key=lambda name: int(name.split("/")[-1].split("_")[1]))
+    allGenotype = []
+    allColnames = []
+    for filePath in HDFfileNames:
+        print(filePath)
+        file = tb.open_file(filePath)
+        node = file.get_node("/chr"+chr+"/"+name+"/")
+        genotype = node.GT[:]
+        whereNaN = np.isnan(genotype)
+        genotype[whereNaN] = -1
+        genotype = genotype.astype(int)
+        if (len(allGenotype) == 0):
+            allGenotype = genotype
+        else:
+            allGenotype = np.append(allGenotype, genotype, 1)
+        # numCols = len(node.GT[:][0])
+        # colnames = []
+        # for num in range(1, numCols+1):
+        #     colnames.append("col"+str(num))
+        colnode = file.get_node("/chr"+chr+"/colnames/")
+        colnames = colnode[:]
+        allColnames.extend(colnames)
+        file.close()
+    
+    # print(allColnames)
+    pd.DataFrame(allGenotype, columns=allColnames).to_csv("./static/fake_genotype.tsv", sep="\t")
+    
+    command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|testRun chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels output_location|./static/fake.ngchm'
+    # command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|testRun chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels output_location|./static/fake.ngchm'
 
-    filePath = "/Users/jma7/Development/VAT_ref/ismb-2018/data/tmp_1_90_genotypes_multi_genes.h5"
-    file = tb.open_file(filePath)
-    node = file.get_node("/chr"+chr+"/"+name+"/")
-    genotype = node.GT[:].astype(int)
-    print(genotype)
-    numCols = len(node.GT[1, :])
-    colnames = []
-    for num in range(1, numCols+1):
-        colnames.append("col"+str(num))
-    pd.DataFrame(genotype, columns=colnames).to_csv("./static/fake_genotype.tsv", sep="\t")
-    file.close()
-    command='./heatmap.sh /Users/jma7/Development/vtools_website/app/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ "chm_name|testRun" "chm_description|validateTool" "matrix_files|path|/Users/jma7/Development/vtools_website/testData/fake_genotype.tsv|name|datalayer|summary_method|sample" "row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels" "col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels" "output_location|/Users/jma7/Development/vtools_website/app/static/fake.ngchm"'
+    print(command)
+    return runCommand(command)
+    # return "show NGCHM", 200
 
 
+@app.route("/ngchmView", methods=['GET'])
+def download_ngchm():
+    print("donwload NGCHM")
+    path = "./static/fake.ngchm"
+    # path="./static/Galaxy400x400-noCovariates.ngchm"
+    return send_file(path)
 
 
 @app.route('/loadSampleData/<projectID>', methods=['GET'])
@@ -149,7 +180,6 @@ def upload_file(projectID):
     return 'uploaded', 204
 
 
-
 @app.route('/import/<projectID>', methods=['GET'])
 def vtools_import(projectID):
     fileName = request.args.get('fileName', None, type=None)
@@ -202,12 +232,7 @@ def upload_phenotype(projectID):
         return runCommand(command)
 
 
-@app.route("/ngchmtest", methods=['GET'])
-def download_ngchm():
-    print("donwload NGCHM")
-    path = "./static/fake.ngchm"
-    # path="./static/Galaxy400x400-noCovariates.ngchm"
-    return send_file(path)
+
 
 
 def runCommand(command):
@@ -378,11 +403,6 @@ def vtools_show():
         return "Internal error", 500
     else:
         return result.stdout, 200
-
-
-
-
-
 
 
 @app.route("/hello")

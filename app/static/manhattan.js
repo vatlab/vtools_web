@@ -66,21 +66,24 @@ $(document).ready(function(){
     function loadData(){
         return new Promise((resolve,reject)=>{
                   // d3.tsv("fake_pvalue.tsv",function(fdata){
-               d3.tsv("EA_RV.asso.res.pvalue.tsv",function(fdata){
+               d3.tsv("test2k.pvalue.tsv",function(fdata){
+                    fdata=fdata.filter((ele)=>ele.chr!=="X" && ele.chr!=="Y")
                     var numberPoints = fdata.length
                     var chrs= Array.from(new Set (fdata.map((ele)=>ele.chr)))
                     var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
                     chrs=chrs.sort(collator.compare)
+                    // chrs=chrs.filter((ele)=>ele!=="X" && ele!=="Y")
                     console.log(chrs)
                     var offSets={0:{max:0,start:0}}
                     for (let chr of chrs){
                         var filterData=fdata.filter((ele)=>ele.chr===chr).map((ele)=>Number(ele.pos))
-                        console.log(filterData)
+                        // console.log(filterData)
                         offSets[chr]={min:Math.min(...filterData),max:Math.max(...filterData),start:offSets[chr-1].start+offSets[chr-1].max,median:median(filterData)}
                     }
                     delete offSets[0]
-                    var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false,name:ele.name}))
                     console.log(offSets)
+                    var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false,name:ele.name}))
+                    
               
                     var xdata =[]
                     var xdataMap={}
@@ -397,6 +400,28 @@ $(document).ready(function(){
                 }
 
                 console.log(closest)
+                $("#plotNGCHM").hide();
+                $.get("http://"+server+"/showNGCHM/",{name:closest.name,chr:closest.chr},function(data){
+                    console.log(data)
+                    $("#plotNGCHM").show();
+                    var ajaxUrl="http://"+server+"/ngchmView"
+                    console.log(ajaxUrl)
+                    
+                    var xmlhttp=new XMLHttpRequest();
+                    xmlhttp.open("GET", ajaxUrl, true);
+                    xmlhttp.responseType = 'blob';
+                    xmlhttp.onload = function(e) {
+                        if (this.status == 200) {
+                            var blob = new Blob([this.response], {type: 'compress/zip'});
+                            // document.getElementById('loader').style.display = '';
+                            // NgChm.UTIL.resetCHM();
+                            NgChm.UTIL.displayFileModeCHM(blob)
+                            document.getElementById("container").addEventListener('wheel', NgChm.SEL.handleScroll, false);
+                            document.getElementById("detail_canvas").focus();
+                        }
+                    };
+                    xmlhttp.send()
+                })
             
             }
 
