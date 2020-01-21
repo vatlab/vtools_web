@@ -29,7 +29,10 @@ def allowed_file(filename):
 
 @app.route('/showNGCHM/', methods=['GET'])
 def show_NGCHM():
-    
+    if os.path.exists("./static/fake.ngchm"):
+        os.remove("./static/fake.ngchm")
+    if os.path.exists("./static/fake_genotype.tsv"):
+        os.remove("./static/fake_genotype.tsv")
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     print("showNGCHM", chr, name)
@@ -57,10 +60,8 @@ def show_NGCHM():
         colnames = colnode[:]
         allColnames.extend(colnames)
         file.close()
-    
     # print(allColnames)
     pd.DataFrame(allGenotype, columns=allColnames).to_csv("./static/fake_genotype.tsv", sep="\t")
-    
     command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|testRun chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels output_location|./static/fake.ngchm'
     # command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|testRun chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels output_location|./static/fake.ngchm'
 
@@ -230,9 +231,6 @@ def upload_phenotype(projectID):
         print(WORK_FOLDER+projectID+"/"+fileName)
         command = "vtools phenotype --from_file " + WORK_FOLDER+projectID + "/" + fileName
         return runCommand(command)
-
-
-
 
 
 def runCommand(command):
