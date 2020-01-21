@@ -1,7 +1,7 @@
 
-var subsetSize = 10;
+// var subsetSize = 10;
 var pointRadius = 6;
-var zoomEndDelay = 250;
+var zoomEndDelay = 100;
 
 // timeout function
 var zoomEndTimeout;
@@ -120,6 +120,7 @@ $(document).ready(function(){
 
         // selected 250 random numbers -- this is the subset of points
         // drawn during 'zoom' events
+        var subsetSize=numberPoints/3
         var randomIndex = _.sampleSize(_.range(numberPoints), subsetSize);
 
 
@@ -297,7 +298,7 @@ $(document).ready(function(){
             console.log(chrData)
             var chrquadTree = d3.geom.quadtree(chrData);
             var index=chrData.map((ele)=>ele.i)
-            
+            var subsetSize=index.length/3
             var chrrandomIndex = _.sampleSize(index, subsetSize);
             var chr_scale=d3.scale.linear()
                 .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
