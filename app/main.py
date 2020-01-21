@@ -40,34 +40,37 @@ def show_NGCHM():
     HDFfileNames = sorted(HDFfileNames, key=lambda name: int(name.split("/")[-1].split("_")[1]))
     allGenotype = []
     allColnames = []
-    for filePath in HDFfileNames:
-        print(filePath)
-        file = tb.open_file(filePath)
-        node = file.get_node("/chr"+chr+"/"+name+"/")
-        genotype = node.GT[:]
-        whereNaN = np.isnan(genotype)
-        genotype[whereNaN] = -1
-        genotype = genotype.astype(int)
-        if (len(allGenotype) == 0):
-            allGenotype = genotype
-        else:
-            allGenotype = np.append(allGenotype, genotype, 1)
-        # numCols = len(node.GT[:][0])
-        # colnames = []
-        # for num in range(1, numCols+1):
-        #     colnames.append("col"+str(num))
-        colnode = file.get_node("/chr"+chr+"/colnames/")
-        colnames = colnode[:]
-        allColnames.extend(colnames)
-        file.close()
-    # print(allColnames)
-    pd.DataFrame(allGenotype, columns=allColnames).to_csv("./static/fake_genotype.tsv", sep="\t")
-    command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|testRun chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels output_location|./static/fake.ngchm'
-    # command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|testRun chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels output_location|./static/fake.ngchm'
+    try:
+        for filePath in HDFfileNames:
+            print(filePath)
+            file = tb.open_file(filePath)
+            node = file.get_node("/chr"+chr+"/"+name+"/")
+            genotype = node.GT[:]
+            whereNaN = np.isnan(genotype)
+            genotype[whereNaN] = -1
+            genotype = genotype.astype(int)
+            if (len(allGenotype) == 0):
+                allGenotype = genotype
+            else:
+                allGenotype = np.append(allGenotype, genotype, 1)
+            # numCols = len(node.GT[:][0])
+            # colnames = []
+            # for num in range(1, numCols+1):
+            #     colnames.append("col"+str(num))
+            colnode = file.get_node("/chr"+chr+"/colnames/")
+            colnames = colnode[:]
+            allColnames.extend(colnames)
+            file.close()
+        # print(allColnames)
+        pd.DataFrame(allGenotype, columns=allColnames).to_csv("./static/fake_genotype.tsv", sep="\t")
+        command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|testRun chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|./static/disease.tsv|category|column_discrete output_location|./static/fake.ngchm'
+        # command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|testRun chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels output_location|./static/fake.ngchm'
 
-    print(command)
-    return runCommand(command)
-    # return "show NGCHM", 200
+        print(command)
+        return runCommand(command)
+    except tb.exceptions.NoSuchNodeError:
+        print("No such node")
+        return "No such node", 500
 
 
 @app.route("/ngchmView", methods=['GET'])
