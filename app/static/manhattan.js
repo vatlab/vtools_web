@@ -182,7 +182,6 @@ $(document).ready(function(){
         // add zoom behaviour
         canvas.call(zoomBehaviour);
         canvas.on("click", onClick);
-        console.log(canvas.node())
         // get the canvas drawing context
         var context = canvas.node().getContext('2d');
         var firstPos;
@@ -190,6 +189,7 @@ $(document).ready(function(){
         var isMoving=false;
         var zoomToChr=false;
         var radius = 6*6
+        var y_scaleUp=10000000
         var mouse;
 
         draw();
@@ -303,10 +303,12 @@ $(document).ready(function(){
 
                 var selectedChr= closest.chr
                 var chrData = data.filter((ele)=>ele.chr===selectedChr)
-                console.log(chrData)
-                var chrquadTree = d3.geom.quadtree(chrData);
+                // chrData.sort((a,b)=>(a.x>b.x)?1:-1)
+                var quadTreeChr = chrData.map((ele)=>({x:ele.x,y:ele.y*y_scaleUp,i:ele.i}))
+                console.log(quadTreeChr)
+                var chrquadTree = d3.geom.quadtree(quadTreeChr);
                 var index=chrData.map((ele)=>ele.i)
-                var subsetSize=index.length/3
+                var subsetSize=index.length/10
                 var chrrandomIndex = _.sampleSize(index, subsetSize);
                 var chr_scale=d3.scale.linear()
                     .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
@@ -388,6 +390,7 @@ $(document).ready(function(){
                 clearTimeout(zoomEndTimeout);
                 // console.log("On chr zoom ", chrrandomIndex.length)
                 drawChr(chrrandomIndex,selectedChr);
+                // drawChr(index,selectedChr);
                 // chrxAxisSvg.call(chrxAxis);
                 // yAxisSvg.call(yAxis);
             }
@@ -420,33 +423,36 @@ $(document).ready(function(){
                 if (!isMoving){
                     mouse = d3.mouse(this);
                     var xClicked = chr_scale.invert(mouse[0]);
-                    var yClicked = yScale.invert(mouse[1]);
+                    var yClicked = yScale.invert(mouse[1])*y_scaleUp;
                     var closest = chrquadTree.find([xClicked, yClicked]);
 
                     var dX = chr_scale(closest.x);
-                    var dY = yScale(closest.y);
-                    console.log(mouse[0], mouse[1], xClicked,yClicked,closest.x, closest.y, dX, dY)
+                    var dY = yScale(closest.y/y_scaleUp);
+                    console.log(mouse[0],mouse[1], xClicked,yClicked,closest.x,closest.y,dX,dY)
 
                     // register the click if the clicked point is in the radius of the point
                     var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
                     console.log(distance,pointRadius)
-                    if(distance < pointRadius) {
+                    // if(distance < pointRadius) {
                         console.log("selected point", selectedPoint)
                         if(selectedPoint) {
                             var selectedIndex=index.indexOf(selectedPoint.toString())
                             chrData[selectedIndex].selected = false;
                         }
-                        closest.selected = true;
+                        // closest.selected = true;
                         selectedPoint = closest.i;
+                        var selectedIndex=index.indexOf(selectedPoint.toString())
+                        chrData[selectedIndex].selected = true;
+
 
                         // redraw the points
                         drawChr(index,selectedChr)
-                    }
+                    // }
 
                     console.log(closest)
 
                     $("#plotNGCHM").hide();
-                    $.get("http://"+server+"/showNGCHM/",{name:closest.name,chr:closest.chr},function(data){
+                    $.get("http://"+server+"/showNGCHM/",{name:chrData[selectedIndex].name,chr:chrData[selectedIndex].chr},function(data){
                         console.log(data)
                         $("#plotNGCHM").show();
                         var ajaxUrl="http://"+server+"/ngchmView"
@@ -458,8 +464,6 @@ $(document).ready(function(){
                         xmlhttp.onload = function(e) {
                             if (this.status == 200) {
                                 var blob = new Blob([this.response], {type: 'compress/zip'});
-                                // document.getElementById('loader').style.display = '';
-                                // NgChm.UTIL.resetCHM();
                                 NgChm.UTIL.displayFileModeCHM(blob)
                                 document.getElementById("container").addEventListener('wheel', NgChm.SEL.handleScroll, false);
                                 document.getElementById("detail_canvas").focus();
