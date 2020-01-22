@@ -185,6 +185,12 @@ $(document).ready(function(){
         console.log(canvas.node())
         // get the canvas drawing context
         var context = canvas.node().getContext('2d');
+        var firstPos;
+        var isDown=false;
+        var isMoving=false;
+        var zoomToChr=false;
+        var radius = 6*6
+        var mouse;
 
         draw();
 
@@ -285,39 +291,62 @@ $(document).ready(function(){
 
         function onClick() {
             console.log("onClick called")
-            var mouse = d3.mouse(this);
-            var selectedPoint;
-            // map the clicked point to the data space
-            var xClicked = xScale.invert(mouse[0]);
-            var yClicked = yScale.invert(mouse[1]);
-            // find the closest point in the dataset to the clicked point
-            var closest = quadTree.find([xClicked, yClicked]);
+            if (!zoomToChr){
+                zoomToChr=true
+                mouse = d3.mouse(this);
+                var selectedPoint;
+                // map the clicked point to the data space
+                var xClicked = xScale.invert(mouse[0]);
+                var yClicked = yScale.invert(mouse[1]);
+                // find the closest point in the dataset to the clicked point
+                var closest = quadTree.find([xClicked, yClicked]);
 
-            var selectedChr= closest.chr
-            var chrData = data.filter((ele)=>ele.chr===selectedChr)
-            console.log(chrData)
-            var chrquadTree = d3.geom.quadtree(chrData);
-            var index=chrData.map((ele)=>ele.i)
-            var subsetSize=index.length/3
-            var chrrandomIndex = _.sampleSize(index, subsetSize);
-            var chr_scale=d3.scale.linear()
-                .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
-                .range([0, width]);
+                var selectedChr= closest.chr
+                var chrData = data.filter((ele)=>ele.chr===selectedChr)
+                console.log(chrData)
+                var chrquadTree = d3.geom.quadtree(chrData);
+                var index=chrData.map((ele)=>ele.i)
+                var subsetSize=index.length/3
+                var chrrandomIndex = _.sampleSize(index, subsetSize);
+                var chr_scale=d3.scale.linear()
+                    .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
+                    .range([0, width]);
 
-            canvas.on("click", onChrClick);
+                var chrzoomBehaviour=d3.behavior.zoom()
+                    .x(chr_scale)
+                    // .y(yScale)
+                    .scaleExtent([1, 50])
+                    .on("zoom", onchrZoom)
+                    .on("zoomend", onchrZoomEnd)
+                  
+                canvas.call(chrzoomBehaviour)
+                    .on("dblclick.zoom", null)
+                drawChr(index,selectedChr)
+                canvas.on("mousedown",onMouseDown)
+                canvas.on("mouseup",onMouseUp)
+            }
 
-            var chrzoomBehaviour=d3.behavior.zoom()
-                .x(chr_scale)
-                // .y(yScale)
-                .scaleExtent([1, 50])
-                .on("zoom", onchrZoom)
-                .on("zoomend", onchrZoomEnd)
-              
-            canvas.call(chrzoomBehaviour)
-                .on("dblclick.zoom", null)
-            drawChr(index,selectedChr)
+
+            document.getElementById("plot-canvas").addEventListener("mousemove",function(e){
+                // console.log("mousemove")
+                if (!isDown) return; // we will only act if mouse button is down
+
+                var pos={x:e.clientX,y:e.clientY}
+                  // calculate distance from click point to current point
+                
+                var dx = firstPos.x - pos.x;
+                var dy = firstPos.y - pos.y;
+                var dist = dx * dx + dy * dy;        // skip square-root (see above)
+                // console.log(firstPos,pos,dx,dy,dist)
+                if (dist >= radius) isMoving = true; // 10-4 we're on the move
+
+
+            })
+
+
 
             function drawChr(index,selectedChr){
+                console.log("drawChr called")
                 var active;
                 clearTimeout(zoomEndTimeout);
                 context.clearRect(0, 0, fullWidth, fullHeight);
@@ -372,57 +401,74 @@ $(document).ready(function(){
                 }, zoomEndDelay);
             }
 
-            function onChrClick() {
-                console.log("onChrClick called")
-                var mouse = d3.mouse(this);
+
+            function onMouseDown(){
+                console.log("MouseDown click")
+                mouse = d3.mouse(this);
+                firstPos = {x:mouse[0],y:mouse[1]};
+                isDown = true;
+                isMoving = false;
+
+            }
+
+            function onMouseUp() {
+                console.log("onMouseUp called")
+                console.log("isMoving ",isMoving)
+                // var mouse = d3.mouse(this);
                 // map the clicked point to the data space
-                var xClicked = chr_scale.invert(mouse[0]);
-                var yClicked = yScale.invert(mouse[1]);
-                var closest = chrquadTree.find([xClicked, yClicked]);
+                isDown=false
+                if (!isMoving){
+                    mouse = d3.mouse(this);
+                    var xClicked = chr_scale.invert(mouse[0]);
+                    var yClicked = yScale.invert(mouse[1]);
+                    var closest = chrquadTree.find([xClicked, yClicked]);
 
-                var dX = chr_scale(closest.x);
-                var dY = yScale(closest.y);
-                console.log(mouse[0], mouse[1], xClicked,yClicked,closest.x, closest.y, dX, dY)
+                    var dX = chr_scale(closest.x);
+                    var dY = yScale(closest.y);
+                    console.log(mouse[0], mouse[1], xClicked,yClicked,closest.x, closest.y, dX, dY)
 
-                // register the click if the clicked point is in the radius of the point
-                var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
-                console.log(distance,pointRadius)
-                if(distance < pointRadius) {
-                    console.log("selected point", selectedPoint)
-                    if(selectedPoint) {
-                        var selectedIndex=index.indexOf(selectedPoint.toString())
-                        chrData[selectedIndex].selected = false;
-                    }
-                    closest.selected = true;
-                    selectedPoint = closest.i;
-
-                    // redraw the points
-                    drawChr(index,selectedChr)
-                }
-
-                console.log(closest)
-                $("#plotNGCHM").hide();
-                $.get("http://"+server+"/showNGCHM/",{name:closest.name,chr:closest.chr},function(data){
-                    console.log(data)
-                    $("#plotNGCHM").show();
-                    var ajaxUrl="http://"+server+"/ngchmView"
-                    console.log(ajaxUrl)
-                    
-                    var xmlhttp=new XMLHttpRequest();
-                    xmlhttp.open("GET", ajaxUrl, true);
-                    xmlhttp.responseType = 'blob';
-                    xmlhttp.onload = function(e) {
-                        if (this.status == 200) {
-                            var blob = new Blob([this.response], {type: 'compress/zip'});
-                            // document.getElementById('loader').style.display = '';
-                            // NgChm.UTIL.resetCHM();
-                            NgChm.UTIL.displayFileModeCHM(blob)
-                            document.getElementById("container").addEventListener('wheel', NgChm.SEL.handleScroll, false);
-                            document.getElementById("detail_canvas").focus();
+                    // register the click if the clicked point is in the radius of the point
+                    var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
+                    console.log(distance,pointRadius)
+                    if(distance < pointRadius) {
+                        console.log("selected point", selectedPoint)
+                        if(selectedPoint) {
+                            var selectedIndex=index.indexOf(selectedPoint.toString())
+                            chrData[selectedIndex].selected = false;
                         }
-                    };
-                    xmlhttp.send()
-                })
+                        closest.selected = true;
+                        selectedPoint = closest.i;
+
+                        // redraw the points
+                        drawChr(index,selectedChr)
+                    }
+
+                    console.log(closest)
+
+                    $("#plotNGCHM").hide();
+                    $.get("http://"+server+"/showNGCHM/",{name:closest.name,chr:closest.chr},function(data){
+                        console.log(data)
+                        $("#plotNGCHM").show();
+                        var ajaxUrl="http://"+server+"/ngchmView"
+                        console.log(ajaxUrl)
+                        
+                        var xmlhttp=new XMLHttpRequest();
+                        xmlhttp.open("GET", ajaxUrl, true);
+                        xmlhttp.responseType = 'blob';
+                        xmlhttp.onload = function(e) {
+                            if (this.status == 200) {
+                                var blob = new Blob([this.response], {type: 'compress/zip'});
+                                // document.getElementById('loader').style.display = '';
+                                // NgChm.UTIL.resetCHM();
+                                NgChm.UTIL.displayFileModeCHM(blob)
+                                document.getElementById("container").addEventListener('wheel', NgChm.SEL.handleScroll, false);
+                                document.getElementById("detail_canvas").focus();
+                            }
+                        };
+                        isMoving=false
+                        xmlhttp.send()
+                    })
+                }
             
             }
 
