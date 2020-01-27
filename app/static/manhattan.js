@@ -454,10 +454,18 @@ $(document).ready(function(){
                     $("#plotNGCHM").hide();
                     let reorder=$("#reorder").prop("checked")
                     console.log(reorder)
-                    $.get("http://"+server+"/showNGCHM/",{name:chrData[selectedIndex].name,chr:chrData[selectedIndex].chr,reorder:reorder},function(data){
+                    let chr=chrData[selectedIndex].chr
+                    let name=chrData[selectedIndex].name
+                    $.get("http://"+server+"/showNGCHM/",{name:name,chr:chr,reorder:reorder},function(data){
                         console.log(data)
                         $("#plotNGCHM").show();
-                        var ajaxUrl="http://"+server+"/ngchmView"
+                        let heatmapName="chr"+chr+"_"+name
+                        if (reorder){
+                            heatmapName=heatmapName+"_reorder"
+                        }else{
+                            heatmapName=heatmapName+"_original"
+                        }
+                        var ajaxUrl="http://"+server+"/ngchmView/"+heatmapName
                         console.log(ajaxUrl)
                         
                         var xmlhttp=new XMLHttpRequest();

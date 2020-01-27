@@ -36,11 +36,16 @@ def show_NGCHM():
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     reorder = request.args.get('reorder', None, type=None)
-    print("showNGCHM", chr, name, reorder)
+    heatmapName = "chr"+chr+"_"+name
     if reorder == "false":
         reorder = False
+        heatmapName = heatmapName+"_original"
     elif reorder == "true":
         reorder = True
+        heatmapName = heatmapName+"_reorder"
+    print("showNGCHM", chr, name, heatmapName, reorder)
+    if os.path.exists("./static/cache/"+heatmapName+".ngchm"):
+        return "cache exists", 200
     HDFfileNames = glob.glob("/Users/jma7/Development/VAT_ref/test_2k/test2k/tmp*_genotypes_multi_genes.h5")
     HDFfileNames = sorted(HDFfileNames, key=lambda name: int(name.split("/")[-1].split("_")[1]))
     allGenotype = []
@@ -68,13 +73,12 @@ def show_NGCHM():
             file.close()
         # print(allColnames)
         allGenotype = pd.DataFrame(allGenotype, columns=allColnames)
-        heatmapName = "chr"+chr+"_"+name
-        print(heatmapName,reorder)
+ 
         if reorder:
             return reorder_genotype(allGenotype, heatmapName)
         else:
             allGenotype.to_csv("./static/fake_genotype.tsv", sep="\t")
-            command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|./static/disease.tsv|category|column_discrete output_location|./static/fake.ngchm'.format(heatmapName)
+            command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|./static/disease.tsv|category|column_discrete output_location|./static/cache/{}.ngchm'.format(heatmapName, heatmapName)
         # command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|testRun chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels output_location|./static/fake.ngchm'
 
             print(command)
@@ -102,15 +106,15 @@ def reorder_genotype(allGenotype, heatmapName):
         reordered_columns.extend(colSum.index)
     reordered_genotype = allGenotype[reordered_columns]
     reordered_genotype.to_csv("./static/fake_genotype.tsv", sep="\t")
-    command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|./static/disease.tsv|category|column_discrete output_location|./static/fake.ngchm'.format(heatmapName)
+    command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|./static/disease.tsv|category|column_discrete output_location|./static/cache/{}.ngchm'.format(heatmapName, heatmapName)
     print(command)
     return runCommand(command)
 
 
-@app.route("/ngchmView", methods=['GET'])
-def download_ngchm():
+@app.route("/ngchmView/<heatmapName>", methods=['GET'])
+def download_ngchm(heatmapName):
     print("donwload NGCHM")
-    path = "./static/fake.ngchm"
+    path = "./static/cache/{}.ngchm".format(heatmapName)
     # path="./static/Galaxy400x400-noCovariates.ngchm"
     return send_file(path)
 
