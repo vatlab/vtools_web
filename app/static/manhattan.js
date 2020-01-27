@@ -317,7 +317,7 @@ $(document).ready(function(){
                 var chrzoomBehaviour=d3.behavior.zoom()
                     .x(chr_scale)
                     // .y(yScale)
-                    .scaleExtent([1, 50])
+                    .scaleExtent([1, 30])
                     .on("zoom", onchrZoom)
                     .on("zoomend", onchrZoomEnd)
                   
@@ -452,7 +452,9 @@ $(document).ready(function(){
                     console.log(closest)
 
                     $("#plotNGCHM").hide();
-                    $.get("http://"+server+"/showNGCHM/",{name:chrData[selectedIndex].name,chr:chrData[selectedIndex].chr},function(data){
+                    let reorder=$("#reorder").prop("checked")
+                    console.log(reorder)
+                    $.get("http://"+server+"/showNGCHM/",{name:chrData[selectedIndex].name,chr:chrData[selectedIndex].chr,reorder:reorder},function(data){
                         console.log(data)
                         $("#plotNGCHM").show();
                         var ajaxUrl="http://"+server+"/ngchmView"
