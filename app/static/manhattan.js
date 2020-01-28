@@ -15,7 +15,7 @@ var margin = {top: 10, right: 10, bottom: 30, left: 30};
 var width = fullWidth - margin.left - margin.right;
 var height = fullHeight - margin.top - margin.bottom;
 
-var myColor = d3.scale.category10()
+var myColor = d3.scale.category20()
 
 
 

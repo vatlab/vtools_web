@@ -2,6 +2,7 @@ import os
 import uuid
 from subprocess import PIPE, run, Popen, STDOUT
 import sys
+import sqlite3
 from multiprocessing import Process
 from shutil import copy2
 import glob
@@ -18,6 +19,9 @@ if not os.path.exists(WORK_FOLDER):
     os.makedirs(WORK_FOLDER)
 
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
+dbSNP_map = {}
+samples_map = {}
+
 # app.config['WORK_FOLDER'] = WORK_FOLDER
 print("start")
 
@@ -29,6 +33,11 @@ def allowed_file(filename):
 
 @app.route('/showNGCHM/', methods=['GET'])
 def show_NGCHM():
+    if not dbSNP_map:
+        prepare_dbSNP_annotation()
+    # if not samples_map:
+    #     conn = create_connection("/Users/jma7/Development/VAT_ref/test_2k/test2k/test.proj")
+    #     prepare_column_names(conn)
     if os.path.exists("./static/fake.ngchm"):
         os.remove("./static/fake.ngchm")
     if os.path.exists("./static/fake_genotype.tsv"):
@@ -50,12 +59,15 @@ def show_NGCHM():
     HDFfileNames = sorted(HDFfileNames, key=lambda name: int(name.split("/")[-1].split("_")[1]))
     allGenotype = []
     allColnames = []
+
     try:
         for filePath in HDFfileNames:
             print(filePath)
             file = tb.open_file(filePath)
             node = file.get_node("/chr"+chr+"/"+name+"/")
             genotype = node.GT[:]
+            rownames = node.rownames[:]
+            rownames = get_dbSNP_annotation(rownames)
             whereNaN = np.isnan(genotype)
             genotype[whereNaN] = -1
             genotype = genotype.astype(int)
@@ -71,9 +83,10 @@ def show_NGCHM():
             colnames = colnode[:]
             allColnames.extend(colnames)
             file.close()
-        # print(allColnames)
-        allGenotype = pd.DataFrame(allGenotype, columns=allColnames)
- 
+
+        # allColnames = get_column_names(allColnames)
+        allGenotype = pd.DataFrame(allGenotype, columns=allColnames, index=rownames)
+
         if reorder:
             return reorder_genotype(allGenotype, heatmapName)
         else:
@@ -86,6 +99,44 @@ def show_NGCHM():
     except tb.exceptions.NoSuchNodeError:
         print("No such node")
         return "No such node", 500
+
+
+def prepare_dbSNP_annotation():
+    print("prepare dbSNP")
+    annotationFile = "/Users/jma7/Development/VAT_ref/test_2k/test2k/dbSNP_annotation.tsv"
+    with open(annotationFile, "r") as lines:
+        for line in lines:
+            cols = line.strip().split("\t")
+            if cols[5] != ".":
+                dbSNP_map[cols[0].strip()] = cols[5]
+            else:
+                dbSNP_map[cols[0].strip()] = "chr"+cols[1].strip()+"_"+cols[2]
+    print("done with dbSNP")
+
+
+def get_dbSNP_annotation(rownames):
+    return [dbSNP_map[str(rowname)] for rowname in rownames]
+
+
+def create_connection(db_file):
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+    except sqlite3.Error:
+        print("error")
+    return conn
+
+
+def prepare_column_names(conn):
+    cur = conn.cursor()
+    cur.execute("SELECT sample_id,sample_name FROM sample")
+    rows = cur.fetchall()
+    for row in rows:
+        samples_map[row[0]] = row[1]
+
+
+def get_column_names(colnames):
+    return [samples_map[colname] for colname in colnames]
 
 
 def reorder_genotype(allGenotype, heatmapName):
@@ -472,4 +523,5 @@ def route_frontend(path):
 
 if __name__ == "__main__":
     # Only for debugging while developing
+   
     app.run(host='0.0.0.0', debug=True, port=80)
