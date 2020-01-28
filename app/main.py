@@ -12,6 +12,7 @@ from werkzeug.utils import secure_filename
 import tables as tb
 import numpy as np
 import pandas as pd
+from scipy.stats import mannwhitneyu
 app = Flask(__name__)
 
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/testProject/"
@@ -148,6 +149,17 @@ def reorder_genotype(allGenotype, heatmapName):
                 covariateMap[cols[1]] = []
             else:
                 covariateMap[cols[1]].append(cols[0])
+    reordered_rows = reorder_rows(allGenotype, covariateMap)
+    reordered_cols = reorder_columns(allGenotype, covariateMap)
+    reordered_genotype = allGenotype.iloc[reordered_rows, :]
+    reordered_genotype = allGenotype.loc[:, reordered_cols]
+    reordered_genotype.to_csv("./static/fake_genotype.tsv", sep="\t")
+    command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|./static/disease.tsv|category|column_discrete output_location|./static/cache/{}.ngchm'.format(heatmapName, heatmapName)
+    print(command)
+    return runCommand(command)
+
+
+def reorder_columns(allGenotype, covariateMap):
     reordered_columns = []
     for key, value in covariateMap.items():
         values = [int(x) for x in value]
@@ -155,11 +167,22 @@ def reorder_genotype(allGenotype, heatmapName):
         colSum = allFilter.sum(axis=0).sort_values(ascending=False)
         colSum = colSum[colSum > 0]
         reordered_columns.extend(colSum.index)
-    reordered_genotype = allGenotype[reordered_columns]
-    reordered_genotype.to_csv("./static/fake_genotype.tsv", sep="\t")
-    command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|./static/disease.tsv|category|column_discrete output_location|./static/cache/{}.ngchm'.format(heatmapName, heatmapName)
-    print(command)
-    return runCommand(command)
+    return reordered_columns
+
+
+def reorder_rows(allGenotype, covariateMap):
+    keys = list(covariateMap.keys())
+    values1 = [int(x) for x in covariateMap[keys[0]]]
+    genotype1 = allGenotype[values1]
+    values2 = [int(x) for x in covariateMap[keys[1]]]
+    genotype2 = allGenotype[values2]
+    pvalues = []
+    for rowIndex in range(allGenotype.shape[0]):
+        stat, p = mannwhitneyu(genotype1.iloc[rowIndex], genotype2.iloc[rowIndex])
+        pvalues.append((rowIndex, p))
+    pvalues.sort(key=lambda x: x[1])
+    reordered_rows = [pvalue[0] for pvalue in pvalues]
+    return reordered_rows
 
 
 @app.route("/ngchmView/<heatmapName>", methods=['GET'])
