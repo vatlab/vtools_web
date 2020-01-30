@@ -5,328 +5,381 @@
     <title>Variant Tools</title>
     <link rel="stylesheet" href="advancededitor.css">
     <link rel="stylesheet" type="text/css" href="manhattan.css">
-    <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.2.1.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="http://code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <script type="text/javascript" src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.12/d3.min.js" charset="utf-8"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.0.0/lodash.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
     <script src="./utils.js"></script>
     <script src="./env.js"></script>
-    <script src="./manhattan.js"></script>
+<!--     <script src="./manhattan.js"></script> -->
 
     
 </head>
 <body>
-	<h1>Variant Tools</h1>
-	<div style="width:40%;float:left;">
-	    <fieldset id="createProject">
-	    	<legend>Create project</legend>
-	    	<button id="createRandomProject">Create</button>
-	        <button id="reset" >Reset</button>
-	    	<p style="display:inline" id="projectName"></p>
-	    	<input type="checkbox" id="reorder" value="True">reorder?<br>
-	    </fieldset>
-	    <fieldset id="getProject">
-	    	<legend>Get project</legend>
-	    	<input class="std_input" id="projectID" type="text">
-	    	<button id="getProjectButton">Get</button>
-	    </fieldset>
-		<fieldset id="localFileSource" style="display:none;">
-			<legend>Select a vcf file to upload</legend>
-			<form id="dataUpload"  enctype="multipart/form-data">
-			    <label class="formLabel1" for="localFileName">File Name</label>
-			    <input class="std_input" id="localFileName" type="text">
-			    <input id="uploadData" type = "file" name = "datafile" >
-	         	<input type = "submit">
-			</form>
-			<button id="sampleData">sampleData</button>
-			
-		</fieldset>
-		<fieldset id="dataSources" style="display:none;">
-			<legend>Data Sources</legend>
-	        <label  class="formLabel1" for="existingSourceName">Sources</label>
-	        <select  class="dropdowns existingSourceNameClass" name="existingSourceName" id="existingSourceName">   
-	        </select>
-		</fieldset>
 
-		<fieldset id="importData" style="display:none;">
-			<legend>Data Import</legend>
-			<p style="display:inline" id="selectedFileName"></p>
-			<select id="genomeVersion" size="1">
-			  <option Selected>hg19</option>
-			  <option>hg18</option>
-			</select>
-			<button id="importButton">Import</button>
-			<p id="importProgress"></p>
-		</fieldset>
 
-		<div id="dataDetail" style="display:none;">
-			
-			<div class="tab">
-			  <button class="tablinks" id="defaultOpen" onclick="openTab(event, 'Show')">Show</button>
-			  <button class="tablinks" onclick="openTab(event, 'Data')">Data</button>
-			  <button class="tablinks" onclick="openTab(event, 'Output')">Output</button>
-			  <button class="tablinks" onclick="openTab(event, 'Associate')">Associate</button>
-			  <button class="tablinks" onclick="openTab(event, 'Admin')">Admin</button>
-			  <fieldset id="logs">
-			  	<legend>Logs</legend>
-			  	<textarea id="logsText" style="width:100%;height:200px"></textarea>
-			  </fieldset>
-			</div>
 
-			<div id="Show" class="tabcontent">
-			  <h3>Show</h3>
-			  <fieldset id="vtoolsShowProject" >
-				<legend>Show project info</legend>
-				<select id="showProjectOptions" size="1">
-				  <option></option>
-				  <option >show</option>
-				  <option>tables</option>
-				  <option>samples</option>
-				  <option>genotypes</option>
-				  <option>phenotypes</option>
-				</select>
-			 </fieldset>
-			 <fieldset id="vtoolsShowInfo">
-				<legend>Show vtools info</legend>
-				<select id="showVtoolsOptions" size="1">
-				  <option></option>
-				 <!--  <option>fields</option> -->
-				  <option >annotations</option>
-				  <option>formats</option>
-				  <!-- <option>tests</option> -->
-				  <option>runtime_options</option>
-				</select>
-			</fieldset>
-			</div>
+  	<!-- Content Wrapper -->
+    <div id="content-wrapper" class="d-flex flex-column">
 
-			<div id="Data" class="tabcontent">
-				<h3> Data </h3>
-				<fieldset id="dataAnnotation" style="display:none;">
-					<legend>Data Annotation</legend>
-					<select id="annotationOptions" size="1">
-					</select>
-					<button id="useButton">Add annotation</button>
-					<p id="useFinished"></p>
-				</fieldset>
-				<div>
-				<fieldset id="vtoolsSelect">
-					<legend class="togvis">Select</legend>
-					<!-- <select id="fields" size="1"></select><br> -->
-					<div id="fields" style="width:300px">
-						<label class="formLabel1" for="selectionTables">Tables</label>
-						<select id="selectionTables" class="selectionBox existingTables">
-							<option selected value="Plsease selection">Please select</option>
-						</select>
+      <div id="landing_content">
+		<div class="jumbotron text-center">
+			  <h1>VariantTools web</h1>
+			  <p>A tool from vatlab</p> 
+		</div>
 
-						<label  class="formLabel1" for="fields">Fields</label>
-						<select id="selectionFields" class="selectionBox">
-							<option selected value="Plsease select">Please select</option>
-							<option value="Variant_tables">Variant_tables</option>
-							<option value="Annotation_databases">Annotation_databases</option>
-						</select>
-				
-						<select id="secondSelection" style="display:none" class="selectionBox">
-							<option selected value="Plsease selection">Please select</option>
-						</select>
-				
-						<select id="thirdSelection" style="display:none" class="selectionBox">
-							<option selected value="Plsease selection">Please select</option>
-						</select>
-						<select id="fourthSelection" style="display:none" class="selectionBox">
-							<option selected value="Plsease selection">Please select</option>
-						</select>
-						<input class="std_input" id="selectionInput" type="text" style="display:none;float:right"></input>
+	     <div class="align-items-center text-center">
+				    <h3>Create project</h3>
+				    <button class="btn btn-primary btn-xl" id="createRandomProject">Create</button>
+				    <h3>Get project</h3>
+				    	<input class="std_input" class="form-control" id="projectID" type="text">
+				    	<button class="btn btn-primary" id="getProjectButton">Get</button>
+	   </div>
+     </div>
 
-						<button id="addToCondition" style="display:none; float:right">Add to Condition</button>
-						
-					</div>
-				
-					<div style="float:left">
-						<label  class="formLabel1" for="selectCondition">Condition</label>
-						<input class="std_input" id="selectCondition" type="text"><br>
-						<label class="formLabel1" for="newTable">New table</label>
-						<input class="std_input" id="newTable" type="text"><br>
-						<button id="selectButton">Select</button>
-					<div>
-				</fieldset>
-				</div>
-				<fieldset id="vtoolsUpdate">
-					<legend class="togvis">Update</legend>
-					<label class="formLabel1" for="updateTables">Tables</label>
-						<select id="updateTables" class="selectionBox existingTables">
-							<option selected value="Plsease selection">Please select</option>
-						</select>
 
-					<label  class="formLabel1" for="updateCheckbox">Update from stat:</label>
-					<input type="checkbox" id="updateCheckbox">
 
-					<div id="div_fromFile">
-						<label  class="formLabel1" for="existingSourceName">From file</label>
-		        		<select  class="dropdowns existingSourceNameClass" name="existingSourceName" id="existingSourceNameUpdate"></select>
-		        		<!-- <legend>Select an external file to upload</legend>
-						<form id="dataUploadExternal"  enctype="multipart/form-data">
-						    <label class="formLabel1" for="externalFile">File Name</label>
-						    <input class="std_input" id="externalFile" type="text">
-						    <input id="uploadExternalFile" type = "file" name = "datafile" >
-				         	<input type = "submit">
-						</form> -->
-						<div id="div_varInfo" style="display:none">
-			        		<label  class="formLabel1" for="updateVarInfo">var_info</label>
-			        		<select  class="dropdowns" name="updateVarInfo" id="updateVarInfo" multiple></select>
-		        		</div>
-		        		<div id="div_genoInfo" style="display:none">
-		        			<label  class="formLabel1" for="updateGenoInfo">geno_info</label>
-		        			<select  class="dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
-		        		</div>
-		        	</div>
-	        		<div id="div_fromStat" style="display:none">
-	        			<label  class="formLabel1" for="updateStates">From stat</label>
-		        		<select id="updateStates" multiple> 
-							<option>GT=#(GT)</option>
-							<option>alt=#(alt)</option>
-							<option>hom=#(hom)</option>
-							<option>het=#(het)</option>
-							<option>other=#(other)</option>
-							<option>wtGT=#(wtGT)</option>
-							<option>mutGT=#(mutGT)</option>
-							<option>missing=#(missing)</option>
-							<option>maf=maf()</option>
-		        		</select>
-	        		</div>
-	        		<button id="updateButton">Update</button>   
-				</fieldset>
 
 		
-				<fieldset id="vtoolsRemove">
-					<legend>Remove</legend>
-					<select id="selectRemoveOptions">
-						<option></option>
-						<option>Fields</option>
-						<option>Genotypes</option>
-						<option>Phenotypes</option>
-						<option>Variants</option>
-						<option>Samples</option>
-						<option>Annotations</option>
-					</select>
+<!-- 	      <footer class="sticky-footer bg-white">
+	        <div class="container my-auto">
+	          <div class="copyright text-center my-auto">
+	            <span>Copyright &copy; Your Website 2019</span>
+	          </div>
+	        </div>
+	      </footer> -->
 
-					<div id="divRemoveFields" style="display:none">
-						<label  class="formLabel1" for="fields">Fields</label>
-						<select id="fields" size="1"></select><br>
-					</div >
-	
-					<div id="divRemoveGenotype" style="display:none">
-						<label  class="formLabel1" for="removeGenotype">Genotypes</label>
-		        		<input class="std_input" id="removeGenotype" type="text"><br>
-	        		</div>
-	        		<div id="divRemovePhenotype" style="display:none">
-		        		<label  class="formLabel1" for="removePhenotype">Phenotypes</label>
-		        		<input class="std_input" id="removePhenotype" type="text"><br>
-	        		</div>
-	        		<div id="divRemoveVariants" style="display:none">
-		        		<label  class="formLabel1" for="removeVariants">Variants</label>
-		        		<select id="removeVariants" size="1"></select><br>
-	        		</div>
-	        		<div id="divRemoveSamples" style="display:none">
-		        		<label  class="formLabel1" for="removeSamples">Samples</label>
-		        		<input class="std_input" id="removeSamples" type="text"><br>
-	        		</div>
-	        		<div id="divRemoveAnnotation" style="display:none">
-		        		<label  class="formLabel1" for="removeAnnotation">Annotations</label>
-		        		<select id="removeAnnotation" size="1"></select> <br>
-	        		</div>
-	        		<button id="removeButton">Remove</button>       
-
-				</fieldset>
-			</div>
+	  </div>
 
 
 
-			<div id="Output" class="tabcontent">
-			  <h3>Output</h3>
-			  <fieldset id="outputData">
-				<legend>Data Output</legend>
-				<div class="form-group">
-					<div>
-						<label for="outputTables"  >Tables</label>
-							<select id="outputTables" class="selectionBox existingTables" >
-								<option selected value="Plsease selection">Please select</option>
+
+		
+<div class="container" id="accordionSidebar" style="display: none">
+    <div class="row">
+
+        <div class="col-md-6" >
+        	<a href="index.html">
+            <h3>VariatTools</h3>
+        	</a>
+            <!-- tabs left -->
+            <div class="tabbable">
+                <ul class="nav nav-pills nav-stacked col-md-3">
+                	<li class="active"><a href="#import" data-toggle="tab">Import</a></li>
+                    <li ><a href="#show" data-toggle="tab">Show</a></li>
+                    <li><a href="#data" data-toggle="tab">Data</a></li>
+                    <li><a href="#output" data-toggle="tab">Output</a></li>
+                    <li><a href="#associate" data-toggle="tab">Associate</a></li>
+                    <li><a href="#admin" data-toggle="tab">Admin</a></li>
+                </ul>
+
+   <!--               <fieldset id="logs">
+			  	<legend>Logs</legend>
+			  	<textarea id="logsText" style="width:100%;height:200px"></textarea>
+			  </fieldset> -->
+
+
+                <div class="tab-content col-md-9">
+                	<div class="tab-pane active" id="import">
+                		<h3>Import</h3>
+				         <div id="localFileSource" style="display:none;">
+				      		<legend>Select a vcf file to upload</legend>
+							<form id="dataUpload"  enctype="multipart/form-data">
+							    <label class="formLabel1" for="localFileName">File Name</label>
+							    <input class="std_input" id="localFileName" type="text">
+							    <input id="uploadData" type = "file" name = "datafile" >
+					         	<input type = "submit">
+							</form>
+							<button id="sampleData">sampleData</button>
+
+				      	</div>
+				      	<div id="dataSources" style="display:none;">
+							<legend>Data Sources</legend>
+					        <label  class="formLabel1" for="existingSourceName">Sources</label>
+					        <select  class="dropdowns existingSourceNameClass" name="existingSourceName" id="existingSourceName">   
+					        </select>
+						</div>
+
+						<div id="importData" style="display:none;">
+							<legend>Data Import</legend>
+							<p style="display:inline" id="selectedFileName"></p>
+							<select id="genomeVersion" size="1">
+							  <option Selected>hg19</option>
+							  <option>hg18</option>
 							</select>
-					</div>
-				</div>
-				<div style="height:60px">
-					<div>
-						<label for="outputTableFields" >Table Fields</label>
-							<select id="outputTableFields" class="selectionBox" multiple >
+							<button id="importButton">Import</button>
+							<p id="importProgress"></p>
+						</div>
+     
+
+                	</div>
+
+                    <div class="tab-pane active" id="show">
+                    	<h3>Show</h3>
+						  <fieldset id="vtoolsShowProject" >
+							<legend>Show project info</legend>
+							<select id="showProjectOptions" size="1">
+							  <option></option>
+							  <option >show</option>
+							  <option>tables</option>
+							  <option>samples</option>
+							  <option>genotypes</option>
+							  <option>phenotypes</option>
 							</select>
-					</div>
-				</div>	
-				<!-- <div >
-				<label  for="outputAnnos">Annotations</label>
-					<select id="outputAnnos" class="selectionBox" >
-						<option selected value="Plsease selection">Please select</option>
-					</select>
-				</div> -->
-				<div style="height:60px">
-				<label  for="outputAnnoFields" >Anno Fields</label>
-					<select id="outputAnnoFields" class="selectionBox" multiple>
-					</select>
-				</div>
+						 </fieldset>
+						 <fieldset id="vtoolsShowInfo">
+							<legend>Show vtools info</legend>
+							<select id="showVtoolsOptions" size="1">
+							  <option></option>
+							 <!--  <option>fields</option> -->
+							  <option >annotations</option>
+							  <option>formats</option>
+							  <!-- <option>tests</option> -->
+							  <option>runtime_options</option>
+							</select>
+						</fieldset>
+                    	
+                    </div>
+                    <div class="tab-pane" id="data">
+                    	<h3> Data </h3>
+						<fieldset id="dataAnnotation" style="display:none;">
+							<legend>Data Annotation</legend>
+							<select id="annotationOptions" size="1">
+							</select>
+							<button id="useButton">Add annotation</button>
+							<p id="useFinished"></p>
+						</fieldset>
+						<div>
+						<fieldset id="vtoolsSelect">
+							<legend class="togvis">Select</legend>
+							<!-- <select id="fields" size="1"></select><br> -->
+							<div id="fields" style="width:300px">
+								<label class="formLabel1" for="selectionTables">Tables</label>
+								<select id="selectionTables" class="selectionBox existingTables">
+									<option selected value="Plsease selection">Please select</option>
+								</select>
+
+								<label  class="formLabel1" for="fields">Fields</label>
+								<select id="selectionFields" class="selectionBox">
+									<option selected value="Plsease select">Please select</option>
+									<option value="Variant_tables">Variant_tables</option>
+									<option value="Annotation_databases">Annotation_databases</option>
+								</select>
+						
+								<select id="secondSelection" style="display:none" class="selectionBox">
+									<option selected value="Plsease selection">Please select</option>
+								</select>
+						
+								<select id="thirdSelection" style="display:none" class="selectionBox">
+									<option selected value="Plsease selection">Please select</option>
+								</select>
+								<select id="fourthSelection" style="display:none" class="selectionBox">
+									<option selected value="Plsease selection">Please select</option>
+								</select>
+								<input class="std_input" id="selectionInput" type="text" style="display:none;float:right"></input>
+
+								<button id="addToCondition" style="display:none; float:right">Add to Condition</button>
+								
+							</div>
+						
+							<div style="float:left">
+								<label  class="formLabel1" for="selectCondition">Condition</label>
+								<input class="std_input" id="selectCondition" type="text"><br>
+								<label class="formLabel1" for="newTable">New table</label>
+								<input class="std_input" id="newTable" type="text"><br>
+								<button id="selectButton">Select</button>
+							<div>
+						</fieldset>
+						</div>
+						<fieldset id="vtoolsUpdate">
+							<legend class="togvis">Update</legend>
+							<label class="formLabel1" for="updateTables">Tables</label>
+								<select id="updateTables" class="selectionBox existingTables">
+									<option selected value="Plsease selection">Please select</option>
+								</select>
+
+							<label  class="formLabel1" for="updateCheckbox">Update from stat:</label>
+							<input type="checkbox" id="updateCheckbox">
+
+							<div id="div_fromFile">
+								<label  class="formLabel1" for="existingSourceName">From file</label>
+				        		<select  class="dropdowns existingSourceNameClass" name="existingSourceName" id="existingSourceNameUpdate"></select>
+				        		<!-- <legend>Select an external file to upload</legend>
+								<form id="dataUploadExternal"  enctype="multipart/form-data">
+								    <label class="formLabel1" for="externalFile">File Name</label>
+								    <input class="std_input" id="externalFile" type="text">
+								    <input id="uploadExternalFile" type = "file" name = "datafile" >
+						         	<input type = "submit">
+								</form> -->
+								<div id="div_varInfo" style="display:none">
+					        		<label  class="formLabel1" for="updateVarInfo">var_info</label>
+					        		<select  class="dropdowns" name="updateVarInfo" id="updateVarInfo" multiple></select>
+				        		</div>
+				        		<div id="div_genoInfo" style="display:none">
+				        			<label  class="formLabel1" for="updateGenoInfo">geno_info</label>
+				        			<select  class="dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
+				        		</div>
+				        	</div>
+			        		<div id="div_fromStat" style="display:none">
+			        			<label  class="formLabel1" for="updateStates">From stat</label>
+				        		<select id="updateStates" multiple> 
+									<option>GT=#(GT)</option>
+									<option>alt=#(alt)</option>
+									<option>hom=#(hom)</option>
+									<option>het=#(het)</option>
+									<option>other=#(other)</option>
+									<option>wtGT=#(wtGT)</option>
+									<option>mutGT=#(mutGT)</option>
+									<option>missing=#(missing)</option>
+									<option>maf=maf()</option>
+				        		</select>
+			        		</div>
+			        		<button id="updateButton">Update</button>   
+						</fieldset>
+
 				
-				<button id="outputButton">Output</button>
-			
-			  </fieldset>
-			  <fieldset id="vtoolsCompare">
-				<legend>Compare</legend>
-			  </fieldset>
-			</div>
+						<fieldset id="vtoolsRemove">
+							<legend>Remove</legend>
+							<select id="selectRemoveOptions">
+								<option></option>
+								<option>Fields</option>
+								<option>Genotypes</option>
+								<option>Phenotypes</option>
+								<option>Variants</option>
+								<option>Samples</option>
+								<option>Annotations</option>
+							</select>
 
-			<div id="Associate" class="tabcontent">
-			  <h3>Associate</h3>
+							<div id="divRemoveFields" style="display:none">
+								<label  class="formLabel1" for="fields">Fields</label>
+								<select id="fields" size="1"></select><br>
+							</div >
+			
+							<div id="divRemoveGenotype" style="display:none">
+								<label  class="formLabel1" for="removeGenotype">Genotypes</label>
+				        		<input class="std_input" id="removeGenotype" type="text"><br>
+			        		</div>
+			        		<div id="divRemovePhenotype" style="display:none">
+				        		<label  class="formLabel1" for="removePhenotype">Phenotypes</label>
+				        		<input class="std_input" id="removePhenotype" type="text"><br>
+			        		</div>
+			        		<div id="divRemoveVariants" style="display:none">
+				        		<label  class="formLabel1" for="removeVariants">Variants</label>
+				        		<select id="removeVariants" size="1"></select><br>
+			        		</div>
+			        		<div id="divRemoveSamples" style="display:none">
+				        		<label  class="formLabel1" for="removeSamples">Samples</label>
+				        		<input class="std_input" id="removeSamples" type="text"><br>
+			        		</div>
+			        		<div id="divRemoveAnnotation" style="display:none">
+				        		<label  class="formLabel1" for="removeAnnotation">Annotations</label>
+				        		<select id="removeAnnotation" size="1"></select> <br>
+			        		</div>
+			        		<button id="removeButton">Remove</button>       
+
+						</fieldset>
+
+                    </div>
+                    <div class="tab-pane" id="output">
+                    	<h3>Output</h3>
+						  <fieldset id="outputData">
+							<legend>Data Output</legend>
+							<div class="form-group">
+								<div>
+									<label for="outputTables"  >Tables</label>
+										<select id="outputTables" class="selectionBox existingTables" >
+											<option selected value="Plsease selection">Please select</option>
+										</select>
+								</div>
+							</div>
+							<div style="height:60px">
+								<div>
+									<label for="outputTableFields" >Table Fields</label>
+										<select id="outputTableFields" class="selectionBox" multiple >
+										</select>
+								</div>
+							</div>	
+							<!-- <div >
+							<label  for="outputAnnos">Annotations</label>
+								<select id="outputAnnos" class="selectionBox" >
+									<option selected value="Plsease selection">Please select</option>
+								</select>
+							</div> -->
+							<div style="height:60px">
+							<label  for="outputAnnoFields" >Anno Fields</label>
+								<select id="outputAnnoFields" class="selectionBox" multiple>
+								</select>
+							</div>
+							
+							<button id="outputButton">Output</button>
+						
+						  </fieldset>
+						  <fieldset id="vtoolsCompare">
+							<legend>Compare</legend>
+						  </fieldset>
+
+                    </div>
+
+                    <div class="tab-pane" id="associate">
+                    	<h3>Associate</h3>
 				  
 
-				<fieldset id="addPhenotype" style="display:none;">
-					<legend>Add Phenotype</legend>
-					<form   id="phenoUpload"  enctype="multipart/form-data">
-					    <label class="formLabel1" for="localPhenoFileName">File Name</label>
-					    <input class="std_input" id="localPhenoFileName" type="text">
-					    <input id="uploadPheno" type = "file" name = "phenofile">
-			         	<input type = "submit">
-					</form>
-					<button id="samplePhenotype">sampleData</button>
-					<button id="addPhenotypeButton">Add phenotype</button>
-					<p id="phenotypeAdded"></p>
-					
-				</fieldset>
-				<fieldset id="vtoolsAssociate">
-					<legend>Associate</legend>
-					<label  class="formLabel1" for="projectTables">Tables</label>
-					<select class="dropdowns" name="projectTables" id="projectTables" ></select>
-					<label  class="formLabel1" for="projectPhenotypes">Phenotypes</label>
-					<select class="dropdowns" name="projectPhenotypes" id="projectPhenotypes" ></select>
-					<label  class="formLabel1" for="associateMethods">Methods</label>
-					<select class="dropdowns" name="associateMethods" id="associateMethods" ></select>
-					<label  class="formLabel1" for="discardVariants">Discard variants</label>
-					<input class="std_input" id="discardVariants" type="text" value='"%(NA)>0.1"'>
+						<fieldset id="addPhenotype" style="display:none;">
+							<legend>Add Phenotype</legend>
+							<form   id="phenoUpload"  enctype="multipart/form-data">
+							    <label class="formLabel1" for="localPhenoFileName">File Name</label>
+							    <input class="std_input" id="localPhenoFileName" type="text">
+							    <input id="uploadPheno" type = "file" name = "phenofile">
+					         	<input type = "submit">
+							</form>
+							<button id="samplePhenotype">sampleData</button>
+							<button id="addPhenotypeButton">Add phenotype</button>
+							<p id="phenotypeAdded"></p>
+							
+						</fieldset>
+						<fieldset id="vtoolsAssociate">
+							<legend>Associate</legend>
+							<label  class="formLabel1" for="projectTables">Tables</label>
+							<select class="dropdowns" name="projectTables" id="projectTables" ></select>
+							<label  class="formLabel1" for="projectPhenotypes">Phenotypes</label>
+							<select class="dropdowns" name="projectPhenotypes" id="projectPhenotypes" ></select>
+							<label  class="formLabel1" for="associateMethods">Methods</label>
+							<select class="dropdowns" name="associateMethods" id="associateMethods" ></select>
+							<label  class="formLabel1" for="discardVariants">Discard variants</label>
+							<input class="std_input" id="discardVariants" type="text" value='"%(NA)>0.1"'>
 
-				</fieldset>
-				<button id="runAssociation"  style="display:none">Run association</button>
-				<button id="showAssociation"  style="display:none">Show association</button>
-				<p id="associateProgress"></p>
-			</div>
-
-			<div id="Admin" class="tabcontent">
-			  <h3>Admin</h3>
-
-			</div>
+						</fieldset>
+						<button id="runAssociation"  style="display:none">Run association</button>
+						<button id="showAssociation"  style="display:none">Show association</button>
+						<p id="associateProgress"></p>
 
 
+                    </div>
+                    
+                    <div class="tab-pane" id="admin">
+                    	 <h3>Admin</h3>
 
 
+                    </div>
+                </div>
+            </div>
+            <!-- /tabs -->
+        </div>
+
+</div>
+
+
+
+
+	<div style="width:40%;float:left;">
+	 
 	</div>
 </div>
-<div style="width:80%; float:left;">
+<!-- <div style="width:80%; float:left;">
 	<div>
 		<table id="dataTable"></table>
 		<table id="infoTable"></table>
@@ -335,16 +388,15 @@
 	    
 	</div>
 	<div id="plotNGCHM" style="display:none">
-	    <!-- /*<div id="NGCHM" style="width:500px; height:500px"></div>*/ -->
 	    <div id="NGCHM" style="width:100%; height:500px"></div>
-	   	<!-- <div id='NGCHMEmbed' style="background-color:white; height:500px ; width:500px; border: 2px solid gray; padding: 5px"></div> -->
+	   	<div id='NGCHMEmbed' style="background-color:white; height:500px ; width:500px; border: 2px solid gray; padding: 5px"></div>
 	    <div id='NGCHMEmbed' style="background-color:white; height:500px ; width:99%; border: 2px solid gray; padding: 5px"></div>
 
 	   	<script type="text/javascript" src="ngchmWidget-min.js"></script>
 	   	<script type="text/Javascript" src="./NGCHM_viewer.js"></script>
    </div>
    	
-</div>
+</div> -->
 </body>
 	<style>
 
