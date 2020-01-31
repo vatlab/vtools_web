@@ -24,7 +24,7 @@
 
 
   	<!-- Content Wrapper -->
-    <div id="content-wrapper" class="d-flex flex-column">
+    <div id="content-wrapper" class="d-flex flex-column" style="display:none">
 
       <div id="landing_content">
 		<div class="jumbotron text-center">
@@ -59,7 +59,7 @@
 
 
 		
-<div class="container" id="accordionSidebar" style="display: none">
+<div class="container" id="accordionSidebar">
     <div class="row">
 
         <div class="col-md-6" >
@@ -84,17 +84,38 @@
 
 
                 <div class="tab-content col-md-9">
+
                 	<div class="tab-pane active" id="import">
-                		<h3>Import</h3>
-				         <div id="localFileSource" style="display:none;">
-				      		<legend>Select a vcf file to upload</legend>
+				         <div id="localFileSource">
+				<!--       		<label call="control-label">Select a vcf file to upload</label>
 							<form id="dataUpload"  enctype="multipart/form-data">
 							    <label class="formLabel1" for="localFileName">File Name</label>
 							    <input class="std_input" id="localFileName" type="text">
 							    <input id="uploadData" type = "file" name = "datafile" >
 					         	<input type = "submit">
+							</form> -->
+
+							<form  id="dataUpload" method="POST" action="#" enctype="multipart/form-data">
+								<!-- COMPONENT START -->
+								<div class="form-group">
+									<div class="input-group input-file" name="Fichier1">
+							    		<input type="text" class="form-control" placeholder='Choose a file...' />			
+							            <span class="input-group-btn">
+							        		<button class="btn btn-default btn-choose" type="button">Choose</button>
+							    		</span>
+
+
+									</div>
+								</div>
+								<!-- COMPONENT END -->
+								<div class="form-group">
+									<button type="submit" class="btn btn-primary pull-right">Submit</button>
+									<button type="reset" class="btn btn-danger">Reset</button>
+								</div>
 							</form>
 							<button id="sampleData">sampleData</button>
+
+
 
 				      	</div>
 				      	<div id="dataSources" style="display:none;">
@@ -118,7 +139,7 @@
 
                 	</div>
 
-                    <div class="tab-pane active" id="show">
+                    <div class="tab-pane" id="show" >
                     	<h3>Show</h3>
 						  <fieldset id="vtoolsShowProject" >
 							<legend>Show project info</legend>

@@ -189,7 +189,39 @@ $(document).ready(function(){
         return false;
     });
 
-    
+
+    function bs_input_file() {
+         $(".input-file").before(
+                function() {
+                    if ( ! $(this).prev().hasClass('input-ghost') ) {
+                        var element = $("<input id='uploadData' type='file' class='input-ghost' style='visibility:hidden; height:0'>");
+                        element.attr("name",$(this).attr("name"));
+                        element.change(function(){
+                            element.next(element).find('input').val((element.val()).split('\\').pop());
+                        });
+                        $(this).find("button.btn-choose").click(function(){
+                            element.click();
+                        });
+                        $(this).find("button.btn-reset").click(function(){
+                            element.val(null);
+                            $(this).parents(".input-file").find('input').val('');
+                        });
+                        $(this).find('input').css("cursor","pointer");
+                        $(this).find('input').mousedown(function() {
+                            $(this).parents('.input-file').prev().click();
+                            return false;
+                        });
+                        return element;
+                    }
+                }
+            );
+        }
+
+
+    $(function() {
+        bs_input_file();
+    });
+        
 
 })
 
@@ -268,9 +300,13 @@ function vtoolsUpdate(){
 function getProject(){
     projectID=$("#projectID").val()
     $.get("http://"+server+"/project/"+projectID,function(fileName){
-        $(".existingSourceNameClass").each((idx,obj)=>{
-          addOption(obj.id,["",fileName])
-        })
+        if (fileName!=="empty"){
+            $(".existingSourceNameClass").each((idx,obj)=>{
+              addOption(obj.id,["",fileName])
+            })
+        }
+        $("#landing_content").hide()
+        $("#accordionSidebar").show()
 
         vtoolsShow("fields",false)
         vtoolsShow("annotations -v0",false)

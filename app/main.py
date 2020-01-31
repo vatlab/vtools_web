@@ -236,7 +236,10 @@ def get_project(projectID):
         else:
             os.chdir(directory)
             vcfFiles = glob.glob(directory+"/*.vcf")
-            return os.path.basename(vcfFiles[0]), 200
+            if len(vcfFiles)==0:
+                return "empty", 200
+            else:
+                return os.path.basename(vcfFiles[0]), 200
 
 
 @app.route('/logs/<projectID>', methods=['POST', 'GET'])
