@@ -18,7 +18,7 @@ app = Flask(__name__)
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/testProject/"
 if not os.path.exists(WORK_FOLDER):
     os.makedirs(WORK_FOLDER)
-
+os.chdir(WORK_FOLDER+"VT46e0d8d3d2a24f9baf434d5e91be2225")
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
 dbSNP_map = {}
 samples_map = {}
@@ -196,10 +196,11 @@ def download_ngchm(heatmapName):
 @app.route('/loadSampleData/<projectID>', methods=['GET'])
 def load_sampleData(projectID):
     if request.method == "GET":
-        print("copy file")
         fileType = request.args.get('fileType', None, type=None)
-        if fileType == "data" and os.path.exists("../10k_test_2k.vcf"):
-            src = os.path.realpath("../10k_test_2k.vcf")
+        print(WORK_FOLDER+"/10k_test_2k.vcf")
+        if fileType == "data" and os.path.exists(WORK_FOLDER+"/10k_test_2k.vcf"):
+            src = os.path.realpath(WORK_FOLDER+"/10k_test_2k.vcf")
+            print("copy ",src)
             copy2(src, WORK_FOLDER+projectID+"/")
         elif fileType == "pheno" and os.path.exists("../simulated.tsv"):
             src = os.path.realpath("../simulated.tsv")
@@ -310,6 +311,7 @@ def vtools_import(projectID):
 
 def run_vtools_import(projectID, fileName, genomeVersion):
     command = "vtools import "+WORK_FOLDER+projectID+"/"+fileName+" --build " + genomeVersion+" -f"
+    os.chdir(WORK_FOLDER+projectID)
     with open(WORK_FOLDER+projectID+"/import_log.txt", "a+") as output:
         Popen(command.split(" "), stdout=output, stderr=output, universal_newlines=True)
 
@@ -511,6 +513,10 @@ def vtools_show():
         command = "vtools show annotations -v0 "
     elif option == "genotypes":
         command = "vtools show genotypes -l 10"
+    elif option == "tables":
+        command = "vtools show tables"
+    elif option == "fields":
+        command = "vtools show fields -l 10"    
     result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
     # print(result.returncode)
     # print("stdout", result.stdout)

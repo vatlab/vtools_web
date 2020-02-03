@@ -1,13 +1,13 @@
 var server;
 var dataTable;
 var logs=[];
-var projectID="VTde761e91a89e4f379d46afda126521c1";
+var projectID ="VT46e0d8d3d2a24f9baf434d5e91be2225";
 var fieldMap={};
 
 
 $(document).ready(function(){
-    // server=env.server+"/vtoolsweb/"
-    server=env.server+":5000"
+    server=env.server+"/vtoolsweb/"
+    // server=env.server+":5000"
 
     $("#createRandomProject").click(function(){
         console.log(server)
@@ -411,8 +411,7 @@ function addOption(id,contents){
     contents.forEach((content)=>{
         options+='<option>'+content+'</option>'
     })
-    console.log(options)
-    console.log(id)
+
     $('#'+id).html(options).selectpicker("refresh")
 
     // var dropdown = document.getElementById(id);
@@ -588,6 +587,8 @@ function generateDataTable(table,rows){
     rows=rows.filter((row)=>row!==undefined) 
     // console.log(rows)
     // console.log(columns)
+    console.log(rows)
+    console.log(columns)
     dataTable=$(table).DataTable({
         data:rows,
         columns:columns
@@ -790,6 +791,7 @@ function vtoolsShow(option,display){
 
             case "tables":
                 var tables=rows.slice(1).map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+                console.log(tables)
                 addOption("projectTables",tables)
                 if(display){
                     generateInfoTable('#infoTable',rows)
