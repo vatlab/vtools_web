@@ -1,0 +1,31 @@
+<div class="container" id="accordionSidebar" style="display:none">
+    <div class="row">
+
+        <div class="col-md-6">
+            <a href="index.html">
+                <h3>VariantTools</h3>
+            </a>
+            <!-- tabs left -->
+            <div class="tabtable">
+                <ul class="nav nav-pills nav-stacked col-md-3">
+                    <li class="active"><a href="#import" data-toggle="tab">Import</a></li>
+                    <li><a href="#show" data-toggle="tab">Show</a></li>
+                    <li><a href="#data" data-toggle="tab">Data</a></li>
+                    <li><a href="#output" data-toggle="tab">Output</a></li>
+                    <li><a href="#associate" data-toggle="tab">Associate</a></li>
+                    <li><a href="#manhattanPlot" data-toggle="tab">Manhattan</a></li>
+                    <li><a href="#admin" data-toggle="tab">Admin</a></li>
+                </ul>
+                <div class="tab-content col-md-9">
+                    {% inßclude 'import.html' %}
+                    {% include 'show.html' %}
+                    {% include 'data.html' %}
+                    {% include 'output.html' %}
+                    {% include 'associate.html' %}
+                    {% include 'manhattanPlot.html' %}
+                    {% include 'admin.html' %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

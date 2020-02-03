@@ -80,10 +80,8 @@ $(document).ready(function(){
             contentType:false,
             processData:false, 
             success:function(data){
-                console.log("sucess")
-                    
+                console.log("sucess")      
             },
-         
         });
 
     })
@@ -321,7 +319,7 @@ function getProject(){
         vtoolsShow("phenotypes",false)
         $("#runAssociation").show()
         
-        document.getElementById("defaultOpen").click();
+        // document.getElementById("defaultOpen").click();
         $("#showError").hide()
 
 

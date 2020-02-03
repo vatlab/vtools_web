@@ -1,0 +1,35 @@
+<div class="tab-pane" id="associate">
+	<h3>Associate</h3>
+
+
+	<fieldset id="addPhenotype" style="display:none;">
+		<legend>Add Phenotype</legend>
+		<form id="phenoUpload" enctype="multipart/form-data">
+			<label class="formLabel1" for="localPhenoFileName">File Name</label>
+			<input class="std_input" id="localPhenoFileName" type="text">
+			<input id="uploadPheno" type="file" name="phenofile">
+			<input type="submit">
+		</form>
+		<button id="samplePhenotype">sampleData</button>
+		<button id="addPhenotypeButton">Add phenotype</button>
+		<p id="phenotypeAdded"></p>
+
+	</fieldset>
+	<fieldset id="vtoolsAssociate">
+		<legend>Associate</legend>
+		<label class="formLabel1" for="projectTables">Tables</label>
+		<select class="dropdowns" name="projectTables" id="projectTables"></select>
+		<label class="formLabel1" for="projectPhenotypes">Phenotypes</label>
+		<select class="dropdowns" name="projectPhenotypes" id="projectPhenotypes"></select>
+		<label clßass="formLabel1" for="associateMethods">Methods</label>
+		<select class="dropdowns" name="associateMethods" id="associateMethods"></select>
+		<label class="formLabel1" for="discardVariants">Discard variants</label>
+		<input class="std_input" id="discardVariants" type="text" value='"%(NA)>0.1"'>
+
+	</fieldset>
+	<button id="runAssociation" style="display:none">Run association</button>
+	<button id="showAssociation" style="display:none">Show association</button>
+	<p id="associateProgress"></p>
+
+
+</div>

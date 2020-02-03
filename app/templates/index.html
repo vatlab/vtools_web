@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+
+{% block script %}
+
+{% endblock %}
+
+{% block content %}
+
+<div id="content-wrapper" class="d-flex flex-column">
+
+    <div id="landing_content">
+        <div class="jumbotron text-center">
+            <h1>VariantTools web</h1>
+            <p>A tool from vatlab</p>
+        </div>
+
+        <div class="align-items-center text-center">
+            <h3>Create project</h3>
+            <button class="btn btn-primary btn-xl" id="createRandomProject">Create</button>
+            <h3>Get project</h3>
+            <input class="std_input" class="form-control" id="projectID" type="text">
+            <button class="btn btn-primary" id="getProjectButton">Get</button>
+        </div>
+    </div>
+
+    {% include 'navbar.html' %}
+
+    <div class="row justify-content-center" style="margin:auto;width:70%">
+        <div class="col-auto">
+            <table class="table table-striped" id="dataTable"></table>
+            <table id="infoTable"></table>
+    
+        </div>
+    </div>
+</div>
+
+
+{% endblock %}

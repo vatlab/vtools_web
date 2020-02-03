@@ -7,7 +7,7 @@ from multiprocessing import Process
 from shutil import copy2
 import glob
 import time
-from flask import Flask, send_file, request, redirect, jsonify
+from flask import Flask, send_file, request, redirect, jsonify, url_for, render_template
 from werkzeug.utils import secure_filename
 import tables as tb
 import numpy as np
@@ -289,6 +289,7 @@ def get_project(projectID):
                 return "empty", 200
             else:
                 return os.path.basename(vcfFiles[0]), 200
+    
 
 
 @app.route('/logs/<projectID>', methods=['POST', 'GET'])
@@ -582,11 +583,17 @@ def hello():
      Python 3.7 (from the example template)"
 
 
+# @app.route("/")
+# def main():
+#     index_path = os.path.join(app.static_folder, 'index.html')
+#     return send_file(index_path)
+
+
 @app.route("/")
 def main():
-    index_path = os.path.join(app.static_folder, 'index.html')
-    return send_file(index_path)
-
+    # index_path = os.path.join(app.static_folder, 'index.html')
+    # return send_file(index_path)
+    return render_template("index.html")
 
 # Everything not declared before (not a Flask route / API endpoint)...
 @app.route('/<path:path>')
