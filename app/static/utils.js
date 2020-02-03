@@ -1,7 +1,7 @@
 var server;
 var dataTable;
 var logs=[];
-var projectID;
+var projectID="VTde761e91a89e4f379d46afda126521c1";
 var fieldMap={};
 
 
@@ -220,6 +220,7 @@ $(document).ready(function(){
 
     $(function() {
         bs_input_file();
+        $('select').selectpicker()
     });
         
 
@@ -391,15 +392,28 @@ function addToLog(log){
 }
 
 
+function addToDropDown(id,contents){
+    console.log(contents)
+    $("#"+id).append("<li role='presentation'><a role='menuitem' href='#'>" + contents + "</a></li>")
+}
+
+
 function addOption(id,contents){
 
+    // contents.forEach((content)=>{
+    //     var dropdown = document.getElementById(id);
+    //     var optn = document.createElement("option");
+    //     optn.text = content;
+    //     optn.value = content;
+    //     dropdown.options.add(optn).selectpicker('refresh');
+    // })
+    let options=""
     contents.forEach((content)=>{
-        var dropdown = document.getElementById(id);
-        var optn = document.createElement("option");
-        optn.text = content;
-        optn.value = content;
-        dropdown.options.add(optn);
+        options+='<option>'+content+'</option>'
     })
+    console.log(options)
+    console.log(id)
+    $('#'+id).html(options).selectpicker("refresh")
 
     // var dropdown = document.getElementById(id);
     // var optn = document.createElement("option");
@@ -437,10 +451,13 @@ function loadSampleData(){
     
     $('#dataSources').show();
     $('#addPhenotype').show();
-    $(".existingSourceNameClass").each((idx,obj)=>{
-      addOption(obj.id,["",fileName])
+    addOption("existingSourceName",["",fileName])
+
+    // $(".existingSourceNameClass").each((idx,obj)=>{
+    //   console.log(obj)
+    //   addOption(obj.id,["",fileName])
   
-    })
+    // })
     $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"data"}).done(function(message){
         console.log(message)
     })

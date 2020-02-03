@@ -12,7 +12,11 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.0.0/lodash.min.js"></script>
     <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css">
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link href="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/css/bootstrap-select.css" rel="stylesheet"/>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.4/js/bootstrap-select.js"></script>
+
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+
     <script src="./utils.js"></script>
     <script src="./env.js"></script>
 <!--     <script src="./manhattan.js"></script> -->
@@ -99,7 +103,7 @@
 								<!-- COMPONENT START -->
 								<div class="form-group">
 									<div class="input-group input-file" name="Fichier1">
-							    		<input type="text" class="form-control" placeholder='Choose a file...' />			
+							    		<input type="text" class="form-control" id="localFileName" placeholder='Choose a file...' />			
 							            <span class="input-group-btn">
 							        		<button class="btn btn-default btn-choose" type="button">Choose</button>
 							    		</span>
@@ -110,29 +114,28 @@
 								<!-- COMPONENT END -->
 								<div class="form-group">
 									<button type="submit" class="btn btn-primary pull-right">Submit</button>
+									<button id="sampleData"class="btn btn-primary pull-right" >sampleData</button>
 									<button type="reset" class="btn btn-danger">Reset</button>
 								</div>
 							</form>
-							<button id="sampleData">sampleData</button>
-
-
-
+						<hr>
 				      	</div>
 				      	<div id="dataSources" style="display:none;">
-							<legend>Data Sources</legend>
-					        <label  class="formLabel1" for="existingSourceName">Sources</label>
+							<h3>Data Sources</h3>
 					        <select  class="dropdowns existingSourceNameClass" name="existingSourceName" id="existingSourceName">   
+					       <
 					        </select>
+					        <hr>
 						</div>
 
 						<div id="importData" style="display:none;">
-							<legend>Data Import</legend>
+							<h3>Data Import</h3>
 							<p style="display:inline" id="selectedFileName"></p>
 							<select id="genomeVersion" size="1">
 							  <option Selected>hg19</option>
 							  <option>hg18</option>
 							</select>
-							<button id="importButton">Import</button>
+							<button class="btn btn-primary" id="importButton">Import</button>
 							<p id="importProgress"></p>
 						</div>
      
