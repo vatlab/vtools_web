@@ -1,7 +1,8 @@
 var server;
 var dataTable;
 var logs=[];
-var projectID ="VT46e0d8d3d2a24f9baf434d5e91be2225";
+// var projectID ="VT46e0d8d3d2a24f9baf434d5e91be2225";
+var projectID
 var fieldMap={};
 
 
@@ -302,9 +303,10 @@ function getProject(){
     projectID=$("#projectID").val()
     $.get("http://"+server+"/project/"+projectID,function(fileName){
         if (fileName!=="empty"){
-            $(".existingSourceNameClass").each((idx,obj)=>{
-              addOption(obj.id,["",fileName])
-            })
+            // $(".existingSourceNameClass").each((idx,obj)=>{
+            //   addOption(obj.id,["",fileName])
+            // })
+            addOption("existingSourceName", ["", fileName])
         }
         $("#landing_content").hide()
         $("#accordionSidebar").show()

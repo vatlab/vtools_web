@@ -18,7 +18,7 @@ app = Flask(__name__)
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/testProject/"
 if not os.path.exists(WORK_FOLDER):
     os.makedirs(WORK_FOLDER)
-os.chdir(WORK_FOLDER+"VT46e0d8d3d2a24f9baf434d5e91be2225")
+# os.chdir(WORK_FOLDER+"VT46e0d8d3d2a24f9baf434d5e91be2225")
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
 dbSNP_map = {}
 samples_map = {}
@@ -32,20 +32,20 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/showNGCHM/', methods=['GET'])
-def show_NGCHM():
+@app.route('/showNGCHM/<projectID>', methods=['GET'])
+def show_NGCHM(projectID):
     if not dbSNP_map:
-        prepare_dbSNP_annotation()
-    # if not samples_map:
-    #     conn = create_connection("/Users/jma7/Development/VAT_ref/test_2k/test2k/test.proj")
-    #     prepare_column_names(conn)
-    if os.path.exists("./static/fake.ngchm"):
-        os.remove("./static/fake.ngchm")
-    if os.path.exists("./static/fake_genotype.tsv"):
-        os.remove("./static/fake_genotype.tsv")
+        prepare_dbSNP_annotation(projectID)
+
+    projectFolder=WORK_FOLDER+projectID
+    if os.path.exists(projectFolder+"/fake.ngchm"):
+        os.remove(projectFolder+"/fake.ngchm")
+    if os.path.exists(projectFolder+"/fake_genotype.tsv"):
+        os.remove(projectFolder+"/fake_genotype.tsv")
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     reorder = request.args.get('reorder', None, type=None)
+    reorder = "false"
     heatmapName = "chr"+chr+"_"+name
     if reorder == "false":
         reorder = False
@@ -54,9 +54,9 @@ def show_NGCHM():
         reorder = True
         heatmapName = heatmapName+"_reorder"
     print("showNGCHM", chr, name, heatmapName, reorder)
-    if os.path.exists("./static/cache/"+heatmapName+".ngchm"):
+    if os.path.exists(projectFolder+"/cache/"+heatmapName+".ngchm"):
         return "cache exists", 200
-    HDFfileNames = glob.glob("/Users/jma7/Development/VAT_ref/test_2k/test2k/tmp*_genotypes_multi_genes.h5")
+    HDFfileNames = glob.glob(projectFolder+"/tmp*_genotypes_multi_genes.h5")
     HDFfileNames = sorted(HDFfileNames, key=lambda name: int(name.split("/")[-1].split("_")[1]))
     allGenotype = []
     allColnames = []
@@ -89,11 +89,11 @@ def show_NGCHM():
         allGenotype = pd.DataFrame(allGenotype, columns=allColnames, index=rownames)
 
         if reorder:
-            return reorder_genotype(allGenotype, heatmapName)
+            return reorder_genotype(projectID,allGenotype, heatmapName)
         else:
-            allGenotype.to_csv("./static/fake_genotype.tsv", sep="\t")
-            command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|./static/disease.tsv|category|column_discrete output_location|./static/cache/{}.ngchm'.format(heatmapName, heatmapName)
-        # command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|testRun chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels output_location|./static/fake.ngchm'
+            allGenotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
+            command = '/Users/jma7/Development/vtools_website/app/mda_heatmap_gen/heatmap.sh /Users/jma7/Development/vtools_website/app/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
+                heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/disease.tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
 
             print(command)
             return runCommand(command)
@@ -102,9 +102,9 @@ def show_NGCHM():
         return "No such node", 500
 
 
-def prepare_dbSNP_annotation():
+def prepare_dbSNP_annotation(projectID):
     print("prepare dbSNP")
-    annotationFile = "/Users/jma7/Development/VAT_ref/test_2k/test2k/dbSNP_annotation.tsv"
+    annotationFile = WORK_FOLDER+projectID+"/dbSNP_annotation.tsv"
     with open(annotationFile, "r") as lines:
         for line in lines:
             cols = line.strip().split("\t")
@@ -140,9 +140,10 @@ def get_column_names(colnames):
     return [samples_map[colname] for colname in colnames]
 
 
-def reorder_genotype(allGenotype, heatmapName):
+def reorder_genotype(projectID,allGenotype, heatmapName):
     covariateMap = {}
-    with open("./static/disease.tsv", "r") as lines:
+    projectFolder = WORK_FOLDER+projectID
+    with open(projectFolder+"/disease.tsv", "r") as lines:
         for line in lines:
             cols = line.strip().split("\t")
             if cols[1] not in covariateMap:
@@ -153,8 +154,10 @@ def reorder_genotype(allGenotype, heatmapName):
     reordered_cols = reorder_columns(allGenotype, covariateMap)
     reordered_genotype = allGenotype.iloc[reordered_rows, :]
     reordered_genotype = allGenotype.loc[:, reordered_cols]
-    reordered_genotype.to_csv("./static/fake_genotype.tsv", sep="\t")
-    command = './mda_heatmap_gen/heatmap.sh ./mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|./static/fake_genotype.tsv|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|./static/disease.tsv|category|column_discrete output_location|./static/cache/{}.ngchm'.format(heatmapName, heatmapName)
+    reordered_genotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
+    
+    command = '/Users/jma7/Development/vtools_website/app/mda_heatmap_gen/heatmap.sh /Users/jma7/Development/vtools_website/app/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}}'.format(
+        heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/disease.tsv",projectFolder+"/cache/"+heatmapName+".ngchm")
     print(command)
     return runCommand(command)
 
@@ -185,11 +188,10 @@ def reorder_rows(allGenotype, covariateMap):
     return reordered_rows
 
 
-@app.route("/ngchmView/<heatmapName>", methods=['GET'])
-def download_ngchm(heatmapName):
+@app.route("/ngchmView/<projectID>/<heatmapName>", methods=['GET'])
+def download_ngchm(projectID,heatmapName):
     print("donwload NGCHM")
-    path = "./static/cache/{}.ngchm".format(heatmapName)
-    # path="./static/Galaxy400x400-noCovariates.ngchm"
+    path = WORK_FOLDER+projectID+"/cache/{}.ngchm".format(heatmapName)
     return send_file(path)
 
 

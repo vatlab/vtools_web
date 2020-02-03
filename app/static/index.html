@@ -19,7 +19,7 @@
 
     <script src="./utils.js"></script>
     <script src="./env.js"></script>
-<!--     <script src="./manhattan.js"></script> -->
+    <script src="./manhattan.js"></script>
 
     
 </head>
@@ -28,7 +28,7 @@
 
 
   	<!-- Content Wrapper -->
-    <div id="content-wrapper" class="d-flex flex-column" style="display:none">
+    <div id="content-wrapper" class="d-flex flex-column" >
 
       <div id="landing_content">
 		<div class="jumbotron text-center">
@@ -63,7 +63,7 @@
 
 
 		
-<div class="container" id="accordionSidebar">
+<div class="container" id="accordionSidebar" style="display:none">
     <div class="row">
 
         <div class="col-md-6" >
@@ -77,7 +77,8 @@
                     <li ><a href="#show" data-toggle="tab">Show</a></li>
                     <li><a href="#data" data-toggle="tab">Data</a></li>
                     <li><a href="#output" data-toggle="tab">Output</a></li>
-                    <li><a href="#associate" data-toggle="tab">Associate</a></li>
+					<li><a href="#associate" data-toggle="tab">Associate</a></li>
+					<li><a href="#manhattanPlot" data-toggle="tab">Manhattan</a></li>
                     <li><a href="#admin" data-toggle="tab">Admin</a></li>
                 </ul>
 
@@ -91,13 +92,6 @@
 
                 	<div class="tab-pane active" id="import">
 				         <div id="localFileSource">
-				<!--       		<label call="control-label">Select a vcf file to upload</label>
-							<form id="dataUpload"  enctype="multipart/form-data">
-							    <label class="formLabel1" for="localFileName">File Name</label>
-							    <input class="std_input" id="localFileName" type="text">
-							    <input id="uploadData" type = "file" name = "datafile" >
-					         	<input type = "submit">
-							</form> -->
 
 							<form  id="dataUpload" method="POST" action="#" enctype="multipart/form-data">
 								<!-- COMPONENT START -->
@@ -382,7 +376,24 @@
 						<p id="associateProgress"></p>
 
 
-                    </div>
+					</div>
+					
+					<div class="tab-pane" id="manhattanPlot" style="width:1000px">
+						<h3>Manhattan</h3>
+						<svg id="axis-svg" class="plot"></svg>
+						<canvas id="plot-canvas" class="plot"></canvas>
+						<div id="plotNGCHM" style="display:none">
+							<div id="NGCHM" style="width:100%; height:500px"></div>
+							<!-- <div id='NGCHMEmbed'
+								style="background-color:white; height:500px ; width:500px; border: 2px solid gray; padding: 5px"></div> -->
+							<div id='NGCHMEmbed'
+								style="background-color:white; height:500px ; width:99%; border: 2px solid gray; padding: 5px">
+							</div>
+					
+							<script type="text/javascript" src="ngchmWidget-min.js"></script>
+							<script type="text/Javascript" src="./NGCHM_viewer.js"></script>
+						</div>
+					</div>
                     
                     <div class="tab-pane" id="admin">
                     	 <h3>Admin</h3>
@@ -405,23 +416,10 @@
 	<div class="col-auto">
 		<table class="table table-striped" id="dataTable" ></table>
 		<table id="infoTable"></table>
-		<svg id="axis-svg" class="plot"></svg>
-		<canvas id="plot-canvas" class="plot"></canvas>
+		
 	</div>
 </div>
 
-<!-- <div style="width:80%; float:left;">
-	
-	<div id="plotNGCHM" style="display:none">
-	    <div id="NGCHM" style="width:100%; height:500px"></div>
-	   	<div id='NGCHMEmbed' style="background-color:white; height:500px ; width:500px; border: 2px solid gray; padding: 5px"></div>
-	    <div id='NGCHMEmbed' style="background-color:white; height:500px ; width:99%; border: 2px solid gray; padding: 5px"></div>
-
-	   	<script type="text/javascript" src="ngchmWidget-min.js"></script>
-	   	<script type="text/Javascript" src="./NGCHM_viewer.js"></script>
-   </div>
-   	
-</div> -->
 </body>
 	<style>
 

@@ -456,7 +456,8 @@ $(document).ready(function(){
                     console.log(reorder)
                     let chr=chrData[selectedIndex].chr
                     let name=chrData[selectedIndex].name
-                    $.get("http://"+server+"/showNGCHM/",{name:name,chr:chr,reorder:reorder},function(data){
+                    let projectID = $("#projectID").val()
+                    $.get("http://"+server+"/showNGCHM/"+projectID,{name:name,chr:chr,reorder:reorder},function(data){
                         console.log(data)
                         $("#plotNGCHM").show();
                         let heatmapName="chr"+chr+"_"+name
@@ -465,7 +466,7 @@ $(document).ready(function(){
                         }else{
                             heatmapName=heatmapName+"_original"
                         }
-                        var ajaxUrl="http://"+server+"/ngchmView/"+heatmapName
+                        var ajaxUrl="http://"+server+"/ngchmView/"+projectID+"/"+heatmapName
                         console.log(ajaxUrl)
                         
                         var xmlhttp=new XMLHttpRequest();
