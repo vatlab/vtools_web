@@ -13,6 +13,8 @@ import tables as tb
 import numpy as np
 import pandas as pd
 from scipy.stats import mannwhitneyu
+import scipy.cluster.hierarchy as shc
+from scipy.spatial import distance
 app = Flask(__name__)
 
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/app/"
@@ -182,7 +184,15 @@ def reorder_col1(projectID, allGenotype, heatmapName):
 
 
 def reorder_col2(projectID, allGenotype, heatmapName):
+    projectFolder = PROJECT_FOLDER+projectID
     covariateMap = get_CovariateMap(projectID)
+    reordered_cols = reorder_columns_hiera(allGenotype, covariateMap)
+    reordered_genotype = allGenotype.loc[:, reordered_cols]
+    reordered_genotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
+    command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
+        WORK_FOLDER, WORK_FOLDER, heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/disease.tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
+    print(command)
+    return runCommand(command)
 
 def reorder_columns(allGenotype, covariateMap):
     reordered_columns = []
@@ -193,6 +203,20 @@ def reorder_columns(allGenotype, covariateMap):
         colSum = colSum[colSum > 0]
         reordered_columns.extend(colSum.index)
     return reordered_columns
+
+
+def reorder_columns_hiera(allGenotype, covariateMap):
+    reordered_columns = []
+    for key, value in covariateMap.items():
+        values = [int(x) for x in value]
+        allFilter = allGenotype[values].applymap(lambda x: x > 0)
+        print(allFilter.shape)
+        allFilter = allFilter.transpose()
+        dend = shc.dendrogram(shc.linkage(distance.pdist(
+            allFilter, 'cityblock'), method='single'), no_plot=True)
+        reordered_columns.extend(allFilter.index[dend["leaves"]])
+    return reordered_columns
+
 
 
 def reorder_rows(allGenotype, covariateMap):
