@@ -15,10 +15,13 @@ import pandas as pd
 from scipy.stats import mannwhitneyu
 app = Flask(__name__)
 
-WORK_FOLDER = os.getenv("WORK_FOLDER")+"/testProject/"
-if not os.path.exists(WORK_FOLDER):
-    os.makedirs(WORK_FOLDER)
+WORK_FOLDER = os.getenv("WORK_FOLDER")+"/app/"
+PROJECT_FOLDER = os.getenv("WORK_FOLDER")+"/testProject/"
+if not os.path.exists(PROJECT_FOLDER):
+    os.makedirs(PROJECT_FOLDER)
+# os.chdir(PROJECT_FOLDER+"test2k")
 # os.chdir(WORK_FOLDER+"VT46e0d8d3d2a24f9baf434d5e91be2225")
+
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
 dbSNP_map = {}
 samples_map = {}
@@ -37,7 +40,7 @@ def show_NGCHM(projectID):
     if not dbSNP_map:
         prepare_dbSNP_annotation(projectID)
 
-    projectFolder=WORK_FOLDER+projectID
+    projectFolder=PROJECT_FOLDER+projectID
     if os.path.exists(projectFolder+"/fake.ngchm"):
         os.remove(projectFolder+"/fake.ngchm")
     if os.path.exists(projectFolder+"/fake_genotype.tsv"):
@@ -45,14 +48,9 @@ def show_NGCHM(projectID):
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     reorder = request.args.get('reorder', None, type=None)
-    reorder = "false"
     heatmapName = "chr"+chr+"_"+name
-    if reorder == "false":
-        reorder = False
-        heatmapName = heatmapName+"_original"
-    elif reorder == "true":
-        reorder = True
-        heatmapName = heatmapName+"_reorder"
+   
+    heatmapName = heatmapName+"_"+reorder
     print("showNGCHM", chr, name, heatmapName, reorder)
     if os.path.exists(projectFolder+"/cache/"+heatmapName+".ngchm"):
         return "cache exists", 200
@@ -87,16 +85,19 @@ def show_NGCHM(projectID):
 
         # allColnames = get_column_names(allColnames)
         allGenotype = pd.DataFrame(allGenotype, columns=allColnames, index=rownames)
-
-        if reorder:
+        
+        if reorder == "reorderBoth":
             return reorder_genotype(projectID,allGenotype, heatmapName)
-        else:
+        elif reorder == "Original":
             allGenotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
-            command = '/Users/jma7/Development/vtools_website/app/mda_heatmap_gen/heatmap.sh /Users/jma7/Development/vtools_website/app/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
-                heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/disease.tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
-
+            command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
+                WORK_FOLDER+"", WORK_FOLDER,heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/disease.tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
             print(command)
             return runCommand(command)
+        elif reorder == "reorderCol1":
+            return reorder_col1(projectID, allGenotype, heatmapName)
+        elif reorder == "reorderCol2":
+            return reorder_col2(projectID, allGenotype, heatmapName)
     except tb.exceptions.NoSuchNodeError:
         print("No such node")
         return "No such node", 500
@@ -104,7 +105,7 @@ def show_NGCHM(projectID):
 
 def prepare_dbSNP_annotation(projectID):
     print("prepare dbSNP")
-    annotationFile = WORK_FOLDER+projectID+"/dbSNP_annotation.tsv"
+    annotationFile = PROJECT_FOLDER+projectID+"/dbSNP_annotation.tsv"
     with open(annotationFile, "r") as lines:
         for line in lines:
             cols = line.strip().split("\t")
@@ -140,9 +141,10 @@ def get_column_names(colnames):
     return [samples_map[colname] for colname in colnames]
 
 
-def reorder_genotype(projectID,allGenotype, heatmapName):
+
+def get_CovariateMap(projectID):
     covariateMap = {}
-    projectFolder = WORK_FOLDER+projectID
+    projectFolder = PROJECT_FOLDER+projectID
     with open(projectFolder+"/disease.tsv", "r") as lines:
         for line in lines:
             cols = line.strip().split("\t")
@@ -150,17 +152,37 @@ def reorder_genotype(projectID,allGenotype, heatmapName):
                 covariateMap[cols[1]] = []
             else:
                 covariateMap[cols[1]].append(cols[0])
+    return covariateMap
+
+def reorder_genotype(projectID,allGenotype, heatmapName):
+    projectFolder=PROJECT_FOLDER+projectID
+    covariateMap=get_CovariateMap(projectID)
     reordered_rows = reorder_rows(allGenotype, covariateMap)
     reordered_cols = reorder_columns(allGenotype, covariateMap)
     reordered_genotype = allGenotype.iloc[reordered_rows, :]
     reordered_genotype = allGenotype.loc[:, reordered_cols]
     reordered_genotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
     
-    command = '/Users/jma7/Development/vtools_website/app/mda_heatmap_gen/heatmap.sh /Users/jma7/Development/vtools_website/app/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}}'.format(
-        heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/disease.tsv",projectFolder+"/cache/"+heatmapName+".ngchm")
+    command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
+        WORK_FOLDER,WORK_FOLDER,heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/disease.tsv",projectFolder+"/cache/"+heatmapName+".ngchm")
     print(command)
     return runCommand(command)
 
+
+def reorder_col1(projectID, allGenotype, heatmapName):
+    projectFolder = PROJECT_FOLDER+projectID
+    covariateMap = get_CovariateMap(projectID)
+    reordered_cols = reorder_columns(allGenotype, covariateMap)
+    reordered_genotype = allGenotype.loc[:, reordered_cols]
+    reordered_genotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
+    command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
+        WORK_FOLDER, WORK_FOLDER, heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/disease.tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
+    print(command)
+    return runCommand(command)
+
+
+def reorder_col2(projectID, allGenotype, heatmapName):
+    covariateMap = get_CovariateMap(projectID)
 
 def reorder_columns(allGenotype, covariateMap):
     reordered_columns = []
@@ -191,7 +213,7 @@ def reorder_rows(allGenotype, covariateMap):
 @app.route("/ngchmView/<projectID>/<heatmapName>", methods=['GET'])
 def download_ngchm(projectID,heatmapName):
     print("donwload NGCHM")
-    path = WORK_FOLDER+projectID+"/cache/{}.ngchm".format(heatmapName)
+    path = PROJECT_FOLDER+projectID+"/cache/{}.ngchm".format(heatmapName)
     return send_file(path)
 
 
@@ -199,14 +221,14 @@ def download_ngchm(projectID,heatmapName):
 def load_sampleData(projectID):
     if request.method == "GET":
         fileType = request.args.get('fileType', None, type=None)
-        print(WORK_FOLDER+"/10k_test_2k.vcf")
-        if fileType == "data" and os.path.exists(WORK_FOLDER+"/10k_test_2k.vcf"):
-            src = os.path.realpath(WORK_FOLDER+"/10k_test_2k.vcf")
+        print(PROJECT_FOLDER+"/10k_test_2k.vcf")
+        if fileType == "data" and os.path.exists(PROJECT_FOLDER+"/10k_test_2k.vcf"):
+            src = os.path.realpath(PROJECT_FOLDER+"/10k_test_2k.vcf")
             print("copy ",src)
-            copy2(src, WORK_FOLDER+projectID+"/")
+            copy2(src, PROJECT_FOLDER+projectID+"/")
         elif fileType == "pheno" and os.path.exists("../simulated.tsv"):
             src = os.path.realpath("../simulated.tsv")
-            copy2(src, WORK_FOLDER+projectID+"/")
+            copy2(src, PROJECT_FOLDER+projectID+"/")
 
         return "copy file", 200
 
@@ -216,7 +238,7 @@ def create_project():
     if request.method == 'POST':
         projectID = uuid.uuid4().hex
         projectID = "VT"+projectID
-        directory = WORK_FOLDER+projectID
+        directory = PROJECT_FOLDER+projectID
         print(directory)
         if not os.path.exists(directory):
             os.makedirs(directory)
@@ -232,7 +254,7 @@ def create_project():
 @app.route('/project/<projectID>', methods=['GET'])
 def get_project(projectID):
     if request.method == "GET":
-        directory = WORK_FOLDER+projectID
+        directory = PROJECT_FOLDER+projectID
         print(directory)
         if not os.path.exists(directory):
             return "project doesn't exist", 200
@@ -247,7 +269,7 @@ def get_project(projectID):
 
 @app.route('/logs/<projectID>', methods=['POST', 'GET'])
 def logs(projectID):
-    logfile = WORK_FOLDER+projectID+"/"+projectID+"_log.txt"
+    logfile = PROJECT_FOLDER+projectID+"/"+projectID+"_log.txt"
     if request.method == "POST":
         log = request.form["log"]
         with open(logfile, "a+") as f:
@@ -272,7 +294,7 @@ def get_fileInfo(projectID):
     if request.method == 'GET':
         fileName = request.args.get('fileName', None, type=None)
         if fileName != "":
-            with open(WORK_FOLDER+projectID+"/"+fileName, "r") as lines:
+            with open(PROJECT_FOLDER+projectID+"/"+fileName, "r") as lines:
                 for line in lines:
                     if line.startswith("#"):
                         if "##INFO=<ID=" in line:
@@ -298,7 +320,7 @@ def get_fileInfo(projectID):
 def upload_file(projectID):
     if request.method == 'POST':
         f = request.files['datafile']
-        f.save(os.path.join(WORK_FOLDER+projectID, secure_filename(f.filename)))
+        f.save(os.path.join(PROJECT_FOLDER+projectID, secure_filename(f.filename)))
     return 'uploaded', 204
 
 
@@ -312,16 +334,16 @@ def vtools_import(projectID):
 
 
 def run_vtools_import(projectID, fileName, genomeVersion):
-    command = "vtools import "+WORK_FOLDER+projectID+"/"+fileName+" --build " + genomeVersion+" -f"
-    os.chdir(WORK_FOLDER+projectID)
-    with open(WORK_FOLDER+projectID+"/import_log.txt", "a+") as output:
+    command = "vtools import "+PROJECT_FOLDER+projectID+"/"+fileName+" --build " + genomeVersion+" -f"
+    os.chdir(PROJECT_FOLDER+projectID)
+    with open(PROJECT_FOLDER+projectID+"/import_log.txt", "a+") as output:
         Popen(command.split(" "), stdout=output, stderr=output, universal_newlines=True)
 
 
 @app.route('/check/import/<projectID>', methods=['GET'])
 def checkImportProgress(projectID):
     last = ""
-    logfile = WORK_FOLDER+projectID+"/import_log.txt"
+    logfile = PROJECT_FOLDER+projectID+"/import_log.txt"
 
     if os.path.exists(logfile) and os.path.getsize(logfile) > 100:
         with open(logfile, "rb") as f:
@@ -345,13 +367,14 @@ def checkImportProgress(projectID):
 def upload_phenotype(projectID):
     if request.method == 'POST':
         f = request.files['phenofile']
-        print(os.path.join(WORK_FOLDER+projectID, secure_filename(f.filename)))
-        f.save(os.path.join(WORK_FOLDER+projectID, secure_filename(f.filename)))
+        print(os.path.join(PROJECT_FOLDER+projectID, secure_filename(f.filename)))
+        f.save(os.path.join(PROJECT_FOLDER+projectID, secure_filename(f.filename)))
         return 'upload', 204
     elif request.method == 'PUT':
         fileName = request.get_data().decode("utf-8")
-        print(WORK_FOLDER+projectID+"/"+fileName)
-        command = "vtools phenotype --from_file " + WORK_FOLDER+projectID + "/" + fileName
+        print(PROJECT_FOLDER+projectID+"/"+fileName)
+        command = "vtools phenotype --from_file " + \
+            PROJECT_FOLDER+projectID + "/" + fileName
         return runCommand(command)
 
 
@@ -446,7 +469,7 @@ def vtools_associate(projectID):
 
 @app.route("/associationResult/<projectID>", methods=['GET'])
 def get_AssociationResult(projectID):
-    resultfile = WORK_FOLDER+projectID+"/associate_result.txt"
+    resultfile = PROJECT_FOLDER+projectID+"/associate_result.txt"
     starttime = time.time()
     while not os.path.exists(resultfile) and time.time()-starttime < 5:
         time.sleep(2)
@@ -461,8 +484,8 @@ def get_AssociationResult(projectID):
 
 def run_vtools_associate(projectID, table, phenotype, method, groupby):
     command = "vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db association_result.DB -f -j 8 -v 1" 
-    logfile = WORK_FOLDER+projectID+"/associate_log.txt"
-    resultfile = WORK_FOLDER+projectID+"/associate_result.txt"
+    logfile = PROJECT_FOLDER+projectID+"/associate_log.txt"
+    resultfile = PROJECT_FOLDER+projectID+"/associate_result.txt"
     if os.path.exists(logfile):
         os.remove(logfile)
     if os.path.exists(resultfile):
@@ -485,7 +508,7 @@ def run_vtools_associate(projectID, table, phenotype, method, groupby):
 @app.route('/check/associate/<projectID>', methods=['GET'])
 def checkAssociateProgress(projectID):
     last = ""
-    logfile = WORK_FOLDER+projectID+"/associate_log.txt"
+    logfile = PROJECT_FOLDER+projectID+"/associate_log.txt"
 
     if os.path.exists(logfile) and os.path.getsize(logfile) > 5:
         with open(logfile, "rb") as f:

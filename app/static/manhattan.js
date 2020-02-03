@@ -452,7 +452,9 @@ $(document).ready(function(){
                     console.log(closest)
 
                     $("#plotNGCHM").hide();
-                    let reorder=$("#reorder").prop("checked")
+                    // let reorder=$("#reorder").prop("checked")
+                    // console.log(reorder)
+                    let reorder=$("#selectReorder").val()
                     console.log(reorder)
                     let chr=chrData[selectedIndex].chr
                     let name=chrData[selectedIndex].name
@@ -461,11 +463,8 @@ $(document).ready(function(){
                         console.log(data)
                         $("#plotNGCHM").show();
                         let heatmapName="chr"+chr+"_"+name
-                        if (reorder){
-                            heatmapName=heatmapName+"_reorder"
-                        }else{
-                            heatmapName=heatmapName+"_original"
-                        }
+                        
+                        heatmapName = heatmapName + "_"+reorder
                         var ajaxUrl="http://"+server+"/ngchmView/"+projectID+"/"+heatmapName
                         console.log(ajaxUrl)
                         
