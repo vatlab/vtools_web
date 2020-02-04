@@ -338,3 +338,14 @@ label {
     float:right;
     width:200px;
 }
+
+.selection_label{
+    height:40px
+}
+
+.selection_label .lb-md {
+  font-size: 15px;
+   display: inline-block;
+   margin: 1px 1px 1px 1px;
+   width:100px
+}

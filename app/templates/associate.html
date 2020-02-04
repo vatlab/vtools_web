@@ -1,7 +1,6 @@
 <div class="tab-pane" id="associate">
-	<h3>Associate</h3>
-
-
+	<h3></h3>
+	<!-- 
 	<fieldset id="addPhenotype" style="display:none;">
 		<legend>Add Phenotype</legend>
 		<form id="phenoUpload" enctype="multipart/form-data">
@@ -13,23 +12,57 @@
 		<button id="samplePhenotype">sampleData</button>
 		<button id="addPhenotypeButton">Add phenotype</button>
 		<p id="phenotypeAdded"></p>
+	</fieldset> -->
 
-	</fieldset>
-	<fieldset id="vtoolsAssociate">
+	<legend>Add Phenotype</legend>
+	<form id="addPhenotype" method="POST" enctype="multipart/form-data" style="display:none;">
+		<!-- COMPONENT START -->
+		<div class="form-group">
+			<div class="input-group input-file" name="Fichier1">
+				<input type="text" class="form-control" id="localPhenoFileName" placeholder='Choose a file...' />
+				<span class="input-group-btn">
+					<button class="btn btn-default btn-choose" type="button">Choose</button>
+				</span>
+
+
+			</div>
+		</div>
+		<!-- COMPONENT END -->
+		<div class="form-group">
+			<button type="submit" class="btn btn-primary pull-right">Submit</button>
+			<button id="samplePhenotype" class="btn btn-primary pull-right">sampleData</button>
+			<button id="addPhenotypeButton" class="btn btn-primary pull-right">Add phenotype</button>
+			<button type="reset" class="btn btn-danger">Reset</button>
+		</div>
+	</form>
+
+
+
+
+	<div id="vtoolsAssociate">
 		<legend>Associate</legend>
-		<label class="formLabel1" for="projectTables">Tables</label>
-		<select class="dropdowns" name="projectTables" id="projectTables"></select>
-		<label class="formLabel1" for="projectPhenotypes">Phenotypes</label>
-		<select class="dropdowns" name="projectPhenotypes" id="projectPhenotypes"></select>
-		<label clßass="formLabel1" for="associateMethods">Methods</label>
-		<select class="dropdowns" name="associateMethods" id="associateMethods"></select>
-		<label class="formLabel1" for="discardVariants">Discard variants</label>
-		<input class="std_input" id="discardVariants" type="text" value='"%(NA)>0.1"'>
+		<div class="selection_label">
+			<label class="lb-md" for="projectTables">Tables</label>
+			<select class="dropdowns" name="projectTables" id="projectTables"></select>
+		</div>
+		<div class="selection_label">
+			<label class="lb-md" for="projectPhenotypes">Phenotypes</label>
+			<select class="dropdowns" name="projectPhenotypes" id="projectPhenotypes"></select>
+		</div>
+		<div class="selection_label">
+			<label class="lb-md" for="associateMethods">Methods</label>
+			<select class="dropdowns" name="associateMethods" id="associateMethods"></select>
+		</div>
+		<div class="selection_label">
+			<label class="lb-md" for="discardVariants">Discard variants</label>
+			<input class="std_input" id="discardVariants" type="text" value='"%(NA)>0.1"'>
+		</div>
 
-	</fieldset>
-	<button id="runAssociation" style="display:none">Run association</button>
-	<button id="showAssociation" style="display:none">Show association</button>
-	<p id="associateProgress"></p>
-
+	</div>
+	<div>
+		<button id="runAssociation" class="btn btn-primary" style="display:none">Run association</button>
+		<button id="showAssociation" class="btn btn-primary" style="display:none">Show association</button>
+		<p id="associateProgress"></p>
+	</div>
 
 </div>
