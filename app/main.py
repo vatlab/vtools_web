@@ -605,8 +605,7 @@ def route_frontend(path):
         return send_file(file_path)
     # ...or should be handled by the SPA's "router" in front end
     else:
-        index_path = os.path.join(app.static_folder, 'index.html')
-        return send_file(index_path)
+        return render_template("index.html")
 
 
 if __name__ == "__main__":
