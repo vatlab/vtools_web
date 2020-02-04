@@ -7,8 +7,8 @@ var fieldMap={};
 
 
 $(document).ready(function(){
-    // server=env.server+"/vtoolsweb/"
-    server=env.server+":5000"
+    server=env.server+"/vtoolsweb/"
+    // server=env.server+":5000"
 
     $("#createRandomProject").click(function(){
         console.log(server)
@@ -793,6 +793,7 @@ function vtoolsShow(option,display){
                 var tables=rows.slice(1).map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
                 console.log(tables)
                 addOption("projectTables",tables)
+                addOption("outputTables", tables)
                 if(display){
                     generateInfoTable('#infoTable',rows)
                 }
