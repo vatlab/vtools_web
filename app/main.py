@@ -15,6 +15,7 @@ import pandas as pd
 from scipy.stats import mannwhitneyu
 import scipy.cluster.hierarchy as shc
 from scipy.spatial import distance
+import math
 app = Flask(__name__)
 
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/app/"
@@ -37,6 +38,23 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+@app.route('/showVariants/<projectID>',methods=['GET'])
+def show_Variants(projectID):
+    if not dbSNP_map:
+        prepare_dbSNP_annotation(projectID)
+    projectFolder=PROJECT_FOLDER+projectID
+    chr = request.args.get('chr', None, type=None)
+    name = request.args.get('name', None, type=None)
+    allGenotype,variantIDs = get_genotype(projectID,chr,name)
+    detail = get_variants_summary(projectID, allGenotype,variantIDs)
+    print(detail)
+
+    return "success",200
+
+
+
+
+
 @app.route('/showNGCHM/<projectID>', methods=['GET'])
 def show_NGCHM(projectID):
     if not dbSNP_map:
@@ -51,16 +69,36 @@ def show_NGCHM(projectID):
     name = request.args.get('name', None, type=None)
     reorder = request.args.get('reorder', None, type=None)
     heatmapName = "chr"+chr+"_"+name
-   
     heatmapName = heatmapName+"_"+reorder
     print("showNGCHM", chr, name, heatmapName, reorder)
     if os.path.exists(projectFolder+"/cache/"+heatmapName+".ngchm"):
         return "cache exists", 200
+
+    allGenotype,variantIDs = get_genotype(projectID,chr,name)    
+    
+    if reorder == "reorderBoth":
+        return reorder_genotype(projectID,allGenotype, heatmapName)
+    elif reorder == "Original":
+        allGenotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
+        command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
+            WORK_FOLDER+"", WORK_FOLDER,heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/disease.tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
+        print(command)
+        return runCommand(command)
+    elif reorder == "reorderCol1":
+        return reorder_col1(projectID, allGenotype, heatmapName)
+    elif reorder == "reorderCol2":
+        return reorder_col2(projectID, allGenotype, heatmapName)
+
+ 
+
+
+def get_genotype(projectID,chr,name):
+    projectFolder=PROJECT_FOLDER+projectID
     HDFfileNames = glob.glob(projectFolder+"/tmp*_genotypes_multi_genes.h5")
     HDFfileNames = sorted(HDFfileNames, key=lambda name: int(name.split("/")[-1].split("_")[1]))
     allGenotype = []
     allColnames = []
-
+    rownames=[]
     try:
         for filePath in HDFfileNames:
             print(filePath)
@@ -68,7 +106,7 @@ def show_NGCHM(projectID):
             node = file.get_node("/chr"+chr+"/"+name+"/")
             genotype = node.GT[:]
             rownames = node.rownames[:]
-            rownames = get_dbSNP_annotation(rownames)
+            # rownames = get_dbSNP_annotation(rownames)
             whereNaN = np.isnan(genotype)
             genotype[whereNaN] = -1
             genotype = genotype.astype(int)
@@ -76,33 +114,49 @@ def show_NGCHM(projectID):
                 allGenotype = genotype
             else:
                 allGenotype = np.append(allGenotype, genotype, 1)
-            # numCols = len(node.GT[:][0])
-            # colnames = []
-            # for num in range(1, numCols+1):
-            #     colnames.append("col"+str(num))
+
             colnode = file.get_node("/chr"+chr+"/colnames/")
             colnames = colnode[:]
             allColnames.extend(colnames)
             file.close()
-
         # allColnames = get_column_names(allColnames)
         allGenotype = pd.DataFrame(allGenotype, columns=allColnames, index=rownames)
-        
-        if reorder == "reorderBoth":
-            return reorder_genotype(projectID,allGenotype, heatmapName)
-        elif reorder == "Original":
-            allGenotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
-            command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen /Users/jma7/Development/vtools_website/testData/ chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
-                WORK_FOLDER+"", WORK_FOLDER,heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/disease.tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
-            print(command)
-            return runCommand(command)
-        elif reorder == "reorderCol1":
-            return reorder_col1(projectID, allGenotype, heatmapName)
-        elif reorder == "reorderCol2":
-            return reorder_col2(projectID, allGenotype, heatmapName)
+        return allGenotype,rownames
     except tb.exceptions.NoSuchNodeError:
         print("No such node")
         return "No such node", 500
+
+
+
+def get_variant_details(conn,variantIDs):
+    cur = conn.cursor()
+    variants = ",".join([str(variantID) for variantID in variantIDs])
+    cur.execute("SELECT chr,pos,ref,alt FROM variant where variant_id in "+"("+variants+")")
+    rows = cur.fetchall()
+    return pd.DataFrame(rows, index=variantIDs,columns=["chr","pos","ref","alt"])
+
+
+def get_variants_summary(projectID,allGenotype,variantIDs):
+    covariateMap=get_CovariateMap(projectID)
+    conn=create_connection("test.proj",projectID)
+    variant_details=get_variant_details(conn,variantIDs)
+   
+    for key, value in covariateMap.items():
+        if (len(value)!=0):
+            values = [int(x) for x in value]
+            allFilter = allGenotype[values]
+            counts=allFilter.apply(lambda x:x.value_counts(),axis=1)
+            header=key
+            hetero=[]
+            homo=[] 
+            for count in counts.values:
+                count=list(count)
+                if len(count)!=0:
+                    hetero.append(count[2])
+                    homo.append(count[3])
+            variant_details[header+"_hetero"]=[0 if math.isnan(x) else int(x) for x in hetero]
+            variant_details[header+"_homo"]=[0 if math.isnan(x) else int(x) for x in homo]
+    return variant_details
 
 
 def prepare_dbSNP_annotation(projectID):
@@ -122,7 +176,8 @@ def get_dbSNP_annotation(rownames):
     return [dbSNP_map[str(rowname)] for rowname in rownames]
 
 
-def create_connection(db_file):
+def create_connection(db_file,projectID):
+    db_file=PROJECT_FOLDER+projectID+"/"+db_file
     conn = None
     try:
         conn = sqlite3.connect(db_file)
@@ -209,9 +264,8 @@ def reorder_columns_hiera(allGenotype, covariateMap):
     reordered_columns = []
     for key, value in covariateMap.items():
         values = [int(x) for x in value]
-        allFilter = allGenotype[values].applymap(lambda x: x > 0)
-        print(allFilter.shape)
-        allFilter = allFilter.transpose()
+        # allFilter = allGenotype[values].applymap(lambda x: x > 0)
+        allFilter = allGenotype.transpose()
         dend = shc.dendrogram(shc.linkage(distance.pdist(
             allFilter, 'cityblock'), method='single'), no_plot=True)
         reordered_columns.extend(allFilter.index[dend["leaves"]])

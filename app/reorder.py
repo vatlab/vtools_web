@@ -6,6 +6,49 @@ import pandas as pd
 from scipy.stats import wilcoxon
 import scipy.cluster.hierarchy as shc
 from scipy.spatial import distance
+import os
+import sqlite3
+import math
+
+WORK_FOLDER = os.getenv("WORK_FOLDER")+"/app/"
+PROJECT_FOLDER = os.getenv("WORK_FOLDER")+"/testProject/"
+
+def create_connection(db_file,projectID):
+    db_file=PROJECT_FOLDER+projectID+"/"+db_file
+    conn = None
+    try:
+        conn = sqlite3.connect(db_file)
+    except sqlite3.Error:
+        print("error")
+    return conn
+
+def get_variant_details(conn,variantIDs):
+    cur = conn.cursor()
+    variants = ",".join([str(variantID) for variantID in variantIDs])
+    cur.execute("SELECT chr,pos,ref,alt FROM variant where variant_id in "+"("+variants+")")
+    rows = cur.fetchall()
+    rows = pd.DataFrame(rows, index=variantIDs,columns=["chr","pos","ref","alt"])
+    return rows
+
+
+
+def get_CovariateMap(projectID):
+    covariateMap = {}
+    projectFolder = PROJECT_FOLDER+projectID
+    with open(projectFolder+"/disease.tsv", "r") as lines:
+        for line in lines:
+            cols = line.strip().split("\t")
+            if cols[1] not in covariateMap:
+                covariateMap[cols[1]] = []
+            else:
+                covariateMap[cols[1]].append(cols[0])
+    return covariateMap
+
+
+
+
+def get_genotype_counts(genotypes):
+    return genotypes.apply(lambda x:x.value_counts(),axis=1)
 
 
 def reorder_genotype():
@@ -16,11 +59,13 @@ def reorder_genotype():
     HDFfileNames = sorted(HDFfileNames, key=lambda name: int(name.split("/")[-1].split("_")[1]))
     allGenotype = []
     allColnames = []
+    variantIDs=""
     for filePath in HDFfileNames:
         print(filePath)
         file = tb.open_file(filePath)
         node = file.get_node("/chr"+chr+"/"+name+"/")
         genotype = node.GT[:]
+        variantIDs = node.rownames[:]
         whereNaN = np.isnan(genotype)
         genotype[whereNaN] = -1
         genotype = genotype.astype(int)
@@ -36,53 +81,43 @@ def reorder_genotype():
         colnames = colnode[:]
         allColnames.extend(colnames)
         file.close()
-    # print(allColnames)
+
     allGenotype = pd.DataFrame(allGenotype, columns=allColnames)
-    covariateMap = {}
-    with open("/Users/jma7/Development/vtools_website/testProject/test2k/disease.tsv", "r") as lines:
-        for line in lines:
-            cols = line.strip().split("\t")
-            if cols[1] not in covariateMap:
-                covariateMap[cols[1]] = []
-            else:
-                covariateMap[cols[1]].append(cols[0])
-    reordered_columns = []
+    covariateMap=get_CovariateMap("test2k")
+    conn=create_connection("test.proj","test2k")
+    variant_details=get_variant_details(conn,variantIDs)
+   
+    for key, value in covariateMap.items():
+        if (len(value)!=0):
+            values = [int(x) for x in value]
+            allFilter = allGenotype[values]
+            counts=get_genotype_counts(allFilter)  
+            header=key
+            hetero=[]
+            homo=[] 
+            for count in counts.values:
+                count=list(count)
+                if len(count)!=0:
+                    hetero.append(count[2])
+                    homo.append(count[3])
+            variant_details[header+"_hetero"]=[0 if math.isnan(x) else int(x) for x in hetero]
+            variant_details[header+"_homo"]=[0 if math.isnan(x) else int(x) for x in homo]
+    print(variant_details)
+
+    
+        
+
+    # reordered_columns = []
     # for key, value in covariateMap.items():
     #     values = [int(x) for x in value]
     #     allFilter = allGenotype[values].applymap(lambda x: x > 0)
-    #     colSum = allFilter.sum(axis=0).sort_values(ascending=False)
-    #     colSum = colSum[colSum > 0]
-    #     reordered_columns.extend(colSum.index)
-  
+    #     print(allFilter.shape)
+    #     allFilter=allFilter.transpose()
+    #     dend = shc.dendrogram(shc.linkage(distance.pdist(
+    #         allFilter, 'euclidean'), method='ward'), no_plot=True)
+    #     reordered_columns.extend(allFilter.index[dend["leaves"]])
 
 
-    for key, value in covariateMap.items():
-        values = [int(x) for x in value]
-        allFilter = allGenotype[values].applymap(lambda x: x > 0)
-        print(allFilter.shape)
-        allFilter=allFilter.transpose()
-        dend = shc.dendrogram(shc.linkage(distance.pdist(
-            allFilter, 'euclidean'), method='ward'), no_plot=True)
-        reordered_columns.extend(allFilter.index[dend["leaves"]])
-
-    print(reordered_columns)
-
-    # keys = list(covariateMap.keys())
-    # values1 = [int(x) for x in covariateMap[keys[0]]]
-    # genotype1 = allGenotype[values1].transpose()
-    # values2 = [int(x) for x in covariateMap[keys[1]]]
-    # genotype2 = allGenotype[values2].transpose()
-    # pvalues = []
-    # for rowIndex in range(allGenotype.shape[0]):
-    #     stat, p = wilcoxon(genotype1.iloc[rowIndex], genotype2.iloc[rowIndex])
-    #     pvalues.append((rowIndex, p))
-    # pvalues.sort(key=lambda x: x[1])
-    # reordered_rows = [pvalue[0] for pvalue in pvalues]
-    # print(reordered_rows)
-    # print(reordered_columns)
-    # print(allGenotype.shape)
-    # reordered_genotype = allGenotype.loc[reordered_rows, reordered_columns]
-    # print(reordered_genotype)
 
 
 if __name__ == "__main__":

@@ -459,6 +459,13 @@ $(document).ready(function(){
                     let chr=chrData[selectedIndex].chr
                     let name=chrData[selectedIndex].name
                     let projectID = $("#projectID").val()
+                    $.get("http://"+server+"/showVariants/"+projectID,{name:name,chr:chr},function(data){
+                        console.log(data)
+
+                    })
+
+
+
                     $.get("http://"+server+"/showNGCHM/"+projectID,{name:name,chr:chr,reorder:reorder},function(data){
                         console.log(data)
                         $("#plotNGCHM").show();
