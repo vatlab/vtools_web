@@ -55,6 +55,60 @@ $(document).ready(function(){
     })
 
 
+    function generateDetailTable(table, rows) {
+        if (dataTable !== undefined) {
+            dataTable.destroy()
+        }
+        $("#infoTable").empty()
+        $(table).empty()
+        var headers = rows[0].split(/(\s+)/).filter(function (e) { return e.trim().length > 0; });
+        headers.unshift("Summary")
+        var columns = []
+        for (var i = 0; i < headers.length; i++) {
+            columns.push({ "data": headers[i], "title": headers[i] })
+        }
+        
+        rows = rows.slice(1)
+        rows = rows.map((row) => {
+            if (row.trim().length !== 0) {
+                var cells = row.split(/(\s+)/).filter((e) => e.trim().length > 0);
+                cells.unshift("")
+                var object = {}
+                for (var i = 0; i < headers.length; i++) {
+                    object[headers[i]] = cells[i]
+                }
+                return object;
+            }
+
+        })
+        rows = rows.filter((row) => row !== undefined)
+        console.log(rows)
+        console.log(columns)
+        dataTable = $(table).DataTable({
+            data: rows,
+            columns: columns,
+            columnDefs:[{
+                targets: 0,
+                data: null,
+                createdCell: function(td,cellData,rowData,row,col){
+                    let content = "<div class='bar-chart-bar'>"
+                    let count=1
+                    for (let index of ["0_hetero","0_homo","1_hetero","1_homo"]){
+                        let value= (parseInt(rowData[index])/2000)*100
+                        content += "<div class='bar bar"+count+"' style='width:"+value+"%'></div>"
+                        count+=1
+                    }
+                    content+="</div>"
+                    console.log(content)
+                    // content = "<div class='bar-chart-bar'><div class='bar bar1' style='width:20%'></div></div>"
+                    $(td).append(content)
+                }
+            }]
+        })
+       
+    }
+
+
     function median(values){
       if(values.length ===0) return 0;
 
@@ -465,7 +519,7 @@ $(document).ready(function(){
                     let projectID = $("#projectID").val()
                     if (reorder=="Detail"){
                         $.get("http://"+server+"/showVariants/"+projectID,{name:name,chr:chr},function(data){
-                            generateDataTable("#dataTable", data.split("\n"))
+                            generateDetailTable("#dataTable", data.split("\n"))
                         })
                     }else{
                         $.get("http://"+server+"/showNGCHM/"+projectID,{name:name,chr:chr,reorder:reorder},function(data){

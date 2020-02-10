@@ -585,8 +585,6 @@ function generateDataTable(table,rows){
 
     })
     rows=rows.filter((row)=>row!==undefined) 
-    // console.log(rows)
-    // console.log(columns)
     console.log(rows)
     console.log(columns)
     dataTable=$(table).DataTable({
