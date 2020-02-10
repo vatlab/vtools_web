@@ -20,6 +20,10 @@ var myColor = d3.scale.category20()
 
 
 $(document).ready(function(){
+    d3.select("#manhattan_plotting_area")
+        .style("width", fullWidth+"px")
+        .style("height", fullHeight+"px")
+
 	var canvas = d3.select("#plot-canvas")
             .attr("width", width - 1)
             .attr("height", height - 1)
@@ -459,36 +463,34 @@ $(document).ready(function(){
                     let chr=chrData[selectedIndex].chr
                     let name=chrData[selectedIndex].name
                     let projectID = $("#projectID").val()
-                    $.get("http://"+server+"/showVariants/"+projectID,{name:name,chr:chr},function(data){
-                        console.log(data)
-
-                    })
-
-
-
-                    $.get("http://"+server+"/showNGCHM/"+projectID,{name:name,chr:chr,reorder:reorder},function(data){
-                        console.log(data)
-                        $("#plotNGCHM").show();
-                        let heatmapName="chr"+chr+"_"+name
-                        
-                        heatmapName = heatmapName + "_"+reorder
-                        var ajaxUrl="http://"+server+"/ngchmView/"+projectID+"/"+heatmapName
-                        console.log(ajaxUrl)
-                        
-                        var xmlhttp=new XMLHttpRequest();
-                        xmlhttp.open("GET", ajaxUrl, true);
-                        xmlhttp.responseType = 'blob';
-                        xmlhttp.onload = function(e) {
-                            if (this.status == 200) {
-                                var blob = new Blob([this.response], {type: 'compress/zip'});
-                                NgChm.UTIL.displayFileModeCHM(blob)
-                                document.getElementById("container").addEventListener('wheel', NgChm.SEL.handleScroll, false);
-                                document.getElementById("detail_canvas").focus();
-                            }
-                        };
-                        isMoving=false
-                        xmlhttp.send()
-                    })
+                    if (reorder=="Detail"){
+                        $.get("http://"+server+"/showVariants/"+projectID,{name:name,chr:chr},function(data){
+                            generateDataTable("#dataTable", data.split("\n"))
+                        })
+                    }else{
+                        $.get("http://"+server+"/showNGCHM/"+projectID,{name:name,chr:chr,reorder:reorder},function(data){
+                            $("#plotNGCHM").show();
+                            let heatmapName="chr"+chr+"_"+name
+                            
+                            heatmapName = heatmapName + "_"+reorder
+                            var ajaxUrl="http://"+server+"/ngchmView/"+projectID+"/"+heatmapName
+                            console.log(ajaxUrl)
+                            
+                            var xmlhttp=new XMLHttpRequest();
+                            xmlhttp.open("GET", ajaxUrl, true);
+                            xmlhttp.responseType = 'blob';
+                            xmlhttp.onload = function(e) {
+                                if (this.status == 200) {
+                                    var blob = new Blob([this.response], {type: 'compress/zip'});
+                                    NgChm.UTIL.displayFileModeCHM(blob)
+                                    document.getElementById("container").addEventListener('wheel', NgChm.SEL.handleScroll, false);
+                                    document.getElementById("detail_canvas").focus();
+                                }
+                            };
+                            isMoving=false
+                            xmlhttp.send()
+                        })
+                    }
                 }
             
             }

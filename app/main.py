@@ -47,9 +47,8 @@ def show_Variants(projectID):
     name = request.args.get('name', None, type=None)
     allGenotype,variantIDs = get_genotype(projectID,chr,name)
     detail = get_variants_summary(projectID, allGenotype,variantIDs)
-    print(detail)
 
-    return "success",200
+    return detail.to_string(index=False),200
 
 
 

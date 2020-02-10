@@ -4,16 +4,18 @@
 	<!-- <input type="checkbox" id="reorder" value="True">reorder?<br> -->
 
 	<select id="selectReorder" class="selectionBox">
-		<option selected value="Original">Hierarchical on rows and columns</option>
-		<option selected value="reorderBoth">reorder columnd and rows</option>
-		<option selected value="reorderCol1">Hierarchical on rows, reorder columns test1</option>
-		<option selected value="reorderCol2">Hierarchical on rows, reorder columns test2</option>
+		<option  selected value="Detail">Detail</option>
+		<option  value="Original">Hierarchical on rows and columns</option>
+		<option  value="reorderBoth">reorder columnd and rows</option>
+		<option  value="reorderCol1">Hierarchical on rows, reorder columns test1</option>
+		<option  value="reorderCol2">Hierarchical on rows, reorder columns test2</option>
 	</select>
-
-	<svg id="axis-svg" class="plot"></svg>
-	<canvas id="plot-canvas" class="plot"></canvas>
+	<div id="manhattan_plotting_area">
+		<svg id="axis-svg" class="plot"></svg>
+		<canvas id="plot-canvas" class="plot"></canvas>
+	</div>
 	<div id="plotNGCHM" style="display:none">
-		<div id="NGCHM" style="width:100%; height:500px"></div>
+		<!-- <div id="NGCHM" style="width:100%; height:500px"></div> -->
 		<!-- <div id='NGCHMEmbed'
 								style="background-color:white; height:500px ; width:500px; border: 2px solid gray; padding: 5px"></div> -->
 		<div id='NGCHMEmbed'
