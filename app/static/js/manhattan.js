@@ -94,9 +94,12 @@ $(document).ready(function(){
                     let content = "<div class='bar-chart-bar'>"
                     let count=1
                     for (let index of ["0_hetero","0_homo","1_hetero","1_homo"]){
-                        let value= (parseInt(rowData[index])/2000)*100
+                        let value= (parseInt(rowData[index])/1000)*100
                         content += "<div class='bar bar"+count+"' style='width:"+value+"%'></div>"
                         count+=1
+                        if (count==3){
+                            content += "<div style='clear:both'></div>"
+                        }
                     }
                     content+="</div>"
                     console.log(content)
