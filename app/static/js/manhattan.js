@@ -10,7 +10,7 @@ var zoomEndTimeout;
 
 // define all size variables
 var fullWidth = 500;
-var fullHeight = 500;
+var fullHeight = 470;
 var margin = {top: 10, right: 10, bottom: 30, left: 30};
 var width = fullWidth - margin.left - margin.right;
 var height = fullHeight - margin.top - margin.bottom;
@@ -23,6 +23,7 @@ $(document).ready(function(){
     d3.select("#manhattan_plotting_area")
         .style("width", fullWidth+"px")
         .style("height", fullHeight+"px")
+        .style("float", "right")
 
 	var canvas = d3.select("#plot-canvas")
             .attr("width", width - 1)

@@ -61,3 +61,7 @@ text {
 .bar4 {
     background-color: rgb(117, 2, 2);
 }
+
+.tab-content{
+    height:500px
+}
