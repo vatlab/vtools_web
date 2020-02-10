@@ -132,8 +132,9 @@ def get_variant_details(conn,variantIDs):
     variants = ",".join([str(variantID) for variantID in variantIDs])
     cur.execute("SELECT chr,pos,ref,alt FROM variant where variant_id in "+"("+variants+")")
     rows = cur.fetchall()
-    return pd.DataFrame(rows, index=variantIDs,columns=["chr","pos","ref","alt"])
-
+    detail = pd.DataFrame(rows, index=variantIDs,columns=["chr","pos","ref","alt"])
+    detail["dbSNP"] = get_dbSNP_annotation(variantIDs)
+    return detail
 
 def get_variants_summary(projectID,allGenotype,variantIDs):
     covariateMap=get_CovariateMap(projectID)
