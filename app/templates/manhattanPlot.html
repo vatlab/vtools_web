@@ -1,6 +1,6 @@
 <div class="tab-pane" id="manhattanPlot" style="width:1000px">
 	<h3>Manhattan</h3>
-	<button class="btn btn-default" id="reset">Reset</button>
+	
 	<!-- <input type="checkbox" id="reorder" value="True">reorder?<br> -->
 
 	<select id="selectReorder" class="selectionBox">
@@ -10,8 +10,12 @@
 		<option  value="reorderCol1">Hierarchical on rows, reorder columns test1</option>
 		<option  value="reorderCol2">Hierarchical on rows, reorder columns test2</option>
 	</select>
-	<div id="manhattan_plotting_area">
-		<svg id="axis-svg" class="plot"></svg>
-		<canvas id="plot-canvas" class="plot"></canvas>
+	<div>
+	<button class="btn btn-default" id="reset" style="float:right">Reset</button>
+		<div id="manhattan_plotting_area">
+			
+			<svg id="axis-svg" class="plot"></svg>
+			<canvas id="plot-canvas" class="plot"></canvas>
+		</div>
 	</div>
 </div>

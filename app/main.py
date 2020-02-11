@@ -156,7 +156,9 @@ def get_variants_summary(projectID,allGenotype,variantIDs):
                     homo.append(count[3])
             variant_details[header+"_hetero"]=[0 if math.isnan(x) else int(x) for x in hetero]
             variant_details[header+"_homo"]=[0 if math.isnan(x) else int(x) for x in homo]
-    return variant_details
+            variant_details["Sum"] = variant_details[header +"_hetero"]+variant_details[header+"_homo"]
+    return variant_details.sort_values(by=["Sum"],ascending=False).drop(["Sum"],axis=1)
+    
 
 
 def prepare_dbSNP_annotation(projectID):

@@ -9,8 +9,8 @@ var zoomEndTimeout;
 
 
 // define all size variables
-var fullWidth = 500;
-var fullHeight = 470;
+var fullWidth = 650;
+var fullHeight = 400;
 var margin = {top: 10, right: 10, bottom: 30, left: 30};
 var width = fullWidth - margin.left - margin.right;
 var height = fullHeight - margin.top - margin.bottom;
@@ -89,23 +89,30 @@ $(document).ready(function(){
             data: rows,
             columns: columns,
             columnDefs:[{
-                targets: 0,
+                targets: [0,5],
                 data: null,
                 createdCell: function(td,cellData,rowData,row,col){
-                    let content = "<div class='bar-chart-bar'>"
-                    let count=1
-                    for (let index of ["0_hetero","0_homo","1_hetero","1_homo"]){
-                        let value= (parseInt(rowData[index])/1000)*100
-                        content += "<div class='bar bar"+count+"' style='width:"+value+"%'></div>"
-                        count+=1
-                        if (count==3){
-                            content += "<div style='clear:both'></div>"
+                    if (col==0){
+                        let content = "<div class='bar-chart-bar'>"
+                        let count=1
+                        for (let index of ["0_hetero","0_homo","1_hetero","1_homo"]){
+                            let value= (parseInt(rowData[index])/1000)*100
+                            content += "<div class='bar bar"+count+"' style='width:"+value+"%'></div>"
+                            count+=1
+                            if (count==3){
+                                content += "<div style='clear:both'></div>"
+                            }
+                        }
+                        content+="</div>"
+                        $(td).append(content)
+                    }else if(col==5){
+                        console.log
+                        if (rowData["dbSNP"].startsWith("rs")){
+                            let content = "<a href=https://www.ncbi.nlm.nih.gov/snp/"+rowData["dbSNP"]+">"+rowData["dbSNP"]+"</a>"
+                            $(td).empty()
+                            $(td).append(content)
                         }
                     }
-                    content+="</div>"
-                    console.log(content)
-                    // content = "<div class='bar-chart-bar'><div class='bar bar1' style='width:20%'></div></div>"
-                    $(td).append(content)
                 }
             }]
         })
@@ -198,7 +205,7 @@ $(document).ready(function(){
             .range([0, width]);
 
         var yScale = d3.scale.linear()
-            .domain([0, yRange[1] + 3])
+            .domain([0, yRange[1] + 1])
             .range([height, 0]);
 
 
@@ -231,7 +238,11 @@ $(document).ready(function(){
 
        var yAxisSvg = svg.append('g')
             .attr('class', 'yaxis axis')
-            .call(yAxis);
+            .call(yAxis)
+            .append("text")
+            .attr("fill", "black")//set the fill here
+            // .attr("transform", "translate(120, 40)")
+            .text("-log10(pvalue)");
 
         // create zoom behaviour
         var zoomBehaviour = d3.behavior.zoom()
