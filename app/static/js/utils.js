@@ -638,6 +638,7 @@ function populateDropDownOutput(info){
             $("#outputTableFields").append("<option>"+field+"</option>")  
         })
     })
+    $("#outputTableFields").selectpicker("refresh")
 
 
     $("#outputAnnoFields").empty()
@@ -649,6 +650,7 @@ function populateDropDownOutput(info){
         })
 
     })
+    $("#outputAnnoFields").selectpicker("refresh")
 
 
 
@@ -657,35 +659,24 @@ function populateDropDownOutput(info){
 
 function populateDropDownSelect(info){
     $("#selectionFields").prop('selectedIndex',0);
-    $("#secondSelection").hide()
-    $("#thirdSelection").hide()
-    $("#fourthSelection").hide()
+    // $("#secondSelection").hide()
+    
+    // $("#thirdSelection").hide()
+    // $("#fourthSelection").hide()
+    $("#secondSelection").selectpicker('hide')
+    $("#thirdSelection").selectpicker('hide')
+    $("#fourthSelection").selectpicker('hide')
     $("#selectionInput").hide()
     $("#addToCondition").hide()
     $("#selectCondition").val("")
     $("#newTable").val("")
 
-    // $("#selectionTables").empty()
-    // $.each(info["Variant_tables"],(index,value)=>{
-    //     $("#selectionTables").append("<option value="+value+">"+value+"</option>")
-    // })
-    // $("#selectionTables").append("<option selected value='Please select'>Please select</option>");
-    // $("#selectionTables").change(function(){
-    //     $("#selectCondition").val(this.value)
-    // })
-
-
-    $(".existingTables").each((id,object)=>{
-        console.log(object.id)
-        $("#"+object.id).empty()
-        $.each(info["Variant_tables"],(index,value)=>{
-            $("#"+object.id).append("<option value="+value+">"+value+"</option>")
-        })
-        $("#"+object.id).append("<option selected value='Please select'>Please select</option>");
-        $("#selectionTables").change(function(){
-            $("#selectCondition").val(this.value)
-        })
+    $("#selectionTables").empty()
+    
+    $("#selectionTables").change(function(){
+        $("#selectCondition").val(this.value)
     })
+
 
 
     $("#selectionFields").change(function(){
@@ -704,20 +695,23 @@ function populateDropDownSelect(info){
         $("#secondSelection").empty()
         $("#thirdSelection").empty()
         $("#fourthSelection").empty()
-        $("#secondSelection").hide()
-        $("#thirdSelection").hide()
-        $("#fourthSelection").hide()
+        // $("#secondSelection").hide()
+        // $("#thirdSelection").hide()
+        // $("#fourthSelection").hide()
+        $("#secondSelection").selectpicker('hide')
+        $("#thirdSelection").selectpicker('hide')
+        $("#fourthSelection").selectpicker('hide')
+
         $("#selectionInput").hide()
-        
+        console.log(vals)
         $.each(vals,(index,value)=>{
            $("#secondSelection").append("<option value="+value+">"+value+"</option>");
         })
         $("#secondSelection").append("<option selected value='Please select'>Please select</option>");
-        $("#secondSelection").show()
+        // $("#secondSelection").show()
+        $("#secondSelection").selectpicker("refresh")
+        $("#secondSelection").selectpicker('show')
         $("#secondSelection").change(function(){
-            
-
-     
             vals=fieldMap[this.value]
             $("#thirdSelection").empty()
             var typeMap={}
@@ -727,14 +721,17 @@ function populateDropDownSelect(info){
                 typeMap[field]=fieldType
                 $("#thirdSelection").append("<option>"+field+"</option>")  
             })
-            $("#thirdSelection").show()
+            // $("#thirdSelection").show()
+            $("#thirdSelection").selectpicker("show")
             $("#thirdSelection").append("<option selected value='Please select'>Please select</option>");
+            $("#thirdSelection").selectpicker("refresh")
             $("#thirdSelection").change(function(){
                
                 $("#fourthSelection").empty()
-                $("#fourthSelection").hide()
+                // $("#fourthSelection").hide()
+                $("#fourthSelection").selectpicker("hide")
                 $("#selectionInput").hide()
-
+               
                 if (typeMap[this.value]==="char"){
                     $.each(["IS_NOT_NULL","IS_NULL","="],(index,value)=>{
                         $("#fourthSelection").append("<option>"+value+"</option>")
@@ -746,8 +743,10 @@ function populateDropDownSelect(info){
 
                 }
                 
-                $("#fourthSelection").show()
+                // $("#fourthSelection").show()
+                $("#fourthSelection").selectpicker("show")
                 $("#fourthSelection").append("<option selected value='Please select'>Please select</option>");
+                $("#fourthSelection").selectpicker("refresh")
                 $("#fourthSelection").change(function(){
                     $("#selectionInput").show()
                     $("#addToCondition").show()
@@ -792,6 +791,8 @@ function vtoolsShow(option,display){
                 console.log(tables)
                 addOption("projectTables",tables)
                 addOption("outputTables", tables)
+                addOption("updateTables", tables)
+                addOption("selectionTables", tables)
                 if(display){
                     generateInfoTable('#infoTable',rows)
                 }

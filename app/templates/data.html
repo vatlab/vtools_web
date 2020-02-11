@@ -18,26 +18,26 @@
 					<legend class="togvis">Select</legend>
 					<!-- <select id="fields" size="1"></select><br> -->
 					<div id="fields" style="width:300px">
-						<label class="formLabel1" for="selectionTables">Tables</label>
-						<select id="selectionTables" class="selectionBox existingTables">
+						<label class="lb-md" for="selectionTables">Tables</label>
+						<select id="selectionTables" class="selectionBox">
 							<option selected value="Plsease selection">Please select</option>
 						</select>
 
-						<label class="formLabel1" for="fields">Fields</label>
-						<select id="selectionFields" class="selectionBox">
+						<label class="lb-md" for="fields">Fields</label>
+						<select id="selectionFields" class="selectpicker">
 							<option selected value="Plsease select">Please select</option>
 							<option value="Variant_tables">Variant_tables</option>
 							<option value="Annotation_databases">Annotation_databases</option>
 						</select>
 
-						<select id="secondSelection" style="display:none" class="selectionBox">
+						<select id="secondSelection" class="selectpicker" style="display:none" >
 							<option selected value="Plsease selection">Please select</option>
 						</select>
 
-						<select id="thirdSelection" style="display:none" class="selectionBox">
+						<select id="thirdSelection" class="selectpicker" style="display:none" >
 							<option selected value="Plsease selection">Please select</option>
 						</select>
-						<select id="fourthSelection" style="display:none" class="selectionBox">
+						<select id="fourthSelection" class="selectpicker" style="display:none">
 							<option selected value="Plsease selection">Please select</option>
 						</select>
 						<input class="std_input" id="selectionInput" type="text"
@@ -48,10 +48,10 @@
 					</div>
 
 					<div style="float:left">
-						<label class="formLabel1" for="selectCondition">Condition</label>
+						<label class="lb-md" for="selectCondition">Condition</label>
 						<input class="std_input" id="selectCondition" type="text"><br>
 						<label class="formLabel1" for="newTable">New table</label>
-						<input class="std_input" id="newTable" type="text"><br>
+						<input class="lb-md" id="newTable" type="text"><br>
 						<button id="selectButton" class="btn btn-primary">Select</button>
 						<div>
 				</fieldset>
@@ -60,7 +60,7 @@
 				<fieldset id="vtoolsUpdate">
 					<legend class="togvis">Update</legend>
 					<label class="formLabel1" for="updateTables">Tables</label>
-					<select id="updateTables" class="selectionBox existingTables">
+					<select id="updateTables" class="selectionBox">
 						<option selected value="Plsease selection">Please select</option>
 					</select>
 
