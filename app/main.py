@@ -45,9 +45,9 @@ def show_Variants(projectID):
     projectFolder=PROJECT_FOLDER+projectID
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
+    print(chr,name)
     allGenotype,variantIDs = get_genotype(projectID,chr,name)
     detail = get_variants_summary(projectID, allGenotype,variantIDs)
-
     return detail.to_string(index=False),200
 
 
@@ -98,6 +98,19 @@ def get_genotype(projectID,chr,name):
     allGenotype = []
     allColnames = []
     rownames=[]
+    if len(chr)==0 :
+        filePath = HDFfileNames[0]
+        print(filePath)
+        file = tb.open_file(filePath)
+        for chrIndex in range(1,23):
+            try:
+                node = file.get_node("/chr"+str(chrIndex)+"/"+name+"/")
+                chr=str(chrIndex)
+            except tb.exceptions.NoSuchNodeError:
+                pass
+        print("find chr ", chr)
+    if  chr is None:
+        return "No such gene", 500
     try:
         for filePath in HDFfileNames:
             print(filePath)

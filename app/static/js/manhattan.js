@@ -171,6 +171,16 @@ $(document).ready(function(){
         })
     }
 
+
+
+    $("#searchGeneButton").click(function () {
+        let geneName = $("#searchGene").val()
+        let projectID = $("#projectID").val()
+        $.get("http://" + server + "/showVariants/" + projectID, { name: geneName, chr: null }, function (data) {
+            generateDetailTable("#dataTable", data.split("\n"), name, pvalue)
+        })
+    })
+
         // the canvas is shifted by 1px to prevent any artefacts
         // when the svg axis and the canvas overlap
         

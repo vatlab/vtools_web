@@ -2,14 +2,22 @@
 	<h3>Manhattan</h3>
 	
 	<!-- <input type="checkbox" id="reorder" value="True">reorder?<br> -->
-
-	<select id="selectReorder" class="selectionBox">
-		<option  selected value="Detail">Detail</option>
-		<option  value="Original">Hierarchical on rows and columns</option>
-		<option  value="reorderBoth">reorder columnd and rows</option>
-		<option  value="reorderCol1">Hierarchical on rows, reorder columns test1</option>
-		<option  value="reorderCol2">Hierarchical on rows, reorder columns test2</option>
-	</select>
+	<div>
+		<div>
+			<select id="selectReorder" class="selectionBox">
+				<option  selected value="Detail">Detail</option>
+				<option  value="Original">Hierarchical on rows and columns</option>
+				<option  value="reorderBoth">reorder columnd and rows</option>
+				<option  value="reorderCol1">Hierarchical on rows, reorder columns test1</option>
+				<option  value="reorderCol2">Hierarchical on rows, reorder columns test2</option>
+			</select>
+		</div>
+		<div style="float:left">
+		<label class="lb-md" for="searchGene">Search Gene</label>
+		<input class="std_input" id="searchGene" type="text"><br>
+		<button id="searchGeneButton" class="btn btn-primary">Search</button>
+		</div>
+	</div>
 	<div>
 	<button class="btn btn-default" id="reset" style="float:right">Reset</button>
 		<div id="manhattan_plotting_area">

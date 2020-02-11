@@ -188,6 +188,8 @@ $(document).ready(function(){
         return false;
     });
 
+   
+
 
     function bs_input_file() {
          $(".input-file").before(
@@ -225,6 +227,11 @@ $(document).ready(function(){
 
 })
 
+
+function searchGene(geneName){
+    console.log(geneName)
+
+}
 
 
 
@@ -392,21 +399,10 @@ function addToLog(log){
 }
 
 
-function addToDropDown(id,contents){
-    console.log(contents)
-    $("#"+id).append("<li role='presentation'><a role='menuitem' href='#'>" + contents + "</a></li>")
-}
 
 
 function addOption(id,contents){
 
-    // contents.forEach((content)=>{
-    //     var dropdown = document.getElementById(id);
-    //     var optn = document.createElement("option");
-    //     optn.text = content;
-    //     optn.value = content;
-    //     dropdown.options.add(optn).selectpicker('refresh');
-    // })
     let options=""
     contents.forEach((content)=>{
         options+='<option>'+content+'</option>'
@@ -414,11 +410,6 @@ function addOption(id,contents){
 
     $('#'+id).html(options).selectpicker("refresh")
 
-    // var dropdown = document.getElementById(id);
-    // var optn = document.createElement("option");
-    // optn.text = content;
-    // optn.value = content;
-    // dropdown.options.add(optn);
 }
 
 
