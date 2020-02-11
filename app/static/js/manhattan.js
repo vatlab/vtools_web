@@ -56,7 +56,7 @@ $(document).ready(function(){
     })
 
 
-    function generateDetailTable(table, rows) {
+    function generateDetailTable(table, rows,name,pvalue) {
         if (dataTable !== undefined) {
             dataTable.destroy()
         }
@@ -116,6 +116,7 @@ $(document).ready(function(){
                 }
             }]
         })
+        $(table).append("<caption>GeneName: <a href=https://www.genecards.org/cgi-bin/carddisp.pl?gene="+name+">"+name+"</a>"+" pvalue:"+pvalue+"</caption>")
        
     }
 
@@ -151,7 +152,7 @@ $(document).ready(function(){
                     }
                     delete offSets[0]
                     console.log(offSets)
-                    var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false,name:ele.name}))
+                    var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false,name:ele.name,pvalue:ele.pvalue}))
                     
               
                     var xdata =[]
@@ -528,13 +529,13 @@ $(document).ready(function(){
                     // let reorder=$("#reorder").prop("checked")
                     // console.log(reorder)
                     let reorder=$("#selectReorder").val()
-                    console.log(reorder)
                     let chr=chrData[selectedIndex].chr
                     let name=chrData[selectedIndex].name
+                    let pvalue = chrData[selectedIndex].pvalue
                     let projectID = $("#projectID").val()
                     if (reorder=="Detail"){
                         $.get("http://"+server+"/showVariants/"+projectID,{name:name,chr:chr},function(data){
-                            generateDetailTable("#dataTable", data.split("\n"))
+                            generateDetailTable("#dataTable", data.split("\n"),name,pvalue)
                         })
                     }else{
                         $.get("http://"+server+"/showNGCHM/"+projectID,{name:name,chr:chr,reorder:reorder},function(data){
