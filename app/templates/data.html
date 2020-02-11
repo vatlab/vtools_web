@@ -1,20 +1,16 @@
-<div class="tab-pane" id="data">
+<!-- <div class="tab-pane" id="data"> -->
 	<h3></h3>
-	<div class="container">
-		<div class="row">
-			<div class="col-xs-3">
-
-
-				<fieldset id="dataAnnotation" style="display:none;">
+	<!-- <div class="container"> -->
+	
+				<div class="tab-pane" id="dataAnnotation" >
 					<legend>Data Annotation</legend>
 					<select id="annotationOptions" size="1">
 					</select>
 					<button id="useButton" class="btn btn-primary" >Add annotation</button>
 					<p id="useFinished"></p>
-				</fieldset>
-			</div>
-			<div class="col-xs-3">
-				<fieldset id="vtoolsSelect">
+				</div>
+			
+				<div class="tab-pane" id="vtoolsSelect">
 					<legend class="togvis">Select</legend>
 					<!-- <select id="fields" size="1"></select><br> -->
 					<div id="fields" style="width:300px">
@@ -53,11 +49,10 @@
 						<label class="formLabel1" for="newTable">New table</label>
 						<input class="lb-md" id="newTable" type="text"><br>
 						<button id="selectButton" class="btn btn-primary">Select</button>
-						<div>
-				</fieldset>
-			</div>
-			<div class="col-xs-3">
-				<fieldset id="vtoolsUpdate">
+					</div>
+				</div>
+			
+				<div class="tab-pane" id="vtoolsUpdate">
 					<legend class="togvis">Update</legend>
 					<label class="formLabel1" for="updateTables">Tables</label>
 					<select id="updateTables" class="selectionBox">
@@ -102,11 +97,9 @@
 						</select>
 					</div>
 					<button id="updateButton" class="btn btn-primary">Update</button>
-				</fieldset>
-			</div>
-
-			<div class="col-xs-3">
-				<fieldset id="vtoolsRemove">
+				</div>
+			
+				<div class="tab-pane" id="vtoolsRemove">
 					<legend>Remove</legend>
 					<select id="selectRemoveOptions">
 						<option></option>
@@ -144,9 +137,7 @@
 					</div>
 					<button id="removeButton" class="btn btn-primary">Remove</button>
 
-				</fieldset>
-			</div>
-
-		</div>
-	</div>
-</div>
+				</div>
+				</div>
+	<!-- </div> -->
+<!-- </div> -->

@@ -783,7 +783,7 @@ function vtoolsShow(option,display){
 
                 addOption("annotationOptions",uniqAnnotations)
                 $("#annotationOptions").val("refGene");
-                $("#dataAnnotation").show()
+               
                 break;
 
             case "tables":
