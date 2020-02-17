@@ -182,17 +182,20 @@ $(document).ready(function(){
     //  })
     }
 
-
-
     $("#searchGeneButton").click(function () {
         let geneName = $("#searchGene").val()
         let projectID = $("#projectID").val()
-        $.get("http://" + server + "/showVariants/" + projectID, { name: geneName, chr: null }, function (result) {
-            pvalue=result.pvalue
-            data=result.data
+        $.get("http://" + server + "/showVariants/" + projectID, { name: geneName, chr: null }, function (searchResult) {
+            pvalue = searchResult.pvalue
+            data = searchResult.data
+            selectedChr = searchResult.chr
             generateDetailTable("#dataTable", data.split("\n"), geneName, pvalue)
+            var chrData = result.data.filter((ele) => ele.chr === selectedChr)
+            var index = chrData.map((ele) => ele.i)
         })
     })
+
+    
 
         // the canvas is shifted by 1px to prevent any artefacts
         // when the svg axis and the canvas overlap
@@ -443,8 +446,10 @@ $(document).ready(function(){
             })
 
 
+            
 
-            function drawChr(index,selectedChr){
+
+             function drawChr(index,selectedChr){
                 console.log("drawChr called")
                 var active;
                 clearTimeout(zoomEndTimeout);

@@ -47,12 +47,12 @@ def show_Variants(projectID):
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     print(chr,name)
-    allGenotype,variantIDs = get_genotype(projectID,chr,name)
+    allGenotype,variantIDs,chr = get_genotype(projectID,chr,name)
     detail = get_variants_summary(projectID, allGenotype,variantIDs)
     conn = create_connection("HDF.DB", projectID)
     content = extract_one_pvalue(conn,name)
     pvalue=content[5]
-    return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue)}),200
+    return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr)}),200
 
 
 
@@ -76,7 +76,7 @@ def show_NGCHM(projectID):
     if os.path.exists(projectFolder+"/cache/"+heatmapName+".ngchm"):
         return "cache exists", 200
 
-    allGenotype,variantIDs = get_genotype(projectID,chr,name)    
+    allGenotype,variantIDs,_ = get_genotype(projectID,chr,name)    
     
     if reorder == "reorderBoth":
         return reorder_genotype(projectID,allGenotype, heatmapName)
@@ -136,7 +136,7 @@ def get_genotype(projectID,chr,name):
             file.close()
         # allColnames = get_column_names(allColnames)
         allGenotype = pd.DataFrame(allGenotype, columns=allColnames, index=rownames)
-        return allGenotype,rownames
+        return allGenotype,rownames,chr
     except tb.exceptions.NoSuchNodeError:
         print("No such node")
         return "No such node", 500
