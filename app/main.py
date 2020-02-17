@@ -44,14 +44,15 @@ def allowed_file(filename):
 def show_Variants(projectID):
     if not dbSNP_map:
         prepare_dbSNP_annotation(projectID)
-    projectFolder=PROJECT_FOLDER+projectID
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     print(chr,name)
     allGenotype,variantIDs = get_genotype(projectID,chr,name)
     detail = get_variants_summary(projectID, allGenotype,variantIDs)
-    return detail.to_string(index=False),200
-
+    conn = create_connection("HDF.DB", projectID)
+    content = extract_one_pvalue(conn,name)
+    pvalue=content[5]
+    return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue)}),200
 
 
 
@@ -141,10 +142,19 @@ def get_genotype(projectID,chr,name):
         return "No such node", 500
 
 
+def extract_one_pvalue(conn,name):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM HDF where refgene_name2=?",(name,))
+    rows = cur.fetchone()
+    cur.close()
+    return rows
+
+
 def extract_pvalue(conn):
     cur = conn.cursor()
     cur.execute("SELECT * FROM HDF")
     rows = cur.fetchall()
+    cur.close()
     return rows
 
 def load_refgene():
@@ -162,7 +172,6 @@ def get_pvalue(projectID):
     gdict = load_refgene()
     content = extract_pvalue(conn)
     id = 1
-    projectFolder = PROJECT_FOLDER+projectID
     output="id\tchr\tpos\tpvalue\tname\n"
 
     for line in content:
@@ -189,6 +198,7 @@ def get_variant_details(conn,variantIDs):
     variants = ",".join([str(variantID) for variantID in variantIDs])
     cur.execute("SELECT chr,pos,ref,alt FROM variant where variant_id in "+"("+variants+")")
     rows = cur.fetchall()
+    cur.close()
     detail = pd.DataFrame(rows, index=variantIDs,columns=["chr","pos","ref","alt"])
     detail["dbSNP"] = get_dbSNP_annotation(variantIDs)
     return detail

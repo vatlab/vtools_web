@@ -187,8 +187,10 @@ $(document).ready(function(){
     $("#searchGeneButton").click(function () {
         let geneName = $("#searchGene").val()
         let projectID = $("#projectID").val()
-        $.get("http://" + server + "/showVariants/" + projectID, { name: geneName, chr: null }, function (data) {
-            generateDetailTable("#dataTable", data.split("\n"), name, pvalue)
+        $.get("http://" + server + "/showVariants/" + projectID, { name: geneName, chr: null }, function (result) {
+            pvalue=result.pvalue
+            data=result.data
+            generateDetailTable("#dataTable", data.split("\n"), geneName, pvalue)
         })
     })
 
@@ -538,14 +540,10 @@ $(document).ready(function(){
                         selectedPoint = closest.i;
                         var selectedIndex=index.indexOf(selectedPoint.toString())
                         chrData[selectedIndex].selected = true;
-
-
                         // redraw the points
                         drawChr(index,selectedChr)
                     // }
-
                     console.log(closest)
-
                     $("#plotNGCHM").hide();
                     // let reorder=$("#reorder").prop("checked")
                     // console.log(reorder)
@@ -555,8 +553,8 @@ $(document).ready(function(){
                     let pvalue = chrData[selectedIndex].pvalue
                     let projectID = $("#projectID").val()
                     if (reorder=="Detail"){
-                        $.get("http://"+server+"/showVariants/"+projectID,{name:name,chr:chr},function(data){
-                            generateDetailTable("#dataTable", data.split("\n"),name,pvalue)
+                        $.get("http://"+server+"/showVariants/"+projectID,{name:name,chr:chr},function(result){
+                            generateDetailTable("#dataTable", result.data.split("\n"),name,pvalue)
                         })
                     }else{
                         $.get("http://"+server+"/showNGCHM/"+projectID,{name:name,chr:chr,reorder:reorder},function(data){
