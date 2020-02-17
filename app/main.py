@@ -16,6 +16,8 @@ from scipy.stats import mannwhitneyu
 import scipy.cluster.hierarchy as shc
 from scipy.spatial import distance
 import math
+import pickle
+
 app = Flask(__name__)
 
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/app/"
@@ -137,6 +139,48 @@ def get_genotype(projectID,chr,name):
     except tb.exceptions.NoSuchNodeError:
         print("No such node")
         return "No such node", 500
+
+
+def extract_pvalue(conn):
+    cur = conn.cursor()
+    cur.execute("SELECT * FROM HDF")
+    rows = cur.fetchall()
+    return rows
+
+def load_refgene():
+    pfname = "/Users/jma7/.variant_tools/resource/refgene.pkl"
+    with open(pfname, 'rb') as f:
+        gdict = pickle.load(f)
+    return gdict
+
+
+
+@app.route('/getPvalue/<projectID>', methods=['GET'])
+def get_pvalue(projectID):
+    print(projectID)
+    conn = create_connection("HDF.DB", projectID)
+    gdict = load_refgene()
+    content = extract_pvalue(conn)
+    id = 1
+    projectFolder = PROJECT_FOLDER+projectID
+    output="id\tchr\tpos\tpvalue\tname\n"
+
+    for line in content:
+        name = line[0].strip()
+        try:
+            pvalue = line[5]
+            if name in gdict:
+                output+=str(id)+"\t"+gdict[name][0]+"\t"+str(gdict[name][1])+"\t"+str(pvalue)+"\t"+name+"\n"
+                id = id + 1
+            else:
+                pass
+                # print(name, " not in dict")
+        except IndexError:
+            print(name)
+    return output, 200
+
+
+
 
 
 

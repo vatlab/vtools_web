@@ -133,17 +133,28 @@ $(document).ready(function(){
 
     }
 
+    function tsvJSON(tsv) {
+        const lines = tsv.split('\n');
+        const headers = lines.slice(0, 1)[0].split('\t');
+        return lines.slice(1, lines.length).map(line => {
+            const data = line.split('\t');
+            return headers.reduce((obj, nextKey, index) => {
+                obj[nextKey] = data[index];
+                return obj;
+            }, {});
+        });
+    }
+
+
     function loadData(){
         return new Promise((resolve,reject)=>{
-                  // d3.tsv("fake_pvalue.tsv",function(fdata){
-               d3.tsv("test2k.pvalue.tsv",function(fdata){
-                    fdata=fdata.filter((ele)=>ele.chr!=="X" && ele.chr!=="Y")
+            $.get("http://" + server + "/getPvalue/test2k", function (data) {
+                    fdata=tsvJSON(data)
+                    fdata=fdata.filter((ele)=>ele.chr!=="X" && ele.chr!=="Y" && ele.chr !== undefined)
                     var numberPoints = fdata.length
                     var chrs= Array.from(new Set (fdata.map((ele)=>ele.chr)))
                     var collator = new Intl.Collator(undefined, {numeric: true, sensitivity: 'base'});
                     chrs=chrs.sort(collator.compare)
-                    // chrs=chrs.filter((ele)=>ele!=="X" && ele!=="Y")
-                    console.log(chrs)
                     var offSets={0:{max:0,start:0}}
                     for (let chr of chrs){
                         var filterData=fdata.filter((ele)=>ele.chr===chr).map((ele)=>Number(ele.pos))
@@ -154,7 +165,6 @@ $(document).ready(function(){
                     console.log(offSets)
                     var data=fdata.map((ele)=>({x:ele.pos-offSets[ele.chr].min+offSets[ele.chr].start,y:-Math.log10(ele.pvalue),i:ele.id,chr:ele.chr,selected:false,name:ele.name,pvalue:ele.pvalue}))
                     
-              
                     var xdata =[]
                     var xdataMap={}
                     Object.keys(offSets).forEach(key=>{
@@ -169,6 +179,7 @@ $(document).ready(function(){
 
             })
         })
+    //  })
     }
 
 
