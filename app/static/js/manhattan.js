@@ -40,6 +40,7 @@ $(document).ready(function(){
     console.log(svg)
 
     var result=null
+    var yScale;
 
     function reset(){
         console.log("reset")
@@ -83,8 +84,6 @@ $(document).ready(function(){
 
         })
         rows = rows.filter((row) => row !== undefined)
-        console.log(rows)
-        console.log(columns)
         dataTable = $(table).DataTable({
             data: rows,
             columns: columns,
@@ -190,8 +189,8 @@ $(document).ready(function(){
             data = searchResult.data
             selectedChr = searchResult.chr
             generateDetailTable("#dataTable", data.split("\n"), geneName, pvalue)
-            var chrData = result.data.filter((ele) => ele.chr === selectedChr)
-            var index = chrData.map((ele) => ele.i)
+      
+            drawChr_prepare(result.data,result.offSets,selectedChr)
         })
     })
 
@@ -231,7 +230,7 @@ $(document).ready(function(){
             .domain([xRange[0] - 5, xRange[1] + 5])
             .range([0, width]);
 
-        var yScale = d3.scale.linear()
+        yScale = d3.scale.linear()
             .domain([0, yRange[1] + 1])
             .range([height, 0]);
 
@@ -394,7 +393,7 @@ $(document).ready(function(){
             if (!zoomToChr){
                 zoomToChr=true
                 mouse = d3.mouse(this);
-                var selectedPoint;
+                
                 // map the clicked point to the data space
                 var xClicked = xScale.invert(mouse[0]);
                 var yClicked = yScale.invert(mouse[1]);
@@ -402,30 +401,31 @@ $(document).ready(function(){
                 var closest = quadTree.find([xClicked, yClicked]);
 
                 var selectedChr= closest.chr
-                var chrData = data.filter((ele)=>ele.chr===selectedChr)
-                // chrData.sort((a,b)=>(a.x>b.x)?1:-1)
-                var quadTreeChr = chrData.map((ele)=>({x:ele.x,y:ele.y*y_scaleUp,i:ele.i}))
-                console.log(quadTreeChr)
-                var chrquadTree = d3.geom.quadtree(quadTreeChr);
-                var index=chrData.map((ele)=>ele.i)
-                var subsetSize=index.length/10
-                var chrrandomIndex = _.sampleSize(index, subsetSize);
-                var chr_scale=d3.scale.linear()
-                    .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
-                    .range([0, width]);
+                // var chrData = data.filter((ele)=>ele.chr===selectedChr)
+                // // chrData.sort((a,b)=>(a.x>b.x)?1:-1)
+                // var quadTreeChr = chrData.map((ele)=>({x:ele.x,y:ele.y*y_scaleUp,i:ele.i}))
+                // console.log(quadTreeChr)
+                // var chrquadTree = d3.geom.quadtree(quadTreeChr);
+                // var index=chrData.map((ele)=>ele.i)
+                // var subsetSize=index.length/10
+                // var chrrandomIndex = _.sampleSize(index, subsetSize);
+                // var chr_scale=d3.scale.linear()
+                //     .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
+                //     .range([0, width]);
 
-                var chrzoomBehaviour=d3.behavior.zoom()
-                    .x(chr_scale)
-                    // .y(yScale)
-                    .scaleExtent([1, 30])
-                    .on("zoom", onchrZoom)
-                    .on("zoomend", onchrZoomEnd)
+                // var chrzoomBehaviour=d3.behavior.zoom()
+                //     .x(chr_scale)
+                //     // .y(yScale)
+                //     .scaleExtent([1, 30])
+                //     .on("zoom", onchrZoom)
+                //     .on("zoomend", onchrZoomEnd)
                   
-                canvas.call(chrzoomBehaviour)
-                    .on("dblclick.zoom", null)
-                drawChr(index,selectedChr)
-                canvas.on("mousedown",onMouseDown)
-                canvas.on("mouseup",onMouseUp)
+                // canvas.call(chrzoomBehaviour)
+                //     .on("dblclick.zoom", null)
+                // drawChr(index,selectedChr)
+                // canvas.on("mousedown",onMouseDown)
+                // canvas.on("mouseup",onMouseUp)
+                drawChr_prepare(data,offSets,selectedChr)
             }
 
 
@@ -444,12 +444,42 @@ $(document).ready(function(){
 
 
             })
+        }
+    }
 
+        function drawChr_prepare(data,offSets,selectedChr){
+            var chrData = data.filter((ele)=>ele.chr===selectedChr)
+            // chrData.sort((a,b)=>(a.x>b.x)?1:-1)
+            var y_scaleUp=10000000
+            var context = canvas.node().getContext('2d');
+            var selectedPoint;
+            var quadTreeChr = chrData.map((ele)=>({x:ele.x,y:ele.y*y_scaleUp,i:ele.i}))
+            console.log(quadTreeChr)
+            var chrquadTree = d3.geom.quadtree(quadTreeChr);
+            var index=chrData.map((ele)=>ele.i)
+            var subsetSize=index.length/10
+            var chrrandomIndex = _.sampleSize(index, subsetSize);
+            var chr_scale=d3.scale.linear()
+                .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
+                .range([0, width]);
 
+            var chrzoomBehaviour=d3.behavior.zoom()
+                .x(chr_scale)
+                // .y(yScale)
+                .scaleExtent([1, 30])
+                .on("zoom", onchrZoom)
+                .on("zoomend", onchrZoomEnd)
+              
+            canvas.call(chrzoomBehaviour)
+                .on("dblclick.zoom", null)
+            drawChr(index,selectedChr)
+            canvas.on("mousedown",onMouseDown)
+            canvas.on("mouseup",onMouseUp)
+            
             
 
 
-             function drawChr(index,selectedChr){
+             function drawChr(index,selectedChr,chr_scale){
                 console.log("drawChr called")
                 var active;
                 clearTimeout(zoomEndTimeout);
@@ -604,9 +634,7 @@ $(document).ready(function(){
                 context.stroke();
 
             }
-
-        }
-    }
+      }
 		
 })
 
