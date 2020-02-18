@@ -43,6 +43,8 @@ $(document).ready(function(){
     var yScale;
     var selectedPoint;
 
+    
+
     function reset(){
         console.log("reset")
         drawManhattan(result)
@@ -191,12 +193,14 @@ $(document).ready(function(){
             selectedChr = searchResult.chr
             generateDetailTable("#dataTable", data.split("\n"), geneName, pvalue)
             console.log(result.data)
-            let searchGeneIndex=result.data.findIndex(ele=>ele.name==geneName)
+            
+            var chrData = result.data.filter((ele) => ele.chr === selectedChr)
+            let searchGeneIndex = chrData.findIndex(ele => ele.name == geneName)
             console.log(searchGeneIndex)
-            selectedPoint=searchGeneIndex
-            result.data[searchGeneIndex].selected = true;
-            console.log(result.data[searchGeneIndex])
-            drawChr_prepare(result.data,result.offSets,selectedChr)
+            chrData[searchGeneIndex].selected = true;
+            console.log(chrData[searchGeneIndex])
+            selectedPoint = chrData[searchGeneIndex].i
+            drawChr_prepare(chrData, result.offSets[selectedChr],selectedChr)
         })
     })
 
@@ -209,7 +213,6 @@ $(document).ready(function(){
 
 
     function drawManhattan(result){
-        console.log(canvas)
         console.log("draw manhattan")
         var numberPoints=result.numberPoints
         var chrs=result.chrs
@@ -290,8 +293,7 @@ $(document).ready(function(){
         // get the canvas drawing context
         var context = canvas.node().getContext('2d');
         var firstPos;
-        var isDown=false;
-        var isMoving=false;
+        
         var zoomToChr=false;
         var radius = 6*6
         var y_scaleUp=10000000
@@ -405,60 +407,21 @@ $(document).ready(function(){
                 var yClicked = yScale.invert(mouse[1]);
                 // find the closest point in the dataset to the clicked point
                 var closest = quadTree.find([xClicked, yClicked]);
-
                 var selectedChr= closest.chr
-                // var chrData = data.filter((ele)=>ele.chr===selectedChr)
-                // // chrData.sort((a,b)=>(a.x>b.x)?1:-1)
-                // var quadTreeChr = chrData.map((ele)=>({x:ele.x,y:ele.y*y_scaleUp,i:ele.i}))
-                // console.log(quadTreeChr)
-                // var chrquadTree = d3.geom.quadtree(quadTreeChr);
-                // var index=chrData.map((ele)=>ele.i)
-                // var subsetSize=index.length/10
-                // var chrrandomIndex = _.sampleSize(index, subsetSize);
-                // var chr_scale=d3.scale.linear()
-                //     .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
-                //     .range([0, width]);
+                var chrData = data.filter((ele) => ele.chr === selectedChr)
 
-                // var chrzoomBehaviour=d3.behavior.zoom()
-                //     .x(chr_scale)
-                //     // .y(yScale)
-                //     .scaleExtent([1, 30])
-                //     .on("zoom", onchrZoom)
-                //     .on("zoomend", onchrZoomEnd)
-                  
-                // canvas.call(chrzoomBehaviour)
-                //     .on("dblclick.zoom", null)
-                // drawChr(index,selectedChr)
-                // canvas.on("mousedown",onMouseDown)
-                // canvas.on("mouseup",onMouseUp)
-                drawChr_prepare(data,offSets,selectedChr)
+                drawChr_prepare(chrData, offSets[selectedChr],selectedChr)
             }
-
-
-            document.getElementById("plot-canvas").addEventListener("mousemove",function(e){
-                // console.log("mousemove")
-                if (!isDown) return; // we will only act if mouse button is down
-
-                var pos={x:e.clientX,y:e.clientY}
-                  // calculate distance from click point to current point
-                
-                var dx = firstPos.x - pos.x;
-                var dy = firstPos.y - pos.y;
-                var dist = dx * dx + dy * dy;        // skip square-root (see above)
-                // console.log(firstPos,pos,dx,dy,dist)
-                if (dist >= radius) isMoving = true; // 10-4 we're on the move
-
-
-            })
         }
     }
 
-        function drawChr_prepare(data,offSets,selectedChr){
-            var chrData = data.filter((ele)=>ele.chr===selectedChr)
+        function drawChr_prepare(chrData,offSet,selectedChr){
             // chrData.sort((a,b)=>(a.x>b.x)?1:-1)
             var y_scaleUp=10000000
             var context = canvas.node().getContext('2d');
-            
+            var isDown = false;
+            var isMoving = false;
+            var radius = 6 * 6
             var quadTreeChr = chrData.map((ele)=>({x:ele.x,y:ele.y*y_scaleUp,i:ele.i}))
             console.log(quadTreeChr)
             var chrquadTree = d3.geom.quadtree(quadTreeChr);
@@ -466,7 +429,7 @@ $(document).ready(function(){
             var subsetSize=index.length/10
             var chrrandomIndex = _.sampleSize(index, subsetSize);
             var chr_scale=d3.scale.linear()
-                .domain([offSets[selectedChr].start - 5, offSets[selectedChr].start+offSets[selectedChr].max + 5])
+                .domain([offSet.start - 5, offSet.start+offSet.max + 5])
                 .range([0, width]);
 
             var chrzoomBehaviour=d3.behavior.zoom()
@@ -485,8 +448,8 @@ $(document).ready(function(){
             
 
 
-             function drawChr(index,selectedChr,chr_scale){
-                console.log("drawChr called")
+             function drawChr(index,selectedChr){
+                console.log("drawChr called", selectedChr)
                 var active;
                 clearTimeout(zoomEndTimeout);
                 context.clearRect(0, 0, fullWidth, fullHeight);
@@ -499,7 +462,7 @@ $(document).ready(function(){
                 
                 
                 index.forEach(function(i) {
-                    var point = data.filter((ele)=>ele.i===i)[0];
+                    var point = chrData.filter((ele)=>ele.i===i)[0];
            
                     if (!point.selected){
                         drawChrPoint(point, pointRadius);
@@ -543,6 +506,23 @@ $(document).ready(function(){
             }
 
 
+            document.getElementById("plot-canvas").addEventListener("mousemove", function (e) {
+                // console.log("mousemove")
+                if (!isDown) return; // we will only act if mouse button is down
+
+                var pos = { x: e.clientX, y: e.clientY }
+                // calculate distance from click point to current point
+
+                var dx = firstPos.x - pos.x;
+                var dy = firstPos.y - pos.y;
+                var dist = dx * dx + dy * dy;        // skip square-root (see above)
+                // console.log(firstPos,pos,dx,dy,dist)
+                if (dist >= radius) isMoving = true; // 10-4 we're on the move
+
+
+            })
+
+
             function onMouseDown(){
                 console.log("MouseDown click")
                 mouse = d3.mouse(this);
@@ -572,17 +552,20 @@ $(document).ready(function(){
                     var distance = euclideanDistance(mouse[0], mouse[1], dX, dY);
                     console.log(distance,pointRadius)
                     // if(distance < pointRadius) {
-                        console.log("selected point", selectedPoint)
-                        if(selectedPoint) {
-                            var selectedIndex=index.indexOf(selectedPoint.toString())
-                            chrData[selectedIndex].selected = false;
-                        }
-                        // closest.selected = true;
-                        selectedPoint = closest.i;
+                    console.log("old selected point", selectedPoint)
+                    if(selectedPoint) {
                         var selectedIndex=index.indexOf(selectedPoint.toString())
-                        chrData[selectedIndex].selected = true;
-                        // redraw the points
-                        drawChr(index,selectedChr)
+                        console.log(index)
+                        console.log(selectedIndex)
+                        chrData[selectedIndex].selected = false;
+                    }
+                    // closest.selected = true;
+                    selectedPoint = closest.i;
+                    var selectedIndex=index.indexOf(selectedPoint.toString())
+                    chrData[selectedIndex].selected = true;
+                    // redraw the points
+                    console.log("new selected point", selectedPoint)
+                    drawChr(index,selectedChr)
                     // }
                     console.log(closest)
                     $("#plotNGCHM").hide();
