@@ -45,12 +45,11 @@ $(document).ready(function(){
 
     
 
-    function reset(){
-        console.log("reset")
-        drawManhattan(result)
-    }
-
      $("#reset").click(function(){
+         console.log("reset")
+         selectedPoint = null;
+         d3.select("#plot-canvas").on("mousedown",null)
+         d3.select("#plot-canvas").on("mouseup", null)
         drawManhattan(result)
     })
 
@@ -190,7 +189,7 @@ $(document).ready(function(){
         $.get("http://" + server + "/showVariants/" + projectID, { name: geneName, chr: null }, function (searchResult) {
             pvalue = searchResult.pvalue
             data = searchResult.data
-            selectedChr = searchResult.chr
+            var selectedChr = searchResult.chr
             generateDetailTable("#dataTable", data.split("\n"), geneName, pvalue)
             console.log(result.data)
             
@@ -417,6 +416,7 @@ $(document).ready(function(){
 
         function drawChr_prepare(chrData,offSet,selectedChr){
             // chrData.sort((a,b)=>(a.x>b.x)?1:-1)
+            console.log("drawChr_prepare ", selectedChr)
             var y_scaleUp=10000000
             var context = canvas.node().getContext('2d');
             var isDown = false;
@@ -555,8 +555,6 @@ $(document).ready(function(){
                     console.log("old selected point", selectedPoint)
                     if(selectedPoint) {
                         var selectedIndex=index.indexOf(selectedPoint.toString())
-                        console.log(index)
-                        console.log(selectedIndex)
                         chrData[selectedIndex].selected = false;
                     }
                     // closest.selected = true;
@@ -564,7 +562,7 @@ $(document).ready(function(){
                     var selectedIndex=index.indexOf(selectedPoint.toString())
                     chrData[selectedIndex].selected = true;
                     // redraw the points
-                    console.log("new selected point", selectedPoint)
+                    console.log("new selected point", selectedPoint, selectedChr)
                     drawChr(index,selectedChr)
                     // }
                     console.log(closest)
@@ -576,6 +574,7 @@ $(document).ready(function(){
                     let name=chrData[selectedIndex].name
                     let pvalue = chrData[selectedIndex].pvalue
                     let projectID = $("#projectID").val()
+                    $("#searchGene").val(name)
                     if (reorder=="Detail"){
                         $.get("http://"+server+"/showVariants/"+projectID,{name:name,chr:chr},function(result){
                             generateDetailTable("#dataTable", result.data.split("\n"),name,pvalue)
