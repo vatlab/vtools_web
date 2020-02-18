@@ -41,6 +41,7 @@ $(document).ready(function(){
 
     var result=null
     var yScale;
+    var selectedPoint;
 
     function reset(){
         console.log("reset")
@@ -189,7 +190,12 @@ $(document).ready(function(){
             data = searchResult.data
             selectedChr = searchResult.chr
             generateDetailTable("#dataTable", data.split("\n"), geneName, pvalue)
-      
+            console.log(result.data)
+            let searchGeneIndex=result.data.findIndex(ele=>ele.name==geneName)
+            console.log(searchGeneIndex)
+            selectedPoint=searchGeneIndex
+            result.data[searchGeneIndex].selected = true;
+            console.log(result.data[searchGeneIndex])
             drawChr_prepare(result.data,result.offSets,selectedChr)
         })
     })
@@ -452,7 +458,7 @@ $(document).ready(function(){
             // chrData.sort((a,b)=>(a.x>b.x)?1:-1)
             var y_scaleUp=10000000
             var context = canvas.node().getContext('2d');
-            var selectedPoint;
+            
             var quadTreeChr = chrData.map((ele)=>({x:ele.x,y:ele.y*y_scaleUp,i:ele.i}))
             console.log(quadTreeChr)
             var chrquadTree = d3.geom.quadtree(quadTreeChr);
