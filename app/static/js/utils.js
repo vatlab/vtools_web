@@ -52,11 +52,9 @@ $(document).ready(function(){
             contentType:false,
             processData:false, 
             success:function(data){
-                // addOption("existingSourceName",["",fileName])
-                $(".existingSourceNameClass").each((idx,obj)=>{
-                  addOption(obj.id,["",fileName])
-                })
-
+                console.log("Upload success")
+                addOption("existingSourceName", ["", fileName])
+                addOption("existingSourceNameUpdate", ["", fileName])
                 $('#dataSources').show();
                 $('#addPhenotype').show();  
             },
@@ -409,7 +407,7 @@ function addOption(id,contents){
     contents.forEach((content)=>{
         options+='<option>'+content+'</option>'
     })
-
+    console.log(id, options)
     $('#'+id).html(options).selectpicker("refresh")
 
 }
@@ -652,10 +650,7 @@ function populateDropDownOutput(info){
 
 function populateDropDownSelect(info){
     $("#selectionFields").prop('selectedIndex',0);
-    // $("#secondSelection").hide()
-    
-    // $("#thirdSelection").hide()
-    // $("#fourthSelection").hide()
+
     $("#secondSelection").selectpicker('hide')
     $("#thirdSelection").selectpicker('hide')
     $("#fourthSelection").selectpicker('hide')
@@ -688,9 +683,7 @@ function populateDropDownSelect(info){
         $("#secondSelection").empty()
         $("#thirdSelection").empty()
         $("#fourthSelection").empty()
-        // $("#secondSelection").hide()
-        // $("#thirdSelection").hide()
-        // $("#fourthSelection").hide()
+
         $("#secondSelection").selectpicker('hide')
         $("#thirdSelection").selectpicker('hide')
         $("#fourthSelection").selectpicker('hide')
