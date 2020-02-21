@@ -325,8 +325,6 @@ function getProject(){
         $('#addPhenotype').show();
         vtoolsShow("phenotypes",false)
         $("#runAssociation").show()
-        
-        // document.getElementById("defaultOpen").click();
         $("#showError").hide()
 
 
@@ -481,9 +479,7 @@ function selectDataSource(fileName){
 function checkImportProgress(){
     $.get("http://"+server+"/check/import/"+projectID,function(data){
             console.log(data)
-            
             $("#importProgress").text(data)
-            
             if (data.includes("Importing genotypes: 100%")){
                 $('#dataDetail').show()
                 vtoolsShow("annotations -v0",false)
@@ -491,7 +487,6 @@ function checkImportProgress(){
                 vtoolsShow("tables",true)
                 vtoolsShow("fields",false)
                 vtoolsShow("show",false)
-                document.getElementById("defaultOpen").click();
                 $("#showError").hide()
 
             }else{
@@ -651,11 +646,10 @@ function populateDropDownOutput(info){
 function populateDropDownSelect(info){
     $("#selectionFields").prop('selectedIndex',0);
 
-    $("#secondSelection").selectpicker('hide')
-    $("#thirdSelection").selectpicker('hide')
-    $("#fourthSelection").selectpicker('hide')
-    $("#selectionInput").hide()
-    $("#addToCondition").hide()
+    $("#secondSelectionDiv").hide()
+    $("#thirdSelectionDiv").hide()
+    $("#fourthSelectionDiv").hide()
+    $("#selectionInputDiv").hide()
     $("#selectCondition").val("")
     $("#newTable").val("")
 
@@ -684,19 +678,18 @@ function populateDropDownSelect(info){
         $("#thirdSelection").empty()
         $("#fourthSelection").empty()
 
-        $("#secondSelection").selectpicker('hide')
-        $("#thirdSelection").selectpicker('hide')
-        $("#fourthSelection").selectpicker('hide')
-
-        $("#selectionInput").hide()
+   
+        $("#secondSelectionDiv").hide()
+        $("#thirdSelectionDiv").hide()
+        $("#fourtchSelectionDiv").hide()
+        $("#selectionInputDiv").hide()
         console.log(vals)
         $.each(vals,(index,value)=>{
            $("#secondSelection").append("<option value="+value+">"+value+"</option>");
         })
         $("#secondSelection").append("<option selected value='Please select'>Please select</option>");
-        // $("#secondSelection").show()
         $("#secondSelection").selectpicker("refresh")
-        $("#secondSelection").selectpicker('show')
+        $("#secondSelectionDiv").show()
         $("#secondSelection").change(function(){
             vals=fieldMap[this.value]
             $("#thirdSelection").empty()
@@ -707,16 +700,16 @@ function populateDropDownSelect(info){
                 typeMap[field]=fieldType
                 $("#thirdSelection").append("<option>"+field+"</option>")  
             })
-            // $("#thirdSelection").show()
-            $("#thirdSelection").selectpicker("show")
+
+          
+            $("#thirdSelectionDiv").show()
             $("#thirdSelection").append("<option selected value='Please select'>Please select</option>");
             $("#thirdSelection").selectpicker("refresh")
             $("#thirdSelection").change(function(){
                
                 $("#fourthSelection").empty()
-                // $("#fourthSelection").hide()
-                $("#fourthSelection").selectpicker("hide")
-                $("#selectionInput").hide()
+                $("#fourthSelectionDiv").hide()
+                $("#selectionInputDiv").hide()
                
                 if (typeMap[this.value]==="char"){
                     $.each(["IS_NOT_NULL","IS_NULL","="],(index,value)=>{
@@ -730,12 +723,12 @@ function populateDropDownSelect(info){
                 }
                 
                 // $("#fourthSelection").show()
-                $("#fourthSelection").selectpicker("show")
+                $("#fourthSelectionDiv").show()
                 $("#fourthSelection").append("<option selected value='Please select'>Please select</option>");
                 $("#fourthSelection").selectpicker("refresh")
                 $("#fourthSelection").change(function(){
-                    $("#selectionInput").show()
-                    $("#addToCondition").show()
+                    $("#selectionInputDiv").show()
+                 
 
                 })
 

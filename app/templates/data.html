@@ -13,41 +13,62 @@
 				<div class="tab-pane" id="vtoolsSelect">
 					<legend class="togvis">Select</legend>
 					<!-- <select id="fields" size="1"></select><br> -->
-					<div id="fields" style="width:300px">
-						<label class="lb-md" for="selectionTables">Tables</label>
-						<select id="selectionTables" class="selectionBox">
-							<option selected value="Plsease selection">Please select</option>
-						</select>
+					<div id="fields">
+						<div class="selection_label">
+							<label class="lb-md" for="selectionTables">Tables</label>
+							<select id="selectionTables" class="selectionBox">
+								<option selected value="Plsease selection">Please select</option>
+							</select>
+						</div>
+				
+						<div class="selection_label">
+							<label class="lb-md" for="selectionFields">Fields</label>
+							<select id="selectionFields" class="selectpicker">
+								<option selected value="Plsease select">Please select</option>
+								<option value="Variant_tables">Variant_tables</option>
+								<option value="Annotation_databases">Annotation_databases</option>
+							</select>
+						</div>
+						
+						<div class="selection_label" id="secondSelectionDiv" style="display:none">
+							<label class="lb-md" ></label>
+							<select id="secondSelection" class="selectpicker">
+								<option selected value="Plsease selection">Please select</option>
+							</select>
+						</div>
 
-						<label class="lb-md" for="fields">Fields</label>
-						<select id="selectionFields" class="selectpicker">
-							<option selected value="Plsease select">Please select</option>
-							<option value="Variant_tables">Variant_tables</option>
-							<option value="Annotation_databases">Annotation_databases</option>
-						</select>
+						<div class="selection_label" id="thirdSelectionDiv" style="display:none">
+							<label class="lb-md"></label>
+							<select id="thirdSelection" class="selectpicker" >
+								<option selected value="Plsease selection">Please select</option>
+							</select>
+						</div>
 
-						<select id="secondSelection" class="selectpicker" style="display:none" >
-							<option selected value="Plsease selection">Please select</option>
-						</select>
+						<div class="selection_label" id="fourthSelectionDiv" style="display:none">
+							<label class="lb-md"></label>
+							<select id="fourthSelection" class="selectpicker">
+								<option selected value="Plsease selection">Please select</option>
+							</select>
+						</div>
 
-						<select id="thirdSelection" class="selectpicker" style="display:none" >
-							<option selected value="Plsease selection">Please select</option>
-						</select>
-						<select id="fourthSelection" class="selectpicker" style="display:none">
-							<option selected value="Plsease selection">Please select</option>
-						</select>
-						<input class="std_input" id="selectionInput" type="text"
-							style="display:none;float:right"></input>
-
-						<button id="addToCondition" class="btn btn-primary" style="display:none; float:right">Add to Condition</button>
+						<div class="selection_label" id="selectionInputDiv" style="display:none">
+							<label class="lb-md"></label>
+							<input class="std_input" id="selectionInput" type="text"></input>
+							<button id="addToCondition" class="btn btn-primary">Add to Condition</button>
+						</div>
+						
 
 					</div>
 
 					<div style="float:left">
-						<label class="lb-md" for="selectCondition">Condition</label>
-						<input class="std_input" id="selectCondition" type="text"><br>
-						<label class="formLabel1" for="newTable">New table</label>
-						<input class="lb-md" id="newTable" type="text"><br>
+						<div class="selection_label">
+							<label class="lb-md" for="selectCondition">Condition</label>
+							<input class="std_input" id="selectCondition" type="text">
+						</div>
+						<div class="selection_label">
+							<label class="lb-md" formLabel1" for="newTable">New table</label>
+							<input class="std_input" id="newTable" type="text"><br>
+						</div>
 						<button id="selectButton" class="btn btn-primary">Select</button>
 					</div>
 				</div>
