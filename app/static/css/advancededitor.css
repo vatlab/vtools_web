@@ -349,3 +349,8 @@ label {
    margin: 1px 1px 1px 1px;
    width:100px
 }
+
+.projectIDTitle{
+    display:inline-block;
+    margin-left: 40px;
+}

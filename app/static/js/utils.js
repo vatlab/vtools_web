@@ -241,6 +241,7 @@ function createProject(){
     $.post("http://"+server+"/project",function(result){
         $("#localFileSource").show()
         projectID=result
+        $("#title_projectID").html("ProjectID: " + projectID)
         console.log(projectID)
         $("#projectName").text(projectID)
         $("#landing_content").hide()
@@ -306,6 +307,7 @@ function vtoolsUpdate(){
 
 function getProject(){
     projectID=$("#projectID").val()
+    $("#title_projectID").html("ProjectID: "+projectID)
     $.get("http://"+server+"/project/"+projectID,function(fileName){
         if (fileName!=="empty"){
             // $(".existingSourceNameClass").each((idx,obj)=>{
