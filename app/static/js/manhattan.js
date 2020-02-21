@@ -42,11 +42,18 @@ $(document).ready(function(){
     var result=null
     var yScale;
     var selectedPoint;
+    var selectedChr
 
     
 
      $("#reset").click(function(){
          console.log("reset")
+         if (selectedPoint) {
+             var chrData = result.data.filter((ele) => ele.chr === selectedChr)
+             var index = chrData.map((ele) => ele.i)
+             var selectedIndex = index.indexOf(selectedPoint.toString())
+             chrData[selectedIndex].selected = false;
+         }
          selectedPoint = null;
          d3.select("#plot-canvas").on("mousedown",null)
          d3.select("#plot-canvas").on("mouseup", null)
@@ -189,9 +196,8 @@ $(document).ready(function(){
         $.get("http://" + server + "/showVariants/" + projectID, { name: geneName, chr: null }, function (searchResult) {
             pvalue = searchResult.pvalue
             data = searchResult.data
-            var selectedChr = searchResult.chr
+            selectedChr = searchResult.chr
             generateDetailTable("#dataTable", data.split("\n"), geneName, pvalue)
-            console.log(result.data)
             
             var chrData = result.data.filter((ele) => ele.chr === selectedChr)
             let searchGeneIndex = chrData.findIndex(ele => ele.name == geneName)
@@ -199,7 +205,7 @@ $(document).ready(function(){
             chrData[searchGeneIndex].selected = true;
             console.log(chrData[searchGeneIndex])
             selectedPoint = chrData[searchGeneIndex].i
-            drawChr_prepare(chrData, result.offSets[selectedChr],selectedChr)
+            drawChr_prepare(chrData, result.offSets[selectedChr])
         })
     })
 
@@ -406,16 +412,17 @@ $(document).ready(function(){
                 var yClicked = yScale.invert(mouse[1]);
                 // find the closest point in the dataset to the clicked point
                 var closest = quadTree.find([xClicked, yClicked]);
-                var selectedChr= closest.chr
+                selectedChr= closest.chr
                 var chrData = data.filter((ele) => ele.chr === selectedChr)
 
-                drawChr_prepare(chrData, offSets[selectedChr],selectedChr)
+                drawChr_prepare(chrData, offSets[selectedChr])
             }
         }
     }
 
-        function drawChr_prepare(chrData,offSet,selectedChr){
+        function drawChr_prepare(chrData,offSet){
             // chrData.sort((a,b)=>(a.x>b.x)?1:-1)
+            d3.select("#plot-canvas").on("click", null)
             console.log("drawChr_prepare ", selectedChr)
             var y_scaleUp=10000000
             var context = canvas.node().getContext('2d');
@@ -441,14 +448,14 @@ $(document).ready(function(){
               
             canvas.call(chrzoomBehaviour)
                 .on("dblclick.zoom", null)
-            drawChr(index,selectedChr)
+            drawChr(index)
             canvas.on("mousedown",onMouseDown)
             canvas.on("mouseup",onMouseUp)
             
             
 
 
-             function drawChr(index,selectedChr){
+             function drawChr(index){
                 console.log("drawChr called", selectedChr)
                 var active;
                 clearTimeout(zoomEndTimeout);
@@ -501,7 +508,7 @@ $(document).ready(function(){
                 // redrawing the full plot
                 console.log("on chr Zoom End")
                 zoomEndTimeout = setTimeout(function() {
-                    drawChr(index,selectedChr);
+                    drawChr(index);
                 }, zoomEndDelay);
             }
 
@@ -563,7 +570,7 @@ $(document).ready(function(){
                     chrData[selectedIndex].selected = true;
                     // redraw the points
                     console.log("new selected point", selectedPoint, selectedChr)
-                    drawChr(index,selectedChr)
+                    drawChr(index)
                     // }
                     console.log(closest)
                     $("#plotNGCHM").hide();
