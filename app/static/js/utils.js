@@ -400,13 +400,21 @@ function addToLog(log){
 
 
 function addOption(id,contents){
+    let options = $.map($("#"+id), (option)=>option.value)
+    let selectOption=""
+    if (options.length == 1 && options[0]=="") {
+        selectOption="<option value='Please select'>Please select</option>";
+    }else{
+        options.forEach((option)=>{
+            selectOption += '<option>' + option + '</option>'
+        })
+    }
 
-    let options=""
     contents.forEach((content)=>{
-        options+='<option>'+content+'</option>'
+        selectOption+='<option>'+content+'</option>'
     })
-    console.log(id, options)
-    $('#'+id).html(options).selectpicker("refresh")
+    console.log(id, selectOption)
+    $('#' + id).html(selectOption).selectpicker("refresh")
 
 }
 
@@ -615,51 +623,43 @@ function generateInfoTable(table,rows){
 
 
 function populateDropDownOutput(info){
-
     $("#outputTables").change(function(){
-        vals=fieldMap[this.value]
+        vals=fieldMap[this.value]        
         $("#outputTableFields").empty()
-        $.each(vals,(index,value)=>{
-            var field=value.split("(")[0].replace(/^\s+|\s+$/g, '')
-            $("#outputTableFields").append("<option>"+field+"</option>")  
-        })
+        addOption("outputTableFields", vals.map((val)=>val.split(" ")[0])) 
+        $("#outputTableFields").selectpicker("refresh")
     })
-    $("#outputTableFields").selectpicker("refresh")
-
-
+  
     $("#outputAnnoFields").empty()
     info["Annotation_databases"].forEach((key)=>{        
         vals=fieldMap[key]
-        $.each(vals,(index,value)=>{
-            var field=value.split("(")[0].replace(/^\s+|\s+$/g, '')
-            $("#outputAnnoFields").append("<option>"+key+"."+field+"</option>")  
+        $.each(vals, (index, value) => {
+            vals[index]=key+"."+value.split(" ")[0]
         })
-
+        // $.each(vals,(index,value)=>{
+        //     var field=value.split("(")[0].replace(/^\s+|\s+$/g, '')
+        //     $("#outputAnnoFields").append("<option>"+key+"."+field+"</option>")  
+        // })
+        addOption("outputAnnoFields", vals) 
+        $("#outputAnnoFields").selectpicker("refresh")
     })
-    $("#outputAnnoFields").selectpicker("refresh")
-
-
+    
 
 }
 
 
 function populateDropDownSelect(info){
     $("#selectionFields").prop('selectedIndex',0);
-
     $("#secondSelectionDiv").hide()
     $("#thirdSelectionDiv").hide()
     $("#fourthSelectionDiv").hide()
     $("#selectionInputDiv").hide()
     $("#selectCondition").val("")
     $("#newTable").val("")
-
-    $("#selectionTables").empty()
-    
+    $("#selectionTables").empty()    
     $("#selectionTables").change(function(){
         $("#selectCondition").val(this.value)
     })
-
-
 
     $("#selectionFields").change(function(){
         var key=this.value
@@ -677,8 +677,6 @@ function populateDropDownSelect(info){
         $("#secondSelection").empty()
         $("#thirdSelection").empty()
         $("#fourthSelection").empty()
-
-   
         $("#secondSelectionDiv").hide()
         $("#thirdSelectionDiv").hide()
         $("#fourtchSelectionDiv").hide()
@@ -695,13 +693,13 @@ function populateDropDownSelect(info){
             $("#thirdSelection").empty()
             var typeMap={}
             $.each(vals,(index,value)=>{
-                var field=value.split("(")[0].replace(/^\s+|\s+$/g, '')
-                var fieldType=value.split("(")[1]
-                typeMap[field]=fieldType
+                // var field=value.split("(")[0].replace(/^\s+|\s+$/g, '')
+                // var fieldType=value.split("(")[1]
+                var field=value.split(" ")[0]
+                typeMap[field]=value.split(" ")[1]
                 $("#thirdSelection").append("<option>"+field+"</option>")  
             })
-
-          
+      
             $("#thirdSelectionDiv").show()
             $("#thirdSelection").append("<option selected value='Please select'>Please select</option>");
             $("#thirdSelection").selectpicker("refresh")
@@ -719,21 +717,15 @@ function populateDropDownSelect(info){
                     $.each([">","<","="],(index,value)=>{
                         $("#fourthSelection").append("<option>"+value+"</option>")
                     })
-
                 }
-                
                 // $("#fourthSelection").show()
                 $("#fourthSelectionDiv").show()
                 $("#fourthSelection").append("<option selected value='Please select'>Please select</option>");
                 $("#fourthSelection").selectpicker("refresh")
                 $("#fourthSelection").change(function(){
                     $("#selectionInputDiv").show()
-                 
-
                 })
-
-            })
-            
+            })     
         })
     })
 }
@@ -767,7 +759,6 @@ function vtoolsShow(option,display){
 
             case "tables":
                 var tables=rows.slice(1).map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
-                console.log(tables)
                 addOption("projectTables",tables)
                 addOption("outputTables", tables)
                 addOption("updateTables", tables)
@@ -792,28 +783,30 @@ function vtoolsShow(option,display){
                 break;
 
             case "fields":
-                var fields=rows.map((row)=>row.split(")")[0]).filter( function(e) { return (e.includes("("));} )
-             
+                var fields=rows.filter((e)=>! (e.startsWith(" "))).filter((e)=>e.length>0)
+                
+                fields=fields.map((row)=>{
+                    var cols=row.split(" ")
+                    return cols[0]+" "+cols[1].replace("(","").replace(")","")
+                })
+                console.log(fields)
                 fields.forEach((field)=>{
-                  
-                    var cols=field.split(".")
-                    if (!(cols[0] in fieldMap)){
-                        fieldMap[cols[0]]=[cols[1]]
+                    cols=field.split(" ")
+                    var fieldType=cols[0].split(".")[0]
+                    var fieldValue=field.split(".")[1]
+                    if (!(fieldType in fieldMap)){
+                        fieldMap[fieldType]=[fieldValue]
                     }else{
-                        if (!(fieldMap[cols[0]].includes(cols[1]))){
-                            fieldMap[cols[0]].push(cols[1])
+                        if (!(fieldMap[fieldType].includes(fieldValue))){
+                            fieldMap[fieldType].push(fieldValue)
                         }
                     }
-            
                 })
-             
-                // addOption("fields",fields)
+                console.log(fieldMap)
                 break;
 
             case "show":
                 info={}
-
-
                 onTable=false
                 onDatabases=false
                 rows.forEach((row)=>{
