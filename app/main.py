@@ -373,11 +373,13 @@ def load_sampleData(projectID):
             src = os.path.realpath(PROJECT_FOLDER+"/10k_test_2k.vcf")
             print("copy ",src)
             copy2(src, PROJECT_FOLDER+projectID+"/")
+            return "copy file", 200
         elif fileType == "pheno" and os.path.exists("../simulated.tsv"):
-            src = os.path.realpath("../simulated.tsv")
+            src = os.path.realpath(PROJECT_FOLDER+"/simulated.tsv")
             copy2(src, PROJECT_FOLDER+projectID+"/")
-
-        return "copy file", 200
+            command = "vtools phenotype --from_file " + PROJECT_FOLDER+projectID+"/simulated.tsv"
+            return runCommand(command)
+        
 
 
 @app.route('/project', methods=['POST'])

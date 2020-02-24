@@ -354,3 +354,7 @@ label {
     display:inline-block;
     margin-left: 40px;
 }
+
+.nav-link {
+    font-size: 25px
+}

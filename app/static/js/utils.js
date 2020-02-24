@@ -440,11 +440,6 @@ function loadSampleData(){
     $('#addPhenotype').show();
     addOption("existingSourceName",["",fileName])
 
-    // $(".existingSourceNameClass").each((idx,obj)=>{
-    //   console.log(obj)
-    //   addOption(obj.id,["",fileName])
-  
-    // })
     $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"data"}).done(function(message){
         console.log(message)
     })
@@ -456,8 +451,11 @@ function loadSampleData(){
 function loadSamplePhenotype(){
     var fileName="simulated.tsv"
     $("#localPhenoFileName").val(fileName)
-    $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"pheno"}).done(function(message){
-        console.log(message)
+    $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"pheno"}).done(function(data){
+        $("#phenotypeAdded").text(fileName + " added")
+        vtoolsShow("phenotypes", true)
+        addToLog("vtools phenotype --from_file " + fileName)
+        $("#runAssociation").show()
     })
 }
 
