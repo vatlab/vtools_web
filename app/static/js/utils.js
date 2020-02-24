@@ -15,30 +15,6 @@ $(document).ready(function(){
         createProject();
     })
 
-
-    // $("#dataUploadExternal").submit(function(e){
-    //     e.preventDefault();
-    //     var formData= new FormData()
-    //     var fileName = $('#uploadExternalFile')[0].files[0].name;
-    //     $("#externalFile").val(fileName);
-    //     formData.append('datafile',$('#uploadExternalFile')[0].files[0])
-    //     $.ajax({
-    //         url:"http://"+server+"/data/"+projectID,
-    //         data:formData,
-    //         type:'POST',
-    //         contentType:false,
-    //         processData:false, 
-    //         success:function(data){
-    //             // addOption("existingSourceName",["",fileName])
-    //             $(".existingSourceNameClass").each((idx,obj)=>{
-    //               addOption(obj.id,["",fileName])
-    //             })
-    //         }
-    //     });
-
-    // })
-
-
     $("#dataUpload").submit(function(e){
         e.preventDefault();
         var formData= new FormData()
@@ -68,8 +44,8 @@ $(document).ready(function(){
     $("#phenoUpload").submit(function(e){
         e.preventDefault();
         var formData= new FormData()
-        formData.append('phenofile',$('#uploadPheno')[0].files[0])
-        var fileName = $('#uploadPheno')[0].files[0].name;
+        formData.append('datafile', $('#uploadPhenotype')[0].files[0])
+        var fileName = $('#uploadPhenotype')[0].files[0].name;
         $("#localPhenoFileName").val(fileName);
         $.ajax({
             url:"http://"+server+"/phenotype/"+projectID,
@@ -201,11 +177,11 @@ $(document).ready(function(){
    
 
 
-    function bs_input_file() {
-         $(".input-file").before(
+    function bs_input_file(typeID,fieldID) {
+         $("."+typeID).before(
                 function() {
                     if ( ! $(this).prev().hasClass('input-ghost') ) {
-                        var element = $("<input id='uploadData' type='file' class='input-ghost' style='visibility:hidden; height:0'>");
+                        var element = $("<input id='"+fieldID+"' type='file' class='input-ghost' style='visibility:hidden; height:0'>");
                         element.attr("name",$(this).attr("name"));
                         element.change(function(){
                             element.next(element).find('input').val((element.val()).split('\\').pop());
@@ -215,11 +191,11 @@ $(document).ready(function(){
                         });
                         $(this).find("button.btn-reset").click(function(){
                             element.val(null);
-                            $(this).parents(".input-file").find('input').val('');
+                            $(this).parents("."+typeID).find('input').val('');
                         });
                         $(this).find('input').css("cursor","pointer");
                         $(this).find('input').mousedown(function() {
-                            $(this).parents('.input-file').prev().click();
+                            $(this).parents('.'+typeID).prev().click();
                             return false;
                         });
                         return element;
@@ -230,7 +206,8 @@ $(document).ready(function(){
 
 
     $(function() {
-        bs_input_file();
+        bs_input_file("input-file-data","uploadData");
+        bs_input_file("input-file-phenotype","uploadPhenotype");
         $('select').selectpicker()
     });
         

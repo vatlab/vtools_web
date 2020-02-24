@@ -1,30 +1,14 @@
 <div class="tab-pane" id="associate">
 	<h3></h3>
-	<!-- 
-	<fieldset id="addPhenotype" style="display:none;">
-		<legend>Add Phenotype</legend>
-		<form id="phenoUpload" enctype="multipart/form-data">
-			<label class="formLabel1" for="localPhenoFileName">File Name</label>
-			<input class="std_input" id="localPhenoFileName" type="text">
-			<input id="uploadPheno" type="file" name="phenofile">
-			<input type="submit">
-		</form>
-		<button id="samplePhenotype">sampleData</button>
-		<button id="addPhenotypeButton">Add phenotype</button>
-		<p id="phenotypeAdded"></p>
-	</fieldset> -->
-
 	<legend>Add Phenotype</legend>
-	<form id="addPhenotype" method="POST" enctype="multipart/form-data" style="display:none;">
+	<form id="phenoUpload" method="POST" action="#" enctype="multipart/form-data">
 		<!-- COMPONENT START -->
 		<div class="form-group">
-			<div class="input-group input-file" name="Fichier1">
+			<div class="input-group input-file input-file-phenotype" name="Fichier1">
 				<input type="text" class="form-control" id="localPhenoFileName" placeholder='Choose a file...' />
 				<span class="input-group-btn">
 					<button class="btn btn-default btn-choose" type="button">Choose</button>
 				</span>
-
-
 			</div>
 		</div>
 		<!-- COMPONENT END -->

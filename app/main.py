@@ -514,7 +514,7 @@ def checkImportProgress(projectID):
 @app.route('/phenotype/<projectID>', methods=['POST', 'PUT'])
 def upload_phenotype(projectID):
     if request.method == 'POST':
-        f = request.files['phenofile']
+        f = request.files['datafile']
         print(os.path.join(PROJECT_FOLDER+projectID, secure_filename(f.filename)))
         f.save(os.path.join(PROJECT_FOLDER+projectID, secure_filename(f.filename)))
         return 'upload', 204
