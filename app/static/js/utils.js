@@ -251,7 +251,7 @@ function createProject(){
 
 
 function vtoolsSelect(){
-    $.post("http://"+server+"/select",{"condition":$("#selectCondition").val(),"tableName":$("#newTable").val()},function(result){
+    $.post("http://"+server+"/select",{"variantTable":$("#secondSelection").val(),"condition":$("#selectCondition").val(),"tableName":$("#newTable").val()},function(result){
         console.log(result)
         vtoolsShow("fields",false)
         vtoolsShow("tables",true)
@@ -655,11 +655,10 @@ function populateDropDownSelect(info){
     $("#fourthSelectionDiv").hide()
     $("#selectionInputDiv").hide()
     $("#selectCondition").val("")
-    $("#newTable").val("")
-    $("#selectionTables").empty()    
-    $("#selectionTables").change(function(){
-        $("#selectCondition").val(this.value)
-    })
+    $("#newTable").val("")  
+    // $("#selectionTables").change(function(){
+    //     $("#selectCondition").val(this.value)
+    // })
 
     $("#selectionFields").change(function(){
         var key=this.value
@@ -690,6 +689,7 @@ function populateDropDownSelect(info){
         $("#secondSelectionDiv").show()
         $("#secondSelection").change(function(){
             vals=fieldMap[this.value]
+            $("#selectCondition").val(this.value)
             $("#thirdSelection").empty()
             var typeMap={}
             $.each(vals,(index,value)=>{
@@ -762,7 +762,7 @@ function vtoolsShow(option,display){
                 addOption("projectTables",tables)
                 addOption("outputTables", tables)
                 addOption("updateTables", tables)
-                addOption("selectionTables", tables)
+                // addOption("selectionTables", tables)
                 if(display){
                     generateInfoTable('#infoTable',rows)
                 }
