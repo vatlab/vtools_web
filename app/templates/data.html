@@ -65,7 +65,7 @@
 							<input class="std_input" id="selectCondition" type="text">
 						</div>
 						<div class="selection_label">
-							<label class="lb-md" formLabel1" for="newTable">New table</label>
+							<label class="lb-md formLabel1" for="newTable">New table</label>
 							<input class="std_input" id="newTable" type="text"><br>
 						</div>
 						<button id="selectButton" class="btn btn-primary">Select</button>
@@ -74,17 +74,27 @@
 			
 				<div class="tab-pane" id="vtoolsUpdate">
 					<legend class="togvis">Update</legend>
-					<label class="formLabel1" for="updateTables">Tables</label>
-					<select id="updateTables" class="selectionBox">
-					</select>
+					<div class="selection_label">
+						<label class="lb-md formLabel1" for="updateTables">Tables</label>
+						<select id="updateTables" class="selectionBox">
+						</select>
+					</div>
+					
+					<div class="selection_label">
+						<label class="lb-md formLabel1" for="updateCheckbox">Update from:</label>
+						<!-- <input type="checkbox" id="updateCheckbox"> -->
+						<select class="dropdowns" name="updateCheckbox" id="updateCheckbox">
+							<option selected>Please select</option>
+							<option>from_stat</option>
+							<option>from_file</option>
+						</select>
+					</div>
 
-					<label class="formLabel1" for="updateCheckbox">Update from stat:</label>
-					<input type="checkbox" id="updateCheckbox">
-
-					<div id="div_fromFile">
-						<label class="formLabel1" for="existingSourceName">From file</label>
-						<select class="dropdowns" name="existingSourceName"
-							id="existingSourceNameUpdate"></select>
+					<div id="div_fromFile" style="display:none">
+						<div class="selection_label">
+							<label class="lb-md formLabel1" for="existingSourceName">From file</label>
+							<select class="dropdowns" name="existingSourceName" id="existingSourceNameUpdate"></select>
+						</div>
 						<!-- <legend>Select an external file to upload</legend>
 								<form id="dataUploadExternal"  enctype="multipart/form-data">
 								    <label class="formLabel1" for="externalFile">File Name</label>
@@ -92,17 +102,17 @@
 								    <input id="uploadExternalFile" type = "file" name = "datafile" >
 						         	<input type = "submit">
 								</form> -->
-						<div id="div_varInfo" style="display:none">
-							<label class="formLabel1" for="updateVarInfo">var_info</label>
+						<div class="selection_label" id="div_varInfo" style="display:none">
+							<label class="lb-md formLabel1" for="updateVarInfo">var_info</label>
 							<select class="dropdowns" name="updateVarInfo" id="updateVarInfo" multiple></select>
 						</div>
-						<div id="div_genoInfo" style="display:none">
-							<label class="formLabel1" for="updateGenoInfo">geno_info</label>
+						<div class="selection_label" id="div_genoInfo" style="display:none">
+							<label class="lb-md formLabel1" for="updateGenoInfo">geno_info</label>
 							<select class="dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
 						</div>
 					</div>
-					<div id="div_fromStat" style="display:none">
-						<label class="formLabel1" for="updateStates">From stat</label>
+					<div class="selection_label" id="div_fromStat" style="display:none">
+						<label class="lb-md formLabel1" for="updateStates">From stat</label>
 						<select id="updateStates" multiple>
 							<option>GT=#(GT)</option>
 							<option>alt=#(alt)</option>

@@ -168,9 +168,21 @@ $(document).ready(function(){
         vtoolsUpdate();
     })
 
-    $("#updateCheckbox").click(function(){
-        $("#div_fromStat").toggle()
-        $("#div_fromFile").toggle()
+    // $("#updateCheckbox").click(function(){
+    //     $("#div_fromStat").toggle()
+    //     $("#div_fromFile").toggle()
+    // })
+    
+    $("#updateCheckbox").change(function () {
+         $("#div_fromStat").toggle()
+         if (this.value=="from_stat"){
+             $("#div_fromFile").hide()
+             $("#div_fromStat").show()
+
+         }else if (this.value=="from_file"){
+             $("#div_fromFile").show()
+             $("#div_fromStat").hide()
+         }
     })
 
 
