@@ -515,14 +515,10 @@ def checkImportProgress(projectID):
 def upload_phenotype(projectID):
     if request.method == 'POST':
         f = request.files['datafile']
-        print(os.path.join(PROJECT_FOLDER+projectID, secure_filename(f.filename)))
-        f.save(os.path.join(PROJECT_FOLDER+projectID, secure_filename(f.filename)))
-        return 'upload', 204
-    elif request.method == 'PUT':
-        fileName = request.get_data().decode("utf-8")
-        print(PROJECT_FOLDER+projectID+"/"+fileName)
-        command = "vtools phenotype --from_file " + \
-            PROJECT_FOLDER+projectID + "/" + fileName
+        phenotype_fileName = os.path.join(
+            PROJECT_FOLDER+projectID, secure_filename(f.filename))
+        f.save(phenotype_fileName)
+        command = "vtools phenotype --from_file " + phenotype_fileName
         return runCommand(command)
 
 

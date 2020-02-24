@@ -1,8 +1,7 @@
 var server;
 var dataTable;
 var logs=[];
-// var projectID ="VT46e0d8d3d2a24f9baf434d5e91be2225";
-var projectID
+var projectID;
 var fieldMap={};
 
 
@@ -53,11 +52,17 @@ $(document).ready(function(){
             type:'POST',
             contentType:false,
             processData:false, 
-            success:function(data){
-                console.log("sucess")      
+           
+            success: function(data) {
+                $("#phenotypeAdded").text(fileName + " added")
+                vtoolsShow("phenotypes", true)
+                addToLog("vtools phenotype --from_file " + fileName)
+                $("#runAssociation").show()
             },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                alert(errorThrown);
+            }     
         });
-
     })
 
     $("#getProjectButton").click(function(){
@@ -88,9 +93,6 @@ $(document).ready(function(){
         loadSamplePhenotype();
     });
 
-    $("#addPhenotypeButton").click(function(){
-        addPhenotype();
-    })
 
     $('#existingSourceName').change(function() {
         selectDataSource(this.value);
@@ -864,24 +866,24 @@ function vtoolsUse(){
 
 
 
-function addPhenotype(){
-    var fileName=$("#localPhenoFileName").val()
-    console.log(fileName)
-    $.ajax({
-        url: "http://"+server+"/phenotype/"+projectID,
-        type:"PUT",
-        data:fileName,
-        success:function(data){
-             $("#phenotypeAdded").text(fileName+" added")
-            vtoolsShow("phenotypes",true)
-            addToLog("vtools phenotype --from_file "+fileName)
-            $("#runAssociation").show()
-        },
-        error:function(XMLHttpRequest, textStatus, errorThrown) {
-            alert(errorThrown);
-        }
-      }); 
-}
+// function addPhenotype(){
+//     var fileName=$("#localPhenoFileName").val()
+//     console.log(fileName)
+//     $.ajax({
+//         url: "http://"+server+"/phenotype/"+projectID,
+//         type:"PUT",
+//         data:fileName,
+//         success:function(data){
+//              $("#phenotypeAdded").text(fileName+" added")
+//             vtoolsShow("phenotypes",true)
+//             addToLog("vtools phenotype --from_file "+fileName)
+//             $("#runAssociation").show()
+//         },
+//         error:function(XMLHttpRequest, textStatus, errorThrown) {
+//             alert(errorThrown);
+//         }
+//       }); 
+// }
 
 
 function checkAssociateProgress(){
