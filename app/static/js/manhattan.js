@@ -42,10 +42,10 @@ $(document).ready(function(){
     var result=null
     var yScale;
     var selectedPoint;
-    var selectedChr
+    var selectedChr;
+    var associationDB;
 
-    
-
+   
      $("#reset").click(function(){
          console.log("reset")
          if (selectedPoint) {
@@ -60,10 +60,19 @@ $(document).ready(function(){
         drawManhattan(result)
     })
 
-    loadData().then((processedData)=>{
-        result=processedData
-        drawManhattan(result)
+
+    
+
+
+    $("#associationDBs").change(function(){
+        associationDB=this.value
+        loadData(associationDB).then((processedData) => {
+            result = processedData
+            drawManhattan(result)
+        })
+
     })
+
 
 
     function generateDetailTable(table, rows,name,pvalue) {
@@ -154,9 +163,10 @@ $(document).ready(function(){
     }
 
 
-    function loadData(){
+    function loadData(db){
+        console.log(projectID,db)
         return new Promise((resolve,reject)=>{
-            $.get("http://" + server + "/getPvalue/test2k", function (data) {
+            $.get("http://" + server + "/getPvalue/"+projectID+"/"+db, function (data) {
                     fdata=tsvJSON(data)
                     fdata=fdata.filter((ele)=>ele.chr!=="X" && ele.chr!=="Y" && ele.chr !== undefined)
                     var numberPoints = fdata.length
@@ -193,7 +203,7 @@ $(document).ready(function(){
     $("#searchGeneButton").click(function () {
         let geneName = $("#searchGene").val()
         let projectID = $("#projectID").val()
-        $.get("http://" + server + "/showVariants/" + projectID, { name: geneName, chr: null }, function (searchResult) {
+        $.get("http://" + server + "/showVariants/" + projectID+"/"+associationDB, { name: geneName, chr: null }, function (searchResult) {
             pvalue = searchResult.pvalue
             data = searchResult.data
             selectedChr = searchResult.chr
@@ -583,7 +593,7 @@ $(document).ready(function(){
                     let projectID = $("#projectID").val()
                     $("#searchGene").val(name)
                     if (reorder=="Detail"){
-                        $.get("http://"+server+"/showVariants/"+projectID,{name:name,chr:chr},function(result){
+                        $.get("http://"+server+"/showVariants/"+projectID+"/"+associationDB,{name:name,chr:chr},function(result){
                             generateDetailTable("#dataTable", result.data.split("\n"),name,pvalue)
                         })
                     }else{

@@ -335,6 +335,15 @@ function getProject(){
                 $("#logsText").val(outputLog)
             })
         
+        $.get("http://" + server + "/associationDBs/" + projectID, function (data) {
+            
+            var dbs=data.DBs.map(function(db){
+                var cols=db.split("/")
+                return cols[cols.length-1].replace(".DB","")
+            })
+            addOption("associationDBs",dbs)
+        })
+        
     }).fail(function(xhr,status,error){
         alert(error)
     })
@@ -898,6 +907,7 @@ function checkAssociateProgress(){
                         var rows=data.split("\n")
                         generateDataTable("#dataTable",rows)
                         $("#runAssociation").show()
+                        
                     }
                 })
             }else{

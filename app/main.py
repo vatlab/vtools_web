@@ -40,17 +40,17 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/showVariants/<projectID>',methods=['GET'])
-def show_Variants(projectID):
+@app.route('/showVariants/<projectID>/<associationDB>',methods=['GET'])
+def show_Variants(projectID,associationDB):
     if not dbSNP_map:
         prepare_dbSNP_annotation(projectID)
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     print(chr,name)
     allGenotype,variantIDs,chr = get_genotype(projectID,chr,name)
-    detail = get_variants_summary(projectID, allGenotype,variantIDs)
-    conn = create_connection("HDF.DB", projectID)
-    content = extract_one_pvalue(conn,name)
+    detail = get_variants_summary(projectID, allGenotype,variantIDs,associationDB)
+    conn = create_connection(associationDB+".DB", projectID)
+    content = extract_one_pvalue(conn,name,associationDB)
     pvalue=content[5]
     return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr)}),200
 
@@ -142,17 +142,21 @@ def get_genotype(projectID,chr,name):
         return "No such node", 500
 
 
-def extract_one_pvalue(conn,name):
+def extract_one_pvalue(conn,name,associationDB):
     cur = conn.cursor()
-    cur.execute("SELECT * FROM HDF where refgene_name2=?",(name,))
+    if associationDB == "association_HDF":
+        associationDB = "HDF"
+    cur.execute("SELECT * FROM "+associationDB+" where refgene_name2=?",(name,))
     rows = cur.fetchone()
     cur.close()
     return rows
 
 
-def extract_pvalue(conn):
+def extract_pvalue(conn,associationDB):
+    if associationDB=="association_HDF":
+        associationDB="HDF"
     cur = conn.cursor()
-    cur.execute("SELECT * FROM HDF")
+    cur.execute("SELECT * FROM "+associationDB)
     rows = cur.fetchall()
     cur.close()
     return rows
@@ -165,12 +169,13 @@ def load_refgene():
 
 
 
-@app.route('/getPvalue/<projectID>', methods=['GET'])
-def get_pvalue(projectID):
+@app.route('/getPvalue/<projectID>/<associationDB>', methods=['GET'])
+def get_pvalue(projectID,associationDB):
     print(projectID)
-    conn = create_connection("HDF.DB", projectID)
+    print(associationDB)
+    conn = create_connection(associationDB+".DB", projectID)
     gdict = load_refgene()
-    content = extract_pvalue(conn)
+    content = extract_pvalue(conn,associationDB)
     id = 1
     output="id\tchr\tpos\tpvalue\tname\n"
 
@@ -189,10 +194,6 @@ def get_pvalue(projectID):
     return output, 200
 
 
-
-
-
-
 def get_variant_details(conn,variantIDs):
     cur = conn.cursor()
     variants = ",".join([str(variantID) for variantID in variantIDs])
@@ -203,9 +204,10 @@ def get_variant_details(conn,variantIDs):
     detail["dbSNP"] = get_dbSNP_annotation(variantIDs)
     return detail
 
-def get_variants_summary(projectID,allGenotype,variantIDs):
-    covariateMap=get_CovariateMap(projectID)
-    conn=create_connection("test.proj",projectID)
+def get_variants_summary(projectID,allGenotype,variantIDs,associationDB):
+    covariate=associationDB.split("_")[2]
+    conn=create_connection(projectID+".proj",projectID)
+    covariateMap=get_CovariateMap(conn,projectID,covariate)
     variant_details=get_variant_details(conn,variantIDs)
    
     for key, value in covariateMap.items():
@@ -268,16 +270,19 @@ def get_column_names(colnames):
 
 
 
-def get_CovariateMap(projectID):
-    covariateMap = {}
-    projectFolder = PROJECT_FOLDER+projectID
-    with open(projectFolder+"/disease.tsv", "r") as lines:
-        for line in lines:
-            cols = line.strip().split("\t")
-            if cols[1] not in covariateMap:
-                covariateMap[cols[1]] = []
-            else:
-                covariateMap[cols[1]].append(cols[0])
+def get_CovariateMap(conn,projectID,covariate,associationDB):
+    ur = conn.cursor()
+    cur.execute("SELECT sampleID, ? FROM "+associationDB, (covariate,))
+    rows = cur.fetchall()
+    cur.close()
+
+    covariateMap = {}   
+    for line in rows:
+        # cols = line.strip().split("\t")
+        if line[1] not in covariateMap:
+            covariateMap[line[1]] = []
+        else:
+            covariateMap[line[1]].append(line[0])
     return covariateMap
 
 def reorder_genotype(projectID,allGenotype, heatmapName):
@@ -630,7 +635,8 @@ def get_AssociationResult(projectID):
 
 
 def run_vtools_associate(projectID, table, phenotype, method, groupby):
-    command = "vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db association_result.DB -f -j 8 -v 1" 
+    dbName="association_"+table+"_"+phenotype+"_"+method+".db"
+    command = "vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db "+dbName+" -f -j 8 -v 1" 
     logfile = PROJECT_FOLDER+projectID+"/associate_log.txt"
     resultfile = PROJECT_FOLDER+projectID+"/associate_result.txt"
     if os.path.exists(logfile):
@@ -673,6 +679,17 @@ def checkAssociateProgress(projectID):
             return "Preparing", 200
     else:
         return "preparing", 200
+
+
+@app.route('/associationDBs/<projectID>', methods=['GET'])
+def checkAssociationDBs(projectID):
+    DBfiles=[]
+    for file in glob.glob(PROJECT_FOLDER+projectID+"/association*.DB"):
+        DBfiles.append(file)
+    print(DBfiles)
+    return jsonify({"DBs": DBfiles}), 200
+
+
 
 
 @app.route("/show", methods=['GET'])

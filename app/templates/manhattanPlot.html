@@ -2,28 +2,39 @@
 	<h3>Manhattan</h3>
 	
 	<!-- <input type="checkbox" id="reorder" value="True">reorder?<br> -->
-	<div>
-		<div>
-			<select id="selectReorder" class="selectionBox">
-				<option  selected value="Detail">Detail</option>
-				<option  value="Original">Hierarchical on rows and columns</option>
-				<option  value="reorderBoth">reorder columnd and rows</option>
-				<option  value="reorderCol1">Hierarchical on rows, reorder columns test1</option>
-				<option  value="reorderCol2">Hierarchical on rows, reorder columns test2</option>
-			</select>
-		</div>
-		<div style="float:left">
-		<label class="lb-md" for="searchGene">Search Gene</label>
-		<input class="std_input" id="searchGene" type="text"><br>
-		<button id="searchGeneButton" class="btn btn-primary">Search</button>
-		</div>
-	</div>
-	<div>
-	<button class="btn btn-default" id="reset" style="float:right">Reset</button>
-		<div id="manhattan_plotting_area">
-			
-			<svg id="axis-svg" class="plot"></svg>
-			<canvas id="plot-canvas" class="plot"></canvas>
+	<div class="container">
+		<div class="row">
+			<div class="col-4 vcenter" style="width:400px">
+				<div class="selection_label">
+					<label class="lb-md" for="associationDBs">Association DBs</label>
+					<select id="associationDBs" class="selectionBox">
+					</select>
+				</div>
+				<br>
+				<div class="selection_label">
+					<label class="lb-md"></label>
+					<select id="selectReorder" class="selectionBox">
+						<option  selected value="Detail">Detail</option>
+						<option  value="Original">Hierarchical on rows and columns</option>
+						<option  value="reorderBoth">reorder columnd and rows</option>
+						<option  value="reorderCol1">Hierarchical on rows, reorder columns test1</option>
+						<option  value="reorderCol2">Hierarchical on rows, reorder columns test2</option>
+					</select>
+				</div>
+				<div class="selection_label">
+					<label class="lb-md" for="searchGene">Search Gene</label>
+					<input class="std_input" id="searchGene" type="text"><br>
+					<button id="searchGeneButton" class="btn btn-primary">Search</button>
+				</div>
+			</div>
+		<div class="col-8 vcenter">
+			<button class="btn btn-default" id="reset" style="float:right">Reset</button>
+				<div id="manhattan_plotting_area">
+					
+					<svg id="axis-svg" class="plot"></svg>
+					<canvas id="plot-canvas" class="plot"></canvas>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
