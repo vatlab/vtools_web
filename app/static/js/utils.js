@@ -74,7 +74,8 @@ $(document).ready(function(){
     });
 
     $("#useButton").click(function(){
-        vtoolsUse();
+        var option = $("#annotationOptions").val();
+        vtoolsUse(option).then((message)=>console.log(message));
     });
 
     $("#runAssociation").click(function(){
@@ -294,10 +295,10 @@ function vtoolsUpdate(){
 
 }
 
-function getProject(){
+async function getProject(){
     projectID=$("#projectID").val()
     $("#title_projectID").html("ProjectID: "+projectID)
-    $.get("http://"+server+"/project/"+projectID,function(fileName){
+    $.get("http://"+server+"/project/"+projectID,async function(fileName){
         if (fileName!=="empty"){
             // $(".existingSourceNameClass").each((idx,obj)=>{
             //   addOption(obj.id,["",fileName])
@@ -306,8 +307,7 @@ function getProject(){
         }
         $("#landing_content").hide()
         $("#accordionSidebar").show()
-
-        vtoolsShow("fields",false)
+        await vtoolsUse("dbSNP")
         vtoolsShow("annotations -v0",false)
         vtoolsShow("tests",false)
         vtoolsShow("tables",false)
@@ -850,22 +850,21 @@ function vtoolsShow(option,display){
     })
 }
 
-function vtoolsUse(){
-    var option=$("#annotationOptions").val();
-    // $.post("http://localhost:5000/use",{
-    addToLog("vtools use "+option)
-    $.post("http://"+server+"/use",{
-        option:option
-    }).done(function(result){
-        console.log(option+ "imported")
-        
-        vtoolsShow("show",false)
-        vtoolsShow("fields",false)
+function vtoolsUse(option){
+    return new Promise((resolve, reject) => {
+        addToLog("vtools use "+option)
+        $.post("http://"+server+"/use",{
+            option:option
+        }).done(function(result){
+            console.log(option+ "imported")
+            vtoolsShow("fields", false)
+            // vtoolsShow("show",false)
+            $("#useFinished").text(option+" imported")
+            resolve(option+" imported")
 
-        $("#useFinished").text(option+" imported")
-
-    }).fail(function(xhr,status,error){
-        alert(error)
+        }).fail(function(xhr,status,error){
+            alert(error)
+        })
     })
 }
 

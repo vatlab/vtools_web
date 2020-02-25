@@ -235,13 +235,17 @@ def get_variants_summary(projectID,allGenotype,variantIDs,covariate):
 def prepare_dbSNP_annotation(projectID):
     print("prepare dbSNP")
     annotationFile = PROJECT_FOLDER+projectID+"/dbSNP_annotation.tsv"
-    with open(annotationFile, "r") as lines:
-        for line in lines:
-            cols = line.strip().split("\t")
-            if cols[5] != ".":
-                dbSNP_map[cols[0].strip()] = cols[5]
-            else:
-                dbSNP_map[cols[0].strip()] = "chr"+cols[1].strip()+"_"+cols[2]
+    command = "vtools output variant variant_id chr pos ref alt dbSNP.name --header > "+annotationFile
+    if ! os.path.isfile(annotationFile):
+        runCommand(command)
+        dbSNP_map={}
+        with open(annotationFile, "r") as lines:
+            for line in lines:
+                cols = line.strip().split("\t")
+                if cols[5] != ".":
+                    dbSNP_map[cols[0].strip()] = cols[5]
+                else:
+                    dbSNP_map[cols[0].strip()] = "chr"+cols[1].strip()+"_"+cols[2]
     print("done with dbSNP")
 
 
