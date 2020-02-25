@@ -207,6 +207,7 @@ $(document).ready(function(){
             pvalue = searchResult.pvalue
             data = searchResult.data
             selectedChr = searchResult.chr
+            covariate =searchResult.covariate
             generateDetailTable("#dataTable", data.split("\n"), geneName, pvalue)
             
             var chrData = result.data.filter((ele) => ele.chr === selectedChr)

@@ -30,6 +30,7 @@ if not os.path.exists(PROJECT_FOLDER):
 ALLOWED_EXTENSIONS = set(['txt', 'vcf'])
 dbSNP_map = {}
 samples_map = {}
+covariateMap = {}
 
 # app.config['WORK_FOLDER'] = WORK_FOLDER
 print("start")
@@ -48,11 +49,12 @@ def show_Variants(projectID,associationDB):
     name = request.args.get('name', None, type=None)
     print(chr,name)
     allGenotype,variantIDs,chr = get_genotype(projectID,chr,name)
-    detail = get_variants_summary(projectID, allGenotype,variantIDs,associationDB)
+    covariate = associationDB.split("_")[2]
+    detail = get_variants_summary(projectID, allGenotype,variantIDs,covariate)
     conn = create_connection(associationDB+".DB", projectID)
     content = extract_one_pvalue(conn,name,associationDB)
     pvalue=content[5]
-    return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr)}),200
+    return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr),"covariate":covariate}),200
 
 
 
@@ -144,7 +146,7 @@ def get_genotype(projectID,chr,name):
 
 def extract_one_pvalue(conn,name,associationDB):
     cur = conn.cursor()
-    if associationDB == "association_HDF":
+    if associationDB == "association_variant_disease_BurdenBt":
         associationDB = "HDF"
     cur.execute("SELECT * FROM "+associationDB+" where refgene_name2=?",(name,))
     rows = cur.fetchone()
@@ -153,7 +155,7 @@ def extract_one_pvalue(conn,name,associationDB):
 
 
 def extract_pvalue(conn,associationDB):
-    if associationDB=="association_HDF":
+    if associationDB == "association_variant_disease_BurdenBt":
         associationDB="HDF"
     cur = conn.cursor()
     cur.execute("SELECT * FROM "+associationDB)
@@ -204,10 +206,10 @@ def get_variant_details(conn,variantIDs):
     detail["dbSNP"] = get_dbSNP_annotation(variantIDs)
     return detail
 
-def get_variants_summary(projectID,allGenotype,variantIDs,associationDB):
-    covariate=associationDB.split("_")[2]
+def get_variants_summary(projectID,allGenotype,variantIDs,covariate):
+    
     conn=create_connection(projectID+".proj",projectID)
-    covariateMap=get_CovariateMap(conn,projectID,covariate)
+    covariateMap = get_CovariateMap(conn, projectID, covariate)
     variant_details=get_variant_details(conn,variantIDs)
    
     for key, value in covariateMap.items():
@@ -215,7 +217,7 @@ def get_variants_summary(projectID,allGenotype,variantIDs,associationDB):
             values = [int(x) for x in value]
             allFilter = allGenotype[values]
             counts=allFilter.apply(lambda x:x.value_counts(),axis=1)
-            header=key
+            header=str(key)
             hetero=[]
             homo=[] 
             for count in counts.values:
@@ -270,24 +272,23 @@ def get_column_names(colnames):
 
 
 
-def get_CovariateMap(conn,projectID,covariate,associationDB):
-    ur = conn.cursor()
-    cur.execute("SELECT sampleID, ? FROM "+associationDB, (covariate,))
+def get_CovariateMap(conn,projectID,covariate):
+    cur = conn.cursor()
+    cur.execute("SELECT sample_id, "+covariate+" FROM sample")
     rows = cur.fetchall()
     cur.close()
-
-    covariateMap = {}   
+     
     for line in rows:
         # cols = line.strip().split("\t")
         if line[1] not in covariateMap:
             covariateMap[line[1]] = []
         else:
             covariateMap[line[1]].append(line[0])
+    print(covariateMap)
     return covariateMap
 
 def reorder_genotype(projectID,allGenotype, heatmapName):
     projectFolder=PROJECT_FOLDER+projectID
-    covariateMap=get_CovariateMap(projectID)
     reordered_rows = reorder_rows(allGenotype, covariateMap)
     reordered_cols = reorder_columns(allGenotype, covariateMap)
     reordered_genotype = allGenotype.iloc[reordered_rows, :]
@@ -302,7 +303,6 @@ def reorder_genotype(projectID,allGenotype, heatmapName):
 
 def reorder_col1(projectID, allGenotype, heatmapName):
     projectFolder = PROJECT_FOLDER+projectID
-    covariateMap = get_CovariateMap(projectID)
     reordered_cols = reorder_columns(allGenotype, covariateMap)
     reordered_genotype = allGenotype.loc[:, reordered_cols]
     reordered_genotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
@@ -314,7 +314,6 @@ def reorder_col1(projectID, allGenotype, heatmapName):
 
 def reorder_col2(projectID, allGenotype, heatmapName):
     projectFolder = PROJECT_FOLDER+projectID
-    covariateMap = get_CovariateMap(projectID)
     reordered_cols = reorder_columns_hiera(allGenotype, covariateMap)
     reordered_genotype = allGenotype.loc[:, reordered_cols]
     reordered_genotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
