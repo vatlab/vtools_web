@@ -202,7 +202,9 @@ $(document).ready(function(){
 
     $("#searchGeneButton").click(function () {
         let geneName = $("#searchGene").val()
-        let projectID = $("#projectID").val()
+        let projectID = $("#title_projectID")
+        projectID = projectID.split(":")[1].trim()
+        console.log(projectID)
         $.get("http://" + server + "/showVariants/" + projectID+"/"+associationDB, { name: geneName, chr: null }, function (searchResult) {
             pvalue = searchResult.pvalue
             data = searchResult.data
@@ -591,7 +593,9 @@ $(document).ready(function(){
                     let chr=chrData[selectedIndex].chr
                     let name=chrData[selectedIndex].name
                     let pvalue = chrData[selectedIndex].pvalue
-                    let projectID = $("#projectID").val()
+                    let projectID = $("#title_projectID").html()
+                    projectID=projectID.split(":")[1].trim()
+                    console.log(projectID)
                     $("#searchGene").val(name)
                     if (reorder=="Detail"){
                         $.get("http://"+server+"/showVariants/"+projectID+"/"+associationDB,{name:name,chr:chr},function(result){

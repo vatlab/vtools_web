@@ -334,18 +334,22 @@ async function getProject(){
             }
                 $("#logsText").val(outputLog)
             })
-        
-        $.get("http://" + server + "/associationDBs/" + projectID, function (data) {
-            
-            var dbs=data.DBs.map(function(db){
-                var cols=db.split("/")
-                return cols[cols.length-1].replace(".DB","")
-            })
-            addOption("associationDBs",dbs)
-        })
-        
+             get_AssociationDBs(projectID)
+           
     }).fail(function(xhr,status,error){
         alert(error)
+    })
+}
+
+
+function get_AssociationDBs(projectID){
+    $.get("http://" + server + "/associationDBs/" + projectID, function (data) {
+
+        var dbs = data.DBs.map(function (db) {
+            var cols = db.split("/")
+            return cols[cols.length - 1].replace(".DB", "")
+        })
+        addOption("associationDBs", dbs)
     })
 }
 
@@ -483,7 +487,7 @@ function selectDataSource(fileName){
 
 
 function checkImportProgress(){
-    $.get("http://"+server+"/check/import/"+projectID,function(data){
+    $.get("http://"+server+"/check/import/"+projectID,async function(data){
             console.log(data)
             $("#importProgress").text(data)
             if (data.includes("Importing genotypes: 100%")){
@@ -494,6 +498,8 @@ function checkImportProgress(){
                 vtoolsShow("fields",false)
                 vtoolsShow("show",false)
                 $("#showError").hide()
+                await vtoolsUse("dbSNP")
+                await vtoolsUse("refGene")
 
             }else{
                 setTimeout(checkImportProgress,2000)
@@ -906,6 +912,7 @@ function checkAssociateProgress(){
                         var rows=data.split("\n")
                         generateDataTable("#dataTable",rows)
                         $("#runAssociation").show()
+                        get_AssociationDBs(projectID)
                         
                     }
                 })

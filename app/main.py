@@ -49,7 +49,7 @@ def show_Variants(projectID,associationDB):
     detail = get_variants_summary(projectID, allGenotype,variantIDs,covariate,dbSNP_map)
   
     conn = create_connection(associationDB+".DB", projectID)
-    content = extract_one_pvalue(conn,name,associationDB)
+    content = extract_one_pvalue(conn,name,associationDB,projectID)
     pvalue=content[5]
     return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr),"covariate":covariate}),200
 
@@ -144,9 +144,9 @@ def get_genotype(projectID,chr,name):
         return "No such node", 500
 
 
-def extract_one_pvalue(conn,name,associationDB):
+def extract_one_pvalue(conn,name,associationDB,projectID):
     cur = conn.cursor()
-    if associationDB == "association_variant_disease_BurdenBt":
+    if associationDB == "association_variant_disease_BurdenBt" and projectID =="test2k":
         associationDB = "HDF"
     cur.execute("SELECT * FROM "+associationDB+" where refgene_name2=?",(name,))
     rows = cur.fetchone()
@@ -154,8 +154,9 @@ def extract_one_pvalue(conn,name,associationDB):
     return rows
 
 
-def extract_pvalue(conn,associationDB):
-    if associationDB == "association_variant_disease_BurdenBt":
+def extract_pvalue(projectID,associationDB):
+    conn = create_connection(associationDB+".DB", projectID)
+    if associationDB == "association_variant_disease_BurdenBt" and projectID=="test2k":
         associationDB="HDF"
     cur = conn.cursor()
     cur.execute("SELECT * FROM "+associationDB)
@@ -175,9 +176,9 @@ def load_refgene():
 def get_pvalue(projectID,associationDB):
     print(projectID)
     print(associationDB)
-    conn = create_connection(associationDB+".DB", projectID)
+    
     gdict = load_refgene()
-    content = extract_pvalue(conn,associationDB)
+    content = extract_pvalue(projectID,associationDB)
     id = 1
     output="id\tchr\tpos\tpvalue\tname\n"
 
