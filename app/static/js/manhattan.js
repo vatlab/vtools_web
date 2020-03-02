@@ -598,7 +598,7 @@ $(document).ready(function(){
                             generateDetailTable("#dataTable", result.data.split("\n"),name,pvalue)
                         })
                     }else{
-                        $.get("http://"+server+"/showNGCHM/"+projectID,{name:name,chr:chr,reorder:reorder},function(data){
+                        $.get("http://"+server+"/showNGCHM/"+projectID+"/"+associationDB,{name:name,chr:chr,reorder:reorder},function(data){
                             $("#plotNGCHM").show();
                             let heatmapName="chr"+chr+"_"+name
                             
