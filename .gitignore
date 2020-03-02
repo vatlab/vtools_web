@@ -5,6 +5,5 @@ app/.DS_Store
 *.ngchm
 testProject
 app/static/env.js
-app/__pycache__/main.cpython-36.pyc
-app/__pycache__/main.cpython-37.pyc
-app/__pycache__/main.cpython-36.pyc
+app/__pycache__/
+.DS_Store
