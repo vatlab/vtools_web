@@ -451,7 +451,7 @@ function loadSampleData(){
     
     $('#dataSources').show();
     $('#addPhenotype').show();
-    addOption("existingSourceName",["",fileName])
+    addOption("existingSourceName",[fileName])
 
     $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"data"}).done(function(message){
         console.log(message)
