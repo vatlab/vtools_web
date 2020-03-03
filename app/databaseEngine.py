@@ -52,3 +52,37 @@ class databaseEngine:
             else:
                 covariateMap[line[1]].append(line[0])
         return covariateMap
+
+    def extract_one_pvalue(self, name, associationDB):
+        cur = self.conn.cursor()
+        if associationDB == "association_variant_disease_BurdenBt" and self.projectID == "test2k":
+            associationDB = "HDF"
+        cur.execute("SELECT refgene_name2, pvalue_BBt FROM " +
+                    associationDB + " where refgene_name2=?", (name,))
+        row = cur.fetchone()
+        cur.close()
+        return row[1]
+
+
+    def extract_pvalue(self, associationDB):
+        cur = self.conn.cursor()
+        if associationDB == "association_variant_disease_BurdenBt" and self.projectID == "test2k":
+            associationDB = "HDF"
+        cur.execute("SELECT refgene_name2, pvalue_BBt FROM "+associationDB)
+        rows = cur.fetchall()
+        cur.close()
+        return rows
+
+
+
+    # def prepare_column_names(conn):
+    #     cur = conn.cursor()
+    #     cur.execute("SELECT sample_id,sample_name FROM sample")
+    #     rows = cur.fetchall()
+    #     samples_map = {}
+    #     for row in rows:
+    #         samples_map[row[0]] = row[1]
+
+
+    # def get_column_names(colnames):
+    #     return [samples_map[colname] for colname in colnames]

@@ -12,12 +12,12 @@ from werkzeug.utils import secure_filename
 import tables as tb
 import numpy as np
 import pandas as pd
-from scipy.stats import mannwhitneyu
-import scipy.cluster.hierarchy as shc
-from scipy.spatial import distance
+
+
 import math
-import pickle
+
 from vtoolsAccess import VtoolsAccess
+
 
 app = Flask(__name__)
 
@@ -44,30 +44,15 @@ def show_Variants(projectID,associationDB):
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     covariate = associationDB.split("_")[2]
-
     VTAccess=VtoolsAccess.getVTAccess(projectID)
-    VTAccess.prepare_dbSNP_annotation()
-    allGenotype,variantIDs,chr = VTAccess.get_genotype(chr,name)
-    detail = VTAccess.get_variants_summary(allGenotype,variantIDs,covariate)
-  
-    conn = create_connection(associationDB+".DB", projectID)
-    content = extract_one_pvalue(conn,name,associationDB,projectID)
-    pvalue=content[5]
+    detail = VTAccess.get_variants_summary(chr,name,covariate)
+    pvalue = VTAccess.get_gene_pvalue(name, associationDB)
     return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr),"covariate":covariate}),200
 
 
 @app.route('/showNGCHM/<projectID>/<associationDB>', methods=['GET'])
 def show_NGCHM(projectID,associationDB):
-    VTAccess = VtoolsAccess.getVTAccess(projectID)
-    dbSNP_map = VTAccess.prepare_dbSNP_annotation()
-    covariate = associationDB.split("_")[2]
-    projectFolder = PROJECT_FOLDER+projectID
-    conn = create_connection(projectID+".proj", projectID)
-    covariateMap = get_CovariateMap(conn, projectID, covariate)
-    if os.path.exists(projectFolder+"/fake.ngchm"):
-        os.remove(projectFolder+"/fake.ngchm")
-    if os.path.exists(projectFolder+"/fake_genotype.tsv"):
-        os.remove(projectFolder+"/fake_genotype.tsv")
+    projectFolder=PROJECT_FOLDER+projectID
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     reorder = request.args.get('reorder', None, type=None)
@@ -76,58 +61,12 @@ def show_NGCHM(projectID,associationDB):
     print("showNGCHM", chr, name, heatmapName, reorder)
     if not os.path.exists(projectFolder+"/cache/"):
         os.makedirs(projectFolder+"/cache/")
-
     if os.path.exists(projectFolder+"/cache/"+heatmapName+".ngchm"):
         return "cache exists", 200
+    covariate = associationDB.split("_")[2]
+    VTAccess = VtoolsAccess.getVTAccess(projectID)
+    return runCommand(VTAccess.drawHeatmap(chr, name, reorder, covariate, heatmapName))
 
-    allGenotype,variantIDs,_ = VTAccess.get_genotype(chr,name)    
-    
-
-
-    if reorder == "reorderBoth":
-        return reorder_genotype(projectID, allGenotype, heatmapName, covariateMap,covariate)
-    elif reorder == "Original":
-        allGenotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
-        command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen  chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
-            WORK_FOLDER, WORK_FOLDER, PROJECT_FOLDER, heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/"+covariate+".tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
-        print(command)
-        return runCommand(command)
-    elif reorder == "reorderCol1":
-        return reorder_col1(projectID, allGenotype, heatmapName,covariateMap,covariate)
-    elif reorder == "reorderCol2":
-        return reorder_col2(projectID, allGenotype, heatmapName, covariateMap,covariate)
-
- 
-
-
-
-
-
-def extract_one_pvalue(conn,name,associationDB,projectID):
-    cur = conn.cursor()
-    if associationDB == "association_variant_disease_BurdenBt" and projectID =="test2k":
-        associationDB = "HDF"
-    cur.execute("SELECT * FROM "+associationDB+" where refgene_name2=?",(name,))
-    rows = cur.fetchone()
-    cur.close()
-    return rows
-
-
-def extract_pvalue(projectID,associationDB):
-    conn = create_connection(associationDB+".DB", projectID)
-    if associationDB == "association_variant_disease_BurdenBt" and projectID=="test2k":
-        associationDB="HDF"
-    cur = conn.cursor()
-    cur.execute("SELECT * FROM "+associationDB)
-    rows = cur.fetchall()
-    cur.close()
-    return rows
-
-def load_refgene():
-    pfname = "/Users/jma7/.variant_tools/resource/refgene.pkl"
-    with open(pfname, 'rb') as f:
-        gdict = pickle.load(f)
-    return gdict
 
 
 
@@ -135,149 +74,10 @@ def load_refgene():
 def get_pvalue(projectID,associationDB):
     print(projectID)
     print(associationDB)
-    
-    gdict = load_refgene()
-    content = extract_pvalue(projectID,associationDB)
-    id = 1
-    output="id\tchr\tpos\tpvalue\tname\n"
-
-    for line in content:
-        name = line[0].strip()
-        try:
-            pvalue = line[5]
-            if name in gdict:
-                output+=str(id)+"\t"+gdict[name][0]+"\t"+str(gdict[name][1])+"\t"+str(pvalue)+"\t"+name+"\n"
-                id = id + 1
-            else:
-                pass
-                # print(name, " not in dict")
-        except IndexError:
-            print(name)
+    VTAccess = VtoolsAccess.getVTAccess(projectID)
+    output = VTAccess.get_AssociationResult(associationDB)
     return output, 200
 
-
-
-
-
-
-
-def create_connection(db_file,projectID):
-    db_file=PROJECT_FOLDER+projectID+"/"+db_file
-    conn = None
-    try:
-        conn = sqlite3.connect(db_file)
-    except sqlite3.Error:
-        print("error")
-    return conn
-
-
-def prepare_column_names(conn):
-    cur = conn.cursor()
-    cur.execute("SELECT sample_id,sample_name FROM sample")
-    rows = cur.fetchall()
-    samples_map={}
-    for row in rows:
-        samples_map[row[0]] = row[1]
-
-
-# def get_column_names(colnames):
-#     return [samples_map[colname] for colname in colnames]
-
-
-
-def get_CovariateMap(conn,projectID,covariate):
-    projectFolder = PROJECT_FOLDER+projectID
-    cur = conn.cursor()
-    cur.execute("SELECT sample_id, "+covariate+" FROM sample")
-    rows = cur.fetchall()
-    cur.close()
-    covariateMap={}
-    covariateFile=projectFolder+"/"+covariate+".tsv"
-    if not os.path.isfile(covariateFile):
-        outputFile = open(covariateFile, "w")
-        for line in rows:
-            outputFile.write(str(line[0])+"\t"+str(line[1])+"\n")
-
-    for line in rows:
-        # cols = line.strip().split("\t")
-        if line[1] not in covariateMap:
-            covariateMap[line[1]] = []
-        else:
-            covariateMap[line[1]].append(line[0])
-    return covariateMap
-
-def reorder_genotype(projectID,allGenotype, heatmapName,covariateMap,covariate):
-    projectFolder = PROJECT_FOLDER+projectID
-    reordered_rows = reorder_rows(allGenotype, covariateMap)
-    reordered_cols = reorder_columns(allGenotype, covariateMap)
-    reordered_genotype = allGenotype.iloc[reordered_rows, :]
-    reordered_genotype = allGenotype.loc[:, reordered_cols]
-    reordered_genotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
-    
-    command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen {} chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
-        WORK_FOLDER, WORK_FOLDER, PROJECT_FOLDER, heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/"+covariate+".tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
-    print(command)
-    return runCommand(command)
-
-
-def reorder_col1(projectID, allGenotype, heatmapName, covariateMap,covariate):
-    projectFolder = PROJECT_FOLDER+projectID
-    reordered_cols = reorder_columns(allGenotype, covariateMap)
-    reordered_genotype = allGenotype.loc[:, reordered_cols]
-    reordered_genotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
-    command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen {} chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
-        WORK_FOLDER, WORK_FOLDER, PROJECT_FOLDER, heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/"+covariate+".tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
-    print(command)
-    return runCommand(command)
-
-
-def reorder_col2(projectID, allGenotype, heatmapName, covariateMap,covariate):
-    projectFolder = PROJECT_FOLDER+projectID
-    reordered_cols = reorder_columns_hiera(allGenotype, covariateMap)
-    reordered_genotype = allGenotype.loc[:, reordered_cols]
-    reordered_genotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
-    command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen {} chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Original|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
-        WORK_FOLDER, WORK_FOLDER, PROJECT_FOLDER, heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/"+covariate+".tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
-    print(command)
-    return runCommand(command)
-
-def reorder_columns(allGenotype, covariateMap):
-    reordered_columns = []
-    for key, value in covariateMap.items():
-        values = [int(x) for x in value]
-        allFilter = allGenotype[values].applymap(lambda x: x > 0)
-        colSum = allFilter.sum(axis=0).sort_values(ascending=False)
-        colSum = colSum[colSum > 0]
-        reordered_columns.extend(colSum.index)
-    return reordered_columns
-
-
-def reorder_columns_hiera(allGenotype, covariateMap):
-    reordered_columns = []
-    for key, value in covariateMap.items():
-        values = [int(x) for x in value]
-        # allFilter = allGenotype[values].applymap(lambda x: x > 0)
-        allFilter = allGenotype.transpose()
-        dend = shc.dendrogram(shc.linkage(distance.pdist(
-            allFilter, 'cityblock'), method='single'), no_plot=True)
-        reordered_columns.extend(allFilter.index[dend["leaves"]])
-    return reordered_columns
-
-
-
-def reorder_rows(allGenotype, covariateMap):
-    keys = list(covariateMap.keys())
-    values1 = [int(x) for x in covariateMap[keys[0]]]
-    genotype1 = allGenotype[values1]
-    values2 = [int(x) for x in covariateMap[keys[1]]]
-    genotype2 = allGenotype[values2]
-    pvalues = []
-    for rowIndex in range(allGenotype.shape[0]):
-        stat, p = mannwhitneyu(genotype1.iloc[rowIndex], genotype2.iloc[rowIndex])
-        pvalues.append((rowIndex, p))
-    pvalues.sort(key=lambda x: x[1])
-    reordered_rows = [pvalue[0] for pvalue in pvalues]
-    return reordered_rows
 
 
 @app.route("/ngchmView/<projectID>/<heatmapName>", methods=['GET'])
@@ -592,9 +392,9 @@ def checkAssociateProgress(projectID):
         if b"Testing for association" in last:
             return last, 200
         else:
-            return "Preparing", 200
+            return "Running", 200
     else:
-        return "preparing", 200
+        return "Preparing", 200
 
 
 @app.route('/associationDBs/<projectID>', methods=['GET'])
