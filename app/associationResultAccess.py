@@ -17,20 +17,20 @@ if not os.path.exists(PROJECT_FOLDER):
     os.makedirs(PROJECT_FOLDER)
 
 
-class VtoolsAccess:
+class associationResultAccess:
     __instance = None
     @staticmethod
-    def getVTAccess(projectID):
-        if VtoolsAccess.__instance == None:
+    def getVTResultAccess(projectID):
+        if associationResultAccess.__instance == None:
             print("make new project")
-            VtoolsAccess(projectID)
-        return VtoolsAccess.__instance
+            associationResultAccess(projectID)
+        return associationResultAccess.__instance
 
     def __init__(self,projectID):
-        if VtoolsAccess.__instance != None:
+        if associationResultAccess.__instance != None:
             raise Exception("This is a singleton.")
         else:
-            VtoolsAccess.__instance = self
+            associationResultAccess.__instance = self
             self.projectID=projectID
             self.dbSNP_map={}
             self.projectFolder = PROJECT_FOLDER+projectID
@@ -189,11 +189,29 @@ class VtoolsAccess:
             os.remove(self.projectFolder+"/fake_genotype.tsv")
 
         if reorder == "reorderBoth":
-            return reorder_genotype(self.projectID, allGenotype, heatmapName, covariateMap, covariate)
+            return self.runCommand(reorder_genotype(self.projectID, allGenotype, heatmapName, covariateMap, covariate))
         elif reorder == "Original":
-            return original_order(self.projectID, allGenotype, heatmapName, covariateMap, covariate)
+            return self.runCommand(original_order(self.projectID, allGenotype, heatmapName, covariateMap, covariate))
         elif reorder == "reorderCol1":
-            return reorder_col1(self.projectID, allGenotype, heatmapName, covariateMap, covariate)
+            return self.runCommand(reorder_col1(self.projectID, allGenotype, heatmapName, covariateMap, covariate))
         elif reorder == "reorderCol2":
-            return reorder_col2(self.projectID, allGenotype, heatmapName, covariateMap, covariate)
+            return self.runCommand(reorder_col2(self.projectID, allGenotype, heatmapName, covariateMap, covariate))
+
+
+    def runCommand(self, command):
+        commandCols = []
+        for col in command.split():
+            commandCols.append(col)
+        print(commandCols)
+        result = run(commandCols, stdout=PIPE,
+                    stderr=PIPE, universal_newlines=True)
+        print("stderr "+result.stderr)
+        print("stdout "+result.stdout)
+        if "ERROR" in result.stderr:
+            return "Internal error", 500
+        else:
+            if result.stdout == "":
+                return result.stderr, 200
+            else:
+                return result.stdout, 200
 

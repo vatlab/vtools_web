@@ -1,22 +1,14 @@
 import os
-import uuid
-from subprocess import PIPE, run, Popen, STDOUT
+# from subprocess import PIPE, run, Popen, STDOUT
 import sys
-import sqlite3
-from multiprocessing import Process
-from shutil import copy2
+# from multiprocessing import Process
 import glob
 import time
 from flask import Flask, send_file, request, redirect, jsonify, url_for, render_template
 from werkzeug.utils import secure_filename
-import tables as tb
-import numpy as np
-import pandas as pd
 
-
-import math
-
-from vtoolsAccess import VtoolsAccess
+from associationResultAccess import associationResultAccess
+from vtoolsCommandAccess import vtoolsCommandAccess
 
 
 app = Flask(__name__)
@@ -44,7 +36,8 @@ def show_Variants(projectID,associationDB):
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     covariate = associationDB.split("_")[2]
-    VTAccess=VtoolsAccess.getVTAccess(projectID)
+
+    VTAccess = associationResultAccess.getVTResultAccess(projectID)
     detail = VTAccess.get_variants_summary(chr,name,covariate)
     pvalue = VTAccess.get_gene_pvalue(name, associationDB)
     return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr),"covariate":covariate}),200
@@ -64,17 +57,15 @@ def show_NGCHM(projectID,associationDB):
     if os.path.exists(projectFolder+"/cache/"+heatmapName+".ngchm"):
         return "cache exists", 200
     covariate = associationDB.split("_")[2]
-    VTAccess = VtoolsAccess.getVTAccess(projectID)
-    return runCommand(VTAccess.drawHeatmap(chr, name, reorder, covariate, heatmapName))
 
+    VTAccess = associationResultAccess.getVTResultAccess(projectID)
+    return VTAccess.drawHeatmap(chr, name, reorder, covariate, heatmapName)
 
 
 
 @app.route('/getPvalue/<projectID>/<associationDB>', methods=['GET'])
 def get_pvalue(projectID,associationDB):
-    print(projectID)
-    print(associationDB)
-    VTAccess = VtoolsAccess.getVTAccess(projectID)
+    VTAccess = associationResultAccess.getVTResultAccess(projectID)
     output = VTAccess.get_AssociationResult(associationDB)
     return output, 200
 
@@ -91,53 +82,31 @@ def download_ngchm(projectID,heatmapName):
 def load_sampleData(projectID):
     if request.method == "GET":
         fileType = request.args.get('fileType', None, type=None)
-        print(PROJECT_FOLDER+"/10k_test_2k.vcf")
-        if fileType == "data" and os.path.exists(PROJECT_FOLDER+"/10k_test_2k.vcf"):
-            src = os.path.realpath(PROJECT_FOLDER+"/10k_test_2k.vcf")
-            print("copy ",src)
-            copy2(src, PROJECT_FOLDER+projectID+"/")
-            return "copy file", 200
-        elif fileType == "pheno" and os.path.exists("../simulated.tsv"):
-            src = os.path.realpath(PROJECT_FOLDER+"/simulated.tsv")
-            copy2(src, PROJECT_FOLDER+projectID+"/")
-            command = "vtools phenotype --from_file " + PROJECT_FOLDER+projectID+"/simulated.tsv"
-            return runCommand(command)
-        
+        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
+        return commandAccess.load_sampleData(fileType)
 
 
 @app.route('/project', methods=['POST'])
 def create_project():
     if request.method == 'POST':
-        projectID = uuid.uuid4().hex
-        projectID = "VT"+projectID
-        directory = PROJECT_FOLDER+projectID
-        print(directory)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        os.chdir(directory)
-        command = "vtools init "+projectID+" -f"
-        result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-        if "ERROR" in result.stderr:
-            return "Internal error", 500
-        else:
-            return projectID, 200
-
+        commandAccess=vtoolsCommandAccess.getVTCommandAccess()
+        return commandAccess.vtools_create()
+        
 
 @app.route('/project/<projectID>', methods=['GET'])
 def get_project(projectID):
     if request.method == "GET":
         directory = PROJECT_FOLDER+projectID
-        print(directory)
         if not os.path.exists(directory):
-            return "project doesn't exist", 200
+            return "project doesn't exist", 500
         else:
-            os.chdir(directory)
-            vcfFiles = glob.glob(directory+"/*.vcf")
+            vtoolsCommandAccess.getExistingVTCommandAccess(projectID)
+            vcfFiles = glob.glob(PROJECT_FOLDER+projectID+"/*.vcf")
             if len(vcfFiles)==0:
                 return "empty", 200
             else:
                 return os.path.basename(vcfFiles[0]), 200
-    
+
 
 
 @app.route('/logs/<projectID>', methods=['POST', 'GET'])
@@ -155,6 +124,7 @@ def logs(projectID):
         data = f.readlines()
         f.close()
         return ("\n").join(data), 200
+
 
 
 @app.route('/fileInfo/<projectID>', methods=['GET'])
@@ -197,27 +167,22 @@ def upload_file(projectID):
     return 'uploaded', 204
 
 
-@app.route('/import/<projectID>', methods=['GET'])
-def vtools_import(projectID):
-    fileName = request.args.get('fileName', None, type=None)
-    genomeVersion = request.args.get("genomeVersion", None, type=None)
-    import_process = Process(target=run_vtools_import, args=(projectID, fileName, genomeVersion))
-    import_process.start()
-    return "import running", 200
+@app.route('/import', methods=['GET'])
+def vtools_import():
+    if request.method == 'GET':
+        fileName = request.args.get('fileName', None, type=None)
+        genomeVersion = request.args.get("genomeVersion", None, type=None)
 
+        commandAccess=vtoolsCommandAccess.getVTCommandAccess()
+        commandAccess.vtools_import(fileName,genomeVersion)
+        return "import running", 200
 
-def run_vtools_import(projectID, fileName, genomeVersion):
-    command = "vtools import "+PROJECT_FOLDER+projectID+"/"+fileName+" --build " + genomeVersion+" -f"
-    os.chdir(PROJECT_FOLDER+projectID)
-    with open(PROJECT_FOLDER+projectID+"/import_log.txt", "a+") as output:
-        Popen(command.split(" "), stdout=output, stderr=output, universal_newlines=True)
 
 
 @app.route('/check/import/<projectID>', methods=['GET'])
 def checkImportProgress(projectID):
     last = ""
     logfile = PROJECT_FOLDER+projectID+"/import_log.txt"
-
     if os.path.exists(logfile) and os.path.getsize(logfile) > 100:
         with open(logfile, "rb") as f:
             f.seek(-2, os.SEEK_END)     # Jump to the second last byte.
@@ -236,103 +201,75 @@ def checkImportProgress(projectID):
         return "Running", 200
 
 
-@app.route('/phenotype/<projectID>', methods=['POST', 'PUT'])
-def upload_phenotype(projectID):
+@app.route('/phenotype', methods=['POST', 'PUT'])
+def upload_phenotype():
     if request.method == 'POST':
-        f = request.files['datafile']
+        phenoFile = request.files['datafile']
         phenotype_fileName = os.path.join(
-            PROJECT_FOLDER+projectID, secure_filename(f.filename))
-        f.save(phenotype_fileName)
-        command = "vtools phenotype --from_file " + phenotype_fileName
-        return runCommand(command)
+            PROJECT_FOLDER+projectID, secure_filename(phenoFile.filename))
+        phenoFile.save(phenotype_fileName)
+        
+        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
+        return commandAccess.vtools_phenotype(phenotype_fileName)
+        
 
-
-def runCommand(command):
-    commandCols = []
-    for col in command.split():
-        commandCols.append(col)
-    print(commandCols)
-    result = run(commandCols, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    print("stderr "+result.stderr)
-    print("stdout "+result.stdout)
-    if "ERROR" in result.stderr:
-        return "Internal error", 500
-    else:
-        if result.stdout == "":
-            return result.stderr, 200
-        else:
-            return result.stdout, 200
 
 
 @app.route('/output', methods=['GET'])
 def vtools_output():
-    outputTable = request.args.get("outputTable", None, type=None)
-    outputTableFields = request.args.get("outputTableFields", None, type=None)
-    # outputAnno=request.args.get("outputAnno",None,type=None)
-    outputAnnoFields = request.args.get("outputAnnoFields", None, type=None)
-    command = "vtools output "+outputTable+" "
-    if len(outputTableFields) > 0:
-        command += outputTableFields
-    if len(outputAnnoFields) > 0:
-        command += " "+outputAnnoFields
-    command += " --limit 20 --header"
-    return runCommand(command)
+    if request.method == 'GET':
+        outputTable = request.args.get("outputTable", None, type=None)
+        outputTableFields = request.args.get("outputTableFields", None, type=None)
+        outputAnnoFields = request.args.get("outputAnnoFields", None, type=None)
+
+        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
+        return commandAccess.vtools_output(outputTable, outputTableFields, outputAnnoFields)
 
 
 @app.route("/use", methods=['POST'])
 def vtools_use():
-    option = request.form["option"]
-    command = "vtools use "+option
-    return runCommand(command)
+    if request.method == 'POST':
+        option = request.form["option"]
+
+        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
+        return commandAccess.vtools_use(option)
+    
 
 
 @app.route("/select", methods=['POST'])
 def vtools_select():
-   
-    condition = request.form["condition"]
-    newTable = request.form["tableName"]
-    command = "vtools select "+condition+" -t "+newTable
-    return runCommand(command)
+    if request.method == 'POST':
+        condition = request.form["condition"]
+        newTable = request.form["tableName"]
+
+        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
+        return commandAccess.vtools_select(condition, newTable)
+        
 
 
 @app.route("/update", methods=['POST'])
 def vtools_update():
-    table = request.form["table"]
-    method = request.form["method"]
-    command = "vtools update "+table
-    if method == "fromFile":
-        fromFile = request.form["fileName"]
-        selectedGeno = request.form["selectedGeno"]
-        selectedVar = request.form["selectedVar"]
-        if fromFile != "":
-            command += " --from_file "+fromFile
-        if len(selectedGeno) > 0:
-            command += " --geno_info "+selectedGeno
-        if len(selectedVar) > 0:
-            command += " --var_info "+selectedVar
-    elif method == "fromStat":
-        stat = request.form["stat"]
-        if stat != "":
-            command += " --from_stat "+stat
-    print(command)
-    return runCommand(command)
+    if request.method == 'POST':
+        table = request.form["table"]
+        method = request.form["method"]
+        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
+        return commandAccess.vtools_update(request, method, table)
 
 
-@app.route("/runAssociation/<projectID>", methods=['POST'])
-def vtools_associate(projectID):
-    table = request.form["table"]
-    phenotype = request.form["phenotype"]
-    method = request.form["method"]
-    discard = request.form["discard"]
-    groupby = request.form["groupby"]
-    print(table, phenotype, method, discard, groupby)
+@app.route("/runAssociation", methods=['POST'])
+def vtools_associate():
+    if request.method == 'POST':
+        table = request.form["table"]
+        phenotype = request.form["phenotype"]
+        method = request.form["method"]
+        discard = request.form["discard"]
+        groupby = request.form["groupby"]
+        print(table, phenotype, method, discard, groupby)
+        
+        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
+        commandAccess.vtools_association(table, phenotype, method, groupby)
+        return "associate running", 200
 
-    associate_process = Process(target=run_vtools_associate, args=(projectID, table, phenotype, method, groupby))
-    associate_process.start()
-    return "associate running", 200
-    # command="vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db test.DB -f -j 8 -v 2" 
-    # print(command)
-    # result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
 
 @app.route("/associationResult/<projectID>", methods=['GET'])
@@ -349,29 +286,6 @@ def get_AssociationResult(projectID):
     else:
         return "Association result is not available.", 200
 
-
-def run_vtools_associate(projectID, table, phenotype, method, groupby):
-    dbName="association_"+table+"_"+phenotype+"_"+method+".db"
-    command = "vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby+" --to_db "+dbName+" -f -j 8 -v 1" 
-    logfile = PROJECT_FOLDER+projectID+"/associate_log.txt"
-    resultfile = PROJECT_FOLDER+projectID+"/associate_result.txt"
-    if os.path.exists(logfile):
-        os.remove(logfile)
-    if os.path.exists(resultfile):
-        os.remove(resultfile)
-    print(command)
-
-    # with open (app.config['WORK_FOLDER']+"testProject/"+projectID+"/associate_log.txt","a+") as output:
-    #     run(command.split(" "),  stderr=output, universal_newlines=True,check=True)
-
-    # result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    # print("stderr",result.stderr)
-    # print("stdout",result.stdout)
-    result = Popen(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    tee = Popen(['tee', logfile], stdin=result.stderr)
-    tee.communicate()
-    tee2 = Popen(['tee', resultfile], stdin=result.stdout)
-    tee2.communicate()
 
 
 @app.route('/check/associate/<projectID>', methods=['GET'])
@@ -407,29 +321,14 @@ def checkAssociationDBs(projectID):
 
 
 
-
 @app.route("/show", methods=['GET'])
 def vtools_show():
-    option = request.args.get("option", None, type=None)
-    command = "vtools show "+option
-    if option == "show":
-        command = "vtools show"
-    elif option == "anotations -v0":
-        command = "vtools show annotations -v0 "
-    elif option == "genotypes":
-        command = "vtools show genotypes -l 10"
-    elif option == "tables":
-        command = "vtools show tables"
-    elif option == "fields":
-        command = "vtools show fields -l 10"    
-    result = run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    # print(result.returncode)
-    # print("stdout", result.stdout)
-    # print("stderr", result.stderr)
-    if "ERROR" in result.stderr:
-        return "Internal error", 500
-    else:
-        return result.stdout, 200
+    if request.method == 'GET':
+        option = request.args.get("option", None, type=None)
+        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
+        return commandAccess.vtools_show(option)
+    
+
 
 
 @app.route("/hello")
@@ -438,17 +337,12 @@ def hello():
      Python 3.7 (from the example template)"
 
 
-# @app.route("/")
-# def main():
-#     index_path = os.path.join(app.static_folder, 'index.html')
-#     return send_file(index_path)
-
-
 @app.route("/")
 def main():
     # index_path = os.path.join(app.static_folder, 'index.html')
     # return send_file(index_path)
     return render_template("index.html")
+
 
 # Everything not declared before (not a Flask route / API endpoint)...
 @app.route('/<path:path>')
@@ -465,5 +359,4 @@ def route_frontend(path):
 
 if __name__ == "__main__":
     # Only for debugging while developing
-   
     app.run(host='0.0.0.0', debug=True, port=80)

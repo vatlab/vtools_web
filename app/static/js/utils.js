@@ -304,38 +304,37 @@ async function getProject(){
             //   addOption(obj.id,["",fileName])
             // })
             addOption("existingSourceName", ["", fileName])
-        }
-        $("#landing_content").hide()
-        $("#accordionSidebar").show()
-        await vtoolsUse("dbSNP")
-        vtoolsShow("annotations -v0",false)
-        vtoolsShow("tests",false)
-        vtoolsShow("tables",false)
-        vtoolsShow("show",true)
-        
-        $('#addPhenotype').show();
-        vtoolsShow("phenotypes",false)
-        $("#runAssociation").show()
-        $("#showError").hide()
+            $("#landing_content").hide()
+            $("#accordionSidebar").show()
+            await vtoolsUse("dbSNP")
+            vtoolsShow("annotations -v0", false)
+            vtoolsShow("tests", false)
+            vtoolsShow("tables", false)
+            vtoolsShow("show", true)
 
+            $('#addPhenotype').show();
+            vtoolsShow("phenotypes", false)
+            $("#runAssociation").show()
+            $("#showError").hide()
 
-        $.get("http://"+server+"/logs/"+projectID,function(logstring){
-            $('#dataDetail').show()
-            logs=logstring.split("\n").filter((log)=>log!=="")
-            console.log(logs)
-            var i;
-            var outputLog="";
-            for (i=0;i<logs.length;i++){
-                  var ii=i+1
-                  outputLog+=ii+"."+logs[i]+"\n"
-                  if (logs[i].includes("vtools associate")){
-                    $("#showAssociation").show()
-                  }
-            }
+            $.get("http://" + server + "/logs/" + projectID, function (logstring) {
+                $('#dataDetail').show()
+                logs = logstring.split("\n").filter((log) => log !== "")
+                console.log(logs)
+                var i;
+                var outputLog = "";
+                for (i = 0; i < logs.length; i++) {
+                    var ii = i + 1
+                    outputLog += ii + "." + logs[i] + "\n"
+                    if (logs[i].includes("vtools associate")) {
+                        $("#showAssociation").show()
+                    }
+                }
                 $("#logsText").val(outputLog)
             })
-             get_AssociationDBs(projectID)
-           
+            get_AssociationDBs(projectID)
+        }
+      
     }).fail(function(xhr,status,error){
         alert(error)
     })
@@ -516,8 +515,7 @@ function importFile(){
         return
     }
     addToLog("vtools import "+fileName+" --build "+genomeVersion)
-    $.get("http://"+server+"/import/"+projectID,{
-    // $.get("http://localhost:5000/import",{
+    $.get("http://"+server+"/import",{
         fileName:fileName,genomeVersion:genomeVersion
     }).done( function(data){
         console.log(data)
@@ -934,7 +932,7 @@ function runAssociation(){
     }
     console.log(table,phenotype,method,discard,groupby)
     $("#runAssociation").hide()
-    $.post("http://"+server+"/runAssociation/"+projectID,{
+    $.post("http://"+server+"/runAssociation",{
     // $.post("http://localhost:5000/runAssociation",{
         table:table,phenotype:phenotype,method:method,discard:discard,groupby:groupby
     }).done(function(data){
