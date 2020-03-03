@@ -355,6 +355,12 @@ label {
     margin-left: 40px;
 }
 
+.helpPage{
+    position:absolute;
+    top:20px;
+    right:50px;
+}
+
 .nav-link {
     font-size: 25px
 }

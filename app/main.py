@@ -529,9 +529,9 @@ def checkImportProgress(projectID):
         if b"Importing genotypes" in last:
             return last, 200
         else:
-            return "Preparing", 200
+            return "Running", 200
     else:
-        return "Preparing", 200
+        return "Running", 200
 
 
 @app.route('/phenotype/<projectID>', methods=['POST', 'PUT'])
@@ -690,9 +690,9 @@ def checkAssociateProgress(projectID):
         if b"Testing for association" in last:
             return last, 200
         else:
-            return "Preparing", 200
+            return "Running", 200
     else:
-        return "preparing", 200
+        return "Running", 200
 
 
 @app.route('/associationDBs/<projectID>', methods=['GET'])
