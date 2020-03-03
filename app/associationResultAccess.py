@@ -80,7 +80,7 @@ class associationResultAccess:
                     pass
             print("find chr ", chr)
         if chr is None:
-            return "No such gene", 500
+            return None, None, "No such gene"
         try:
             for filePath in HDFfileNames:
                 print(filePath)
@@ -106,11 +106,13 @@ class associationResultAccess:
             return allGenotype, rownames, chr
         except tb.exceptions.NoSuchNodeError:
             print("No such node")
-            return "No such node", 500
+            return None, None, "No such node"
 
     def get_variants_summary(self, chr, name, covariate):
         self.prepare_dbSNP_annotation()
         allGenotype, variantIDs, chr = self.get_genotype(chr, name)
+        if chr=="No such node" or chr=="No such gene":
+            return None, chr
         db = databaseEngine(self.projectID)
         db.connect(self.projectID+".proj")
         covariateMap = db.get_CovariateMap(covariate)
@@ -120,7 +122,6 @@ class associationResultAccess:
             if (len(value) != 0):
                 values = [int(x) for x in value]
                 allFilter = allGenotype[values]
-                print(allGenotype.shape, len(values), allFilter.shape)
                 counts = allFilter.apply(lambda x: x.value_counts(), axis=1)
                 header = str(key)
                 hetero = []
@@ -136,7 +137,7 @@ class associationResultAccess:
                                 "_homo"] = [0 if math.isnan(x) else int(x) for x in homo]
                 variant_details["Sum"] = variant_details[header +
                                                         "_hetero"]+variant_details[header+"_homo"]
-        return variant_details.sort_values(by=["Sum"], ascending=False).drop(["Sum"], axis=1)
+        return variant_details.sort_values(by=["Sum"], ascending=False).drop(["Sum"], axis=1), chr
 
 
     def get_gene_pvalue(self, name, associationDB):

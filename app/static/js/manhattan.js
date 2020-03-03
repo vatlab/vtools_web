@@ -48,17 +48,22 @@ $(document).ready(function(){
    
      $("#reset").click(function(){
          console.log("reset")
-         if (selectedPoint) {
-             var chrData = result.data.filter((ele) => ele.chr === selectedChr)
-             var index = chrData.map((ele) => ele.i)
-             var selectedIndex = index.indexOf(selectedPoint.toString())
-             chrData[selectedIndex].selected = false;
-         }
+         removeSelectedPoint()
          selectedPoint = null;
          d3.select("#plot-canvas").on("mousedown",null)
          d3.select("#plot-canvas").on("mouseup", null)
         drawManhattan(result)
     })
+
+
+    function removeSelectedPoint(){
+        if (selectedPoint) {
+            var chrData = result.data.filter((ele) => ele.chr === selectedChr)
+            var index = chrData.map((ele) => ele.i)
+            var selectedIndex = index.indexOf(selectedPoint.toString())
+            chrData[selectedIndex].selected = false;
+        }
+    }
 
 
     
@@ -202,23 +207,25 @@ $(document).ready(function(){
 
     $("#searchGeneButton").click(function () {
         let geneName = $("#searchGene").val()
-        let projectID = $("#title_projectID")
-        projectID = projectID.split(":")[1].trim()
+        let projectID = $("#title_projectID").html().split(":")[1].trim()
         console.log(projectID)
         $.get("http://" + server + "/showVariants/" + projectID+"/"+associationDB, { name: geneName, chr: null }, function (searchResult) {
-            pvalue = searchResult.pvalue
-            data = searchResult.data
-            selectedChr = searchResult.chr
-            covariate =searchResult.covariate
-            generateDetailTable("#dataTable", data.split("\n"), geneName, pvalue)
-            
-            var chrData = result.data.filter((ele) => ele.chr === selectedChr)
-            let searchGeneIndex = chrData.findIndex(ele => ele.name == geneName)
-            console.log(searchGeneIndex)
-            chrData[searchGeneIndex].selected = true;
-            console.log(chrData[searchGeneIndex])
-            selectedPoint = chrData[searchGeneIndex].i
-            drawChr_prepare(chrData, result.offSets[selectedChr])
+            console.log(searchResult)
+            if (searchResult != "No such gene"){
+                pvalue = searchResult.pvalue
+                data = searchResult.data
+                selectedChr = searchResult.chr
+                covariate =searchResult.covariate
+                generateDetailTable("#dataTable", data.split("\n"), geneName, pvalue)
+                var chrData = result.data.filter((ele) => ele.chr === selectedChr)
+                let searchGeneIndex = chrData.findIndex(ele => ele.name == geneName)
+                console.log(searchGeneIndex)
+                removeSelectedPoint()
+                chrData[searchGeneIndex].selected = true;
+                
+                selectedPoint = chrData[searchGeneIndex].i
+                drawChr_prepare(chrData, result.offSets[selectedChr])
+            }
         })
     })
 

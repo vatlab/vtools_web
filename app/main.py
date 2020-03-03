@@ -38,9 +38,12 @@ def show_Variants(projectID,associationDB):
     covariate = associationDB.split("_")[2]
 
     VTAccess = associationResultAccess.getVTResultAccess(projectID)
-    detail = VTAccess.get_variants_summary(chr,name,covariate)
-    pvalue = VTAccess.get_gene_pvalue(name, associationDB)
-    return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr),"covariate":covariate}),200
+    detail, chr = VTAccess.get_variants_summary(chr,name,covariate)
+    if detail is None:
+        return "No such gene", 200
+    else: 
+        pvalue = VTAccess.get_gene_pvalue(name, associationDB)
+        return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr),"covariate":covariate}),200
 
 
 @app.route('/showNGCHM/<projectID>/<associationDB>', methods=['GET'])
@@ -201,8 +204,8 @@ def checkImportProgress(projectID):
         return "Running", 200
 
 
-@app.route('/phenotype', methods=['POST', 'PUT'])
-def upload_phenotype():
+@app.route('/phenotype/<projectID>', methods=['POST', 'PUT'])
+def upload_phenotype(projectID):
     if request.method == 'POST':
         phenoFile = request.files['datafile']
         phenotype_fileName = os.path.join(
