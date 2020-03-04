@@ -9,7 +9,7 @@ from flask import Flask, send_file, request, redirect, jsonify, url_for, render_
 from werkzeug.utils import secure_filename
 
 from associationResultAccess import associationResultAccess
-from vtoolsCommandAccess import vtoolsCommandAccess
+import vtoolsCommandAccess as vtoolsCommandAccess
 
 
 app = Flask(__name__)
@@ -86,7 +86,7 @@ def download_ngchm(projectID,heatmapName):
 def load_sampleData(projectID):
     if request.method == "GET":
         fileType = request.args.get('fileType', None, type=None)
-        return vtoolsCommandAccess.load_sampleData(fileType)
+        return vtoolsCommandAccess.load_sampleData(projectID, fileType)
 
 
 @app.route('/project', methods=['POST'])
@@ -230,7 +230,7 @@ def vtools_use(projectID):
     if request.method == 'POST':
         option = request.form["option"]
 
-        return vtoolsCommandAccess.vtools_use(option)
+        return vtoolsCommandAccess.vtools_use(projectID, option)
     
 
 

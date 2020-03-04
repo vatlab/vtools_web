@@ -74,7 +74,7 @@ def vtools_import(projectID,fileName,genomeVersion):
     
     def run_vtools_import(projectFolder, fileName, genomeVersion):
         command = "vtools import "+projectFolder + "/"+fileName+" --build " + genomeVersion+" -f"
-        with open(self.projectFolder+"/import_log.txt", "a+") as output:
+        with open(projectFolder+"/import_log.txt", "a+") as output:
             Popen(command.split(" "), stdout=output,
                 stderr=output, universal_newlines=True)
     
@@ -89,7 +89,7 @@ def vtools_phenotype(projectID,phenotype_fileName):
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
     command = "vtools phenotype --from_file " + phenotype_fileName
-    return self.runCommand(command)
+    return runCommand(command)
 
 
 
@@ -102,7 +102,7 @@ def vtools_output(projectID,outputTable, outputTableFields, outputAnnoFields):
     if len(outputAnnoFields) > 0:
         command += " "+outputAnnoFields
     command += " --limit 20 --header"
-    return self.runCommand(command)
+    return runCommand(command)
 
 
 
@@ -110,7 +110,7 @@ def vtools_use(projectID, option):
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
     command = "vtools use "+option
-    return self.runCommand(command)
+    return runCommand(command)
 
 
 
@@ -118,7 +118,7 @@ def vtools_select(projectID,condition, newTable):
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
     command = "vtools select "+condition+" -t "+newTable
-    return self.runCommand(command)
+    return runCommand(command)
 
 
 def vtools_update(projectID, request, method, table):
@@ -139,7 +139,7 @@ def vtools_update(projectID, request, method, table):
         stat = request.form["stat"]
         if stat != "":
             command += " --from_stat "+stat
-    return self.runCommand(command)
+    return runCommand(command)
 
 
 def vtools_association(projectID, table, phenotype, method, groupby):
@@ -185,7 +185,7 @@ def vtools_show(projectID,option):
         command = "vtools show tables"
     elif option == "fields":
         command = "vtools show fields -l 10"
-    return self.runCommand(command)
+    return runCommand(command)
     # return run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
 

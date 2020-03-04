@@ -206,8 +206,8 @@ class associationResultAccess:
         print(commandCols)
         result = run(commandCols, stdout=PIPE,
                     stderr=PIPE, universal_newlines=True)
-        print("stderr "+result.stderr)
-        print("stdout "+result.stdout)
+        # print("stderr "+result.stderr)
+        # print("stdout "+result.stdout)
         if "ERROR" in result.stderr:
             return "Internal error", 500
         else:
