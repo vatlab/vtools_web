@@ -6,8 +6,8 @@ var fieldMap={};
 
 
 $(document).ready(function(){
-    server=env.server+"/vtoolsweb/"
-    // server=env.server+":5000"
+    // server=env.server+"/vtoolsweb/"
+    server=env.server+":5000"
 
     $("#createRandomProject").click(function(){
         console.log(server)
@@ -236,7 +236,7 @@ function createProject(){
 
 
 function vtoolsSelect(){
-    $.post("http://"+server+"/select",{"variantTable":$("#secondSelection").val(),"condition":$("#selectCondition").val(),"tableName":$("#newTable").val()},function(result){
+    $.post("http://"+server+"/select/"+projectID,{"variantTable":$("#secondSelection").val(),"condition":$("#selectCondition").val(),"tableName":$("#newTable").val()},function(result){
         console.log(result)
         vtoolsShow("fields",false)
         vtoolsShow("tables",true)
@@ -252,7 +252,7 @@ function vtoolsUpdate(){
 
     if ($("#updateCheckbox").is(":checked")){
         console.log($("#updateStates").val().join(" "))
-        $.post("http://"+server+"/update",{
+        $.post("http://"+server+"/update/"+projectID,{
             "table":$("#updateTables").val(),
             "stat":$("#updateStates").val().join(" "),
             "method":"fromStat"
@@ -272,7 +272,7 @@ function vtoolsUpdate(){
             selectedVar=$("#updateVarInfo").val().join(",")
         }
 
-        $.post("http://"+server+"/update",{
+        $.post("http://"+server+"/update/"+projectID,{
             "table":$("#updateTables").val(),
             "fileName":$("#existingSourceNameUpdate").val(),
             "selectedGeno":selectedGeno,
@@ -508,7 +508,7 @@ function importFile(){
         return
     }
     addToLog("vtools import "+fileName+" --build "+genomeVersion)
-    $.get("http://"+server+"/import",{
+    $.get("http://"+server+"/import/"+projectID,{
         fileName:fileName,genomeVersion:genomeVersion
     }).done( function(data){
         console.log(data)
@@ -531,7 +531,7 @@ function vtoolsOutput(){
     if ($("#outputAnnoFields").val()!==null){
         outputAnnoFields=$("#outputAnnoFields").val().join(" ")
     }
-    $.get("http://"+server+"/output",{
+    $.get("http://"+server+"/output/"+projectID,{
             "outputTable":$("#outputTables").val(),
             "outputTableFields":outputTableFields,
             // "outputAnno":$("#outputAnnos").val(),
@@ -729,7 +729,7 @@ function populateDropDownSelect(info){
 function vtoolsShow(option,display){
     
     // $.get("http://localhost:5000/show",{option:option
-    $.get("http://"+server+"/show",{option:option
+    $.get("http://"+server+"/show/"+projectID,{option:option
     }).done(function(data){
         var rows=data.split("\n")
         switch(option){
@@ -850,7 +850,7 @@ function vtoolsShow(option,display){
 function vtoolsUse(option){
     return new Promise((resolve, reject) => {
         addToLog("vtools use "+option)
-        $.post("http://"+server+"/use",{
+        $.post("http://"+server+"/use/"+projectID,{
             option:option
         }).done(function(result){
             console.log(option+ "imported")
@@ -925,7 +925,7 @@ function runAssociation(){
     }
     console.log(table,phenotype,method,discard,groupby)
     $("#runAssociation").hide()
-    $.post("http://"+server+"/runAssociation",{
+    $.post("http://"+server+"/runAssociation/"+projectID,{
     // $.post("http://localhost:5000/runAssociation",{
         table:table,phenotype:phenotype,method:method,discard:discard,groupby:groupby
     }).done(function(data){

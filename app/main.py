@@ -3,6 +3,7 @@ import os
 import sys
 # from multiprocessing import Process
 import glob
+import uuid
 import time
 from flask import Flask, send_file, request, redirect, jsonify, url_for, render_template
 from werkzeug.utils import secure_filename
@@ -85,15 +86,14 @@ def download_ngchm(projectID,heatmapName):
 def load_sampleData(projectID):
     if request.method == "GET":
         fileType = request.args.get('fileType', None, type=None)
-        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
-        return commandAccess.load_sampleData(fileType)
+        return vtoolsCommandAccess.load_sampleData(fileType)
 
 
 @app.route('/project', methods=['POST'])
 def create_project():
     if request.method == 'POST':
-        commandAccess=vtoolsCommandAccess.getVTCommandAccess()
-        return commandAccess.vtools_create()
+        projectID = "VT"+uuid.uuid4().hex
+        return vtoolsCommandAccess.vtools_create(projectID)
         
 
 @app.route('/project/<projectID>', methods=['GET'])
@@ -103,8 +103,7 @@ def get_project(projectID):
         if not os.path.exists(directory):
             return "project doesn't exist", 500
         else:
-            vtoolsCommandAccess.getExistingVTCommandAccess(projectID)
-            vcfFiles = glob.glob(PROJECT_FOLDER+projectID+"/*.vcf")
+            vcfFiles = glob.glob(directory+"/*.vcf")
             if len(vcfFiles)==0:
                 return "empty", 200
             else:
@@ -170,14 +169,13 @@ def upload_file(projectID):
     return 'uploaded', 204
 
 
-@app.route('/import', methods=['GET'])
-def vtools_import():
+@app.route('/import/<projectID>', methods=['GET'])
+def vtools_import(projectID):
     if request.method == 'GET':
         fileName = request.args.get('fileName', None, type=None)
         genomeVersion = request.args.get("genomeVersion", None, type=None)
 
-        commandAccess=vtoolsCommandAccess.getVTCommandAccess()
-        commandAccess.vtools_import(fileName,genomeVersion)
+        vtoolsCommandAccess.vtools_import(projectID, fileName,genomeVersion)
         return "import running", 200
 
 
@@ -212,55 +210,50 @@ def upload_phenotype(projectID):
             PROJECT_FOLDER+projectID, secure_filename(phenoFile.filename))
         phenoFile.save(phenotype_fileName)
         
-        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
-        return commandAccess.vtools_phenotype(phenotype_fileName)
+        return vtoolsCommandAccess.vtools_phenotype(projectID,phenotype_fileName)
         
 
 
 
-@app.route('/output', methods=['GET'])
-def vtools_output():
+@app.route('/output/<projectID>', methods=['GET'])
+def vtools_output(projectID):
     if request.method == 'GET':
         outputTable = request.args.get("outputTable", None, type=None)
         outputTableFields = request.args.get("outputTableFields", None, type=None)
         outputAnnoFields = request.args.get("outputAnnoFields", None, type=None)
 
-        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
-        return commandAccess.vtools_output(outputTable, outputTableFields, outputAnnoFields)
+        return vtoolsCommandAccess.vtools_output(projectID,outputTable, outputTableFields, outputAnnoFields)
 
 
-@app.route("/use", methods=['POST'])
-def vtools_use():
+@app.route("/use/<projectID>", methods=['POST'])
+def vtools_use(projectID):
     if request.method == 'POST':
         option = request.form["option"]
 
-        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
-        return commandAccess.vtools_use(option)
+        return vtoolsCommandAccess.vtools_use(option)
     
 
 
-@app.route("/select", methods=['POST'])
-def vtools_select():
+@app.route("/select/<projectID>", methods=['POST'])
+def vtools_select(projectID):
     if request.method == 'POST':
         condition = request.form["condition"]
         newTable = request.form["tableName"]
 
-        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
-        return commandAccess.vtools_select(condition, newTable)
+        return vtoolsCommandAccess.vtools_select(projectID, condition, newTable)
         
 
 
-@app.route("/update", methods=['POST'])
-def vtools_update():
+@app.route("/update/<projectID>", methods=['POST'])
+def vtools_update(projectID):
     if request.method == 'POST':
         table = request.form["table"]
         method = request.form["method"]
-        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
-        return commandAccess.vtools_update(request, method, table)
+        return vtoolsCommandAccess.vtools_update(projectID, request, method, table)
 
 
-@app.route("/runAssociation", methods=['POST'])
-def vtools_associate():
+@app.route("/runAssociation/<projectID>", methods=['POST'])
+def vtools_associate(projectID):
     if request.method == 'POST':
         table = request.form["table"]
         phenotype = request.form["phenotype"]
@@ -269,8 +262,7 @@ def vtools_associate():
         groupby = request.form["groupby"]
         print(table, phenotype, method, discard, groupby)
         
-        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
-        commandAccess.vtools_association(table, phenotype, method, groupby)
+        commandAccess = vtoolsCommandAccess.vtools_association(projectID, table, phenotype, method, groupby)
         return "associate running", 200
 
 
@@ -324,12 +316,11 @@ def checkAssociationDBs(projectID):
 
 
 
-@app.route("/show", methods=['GET'])
-def vtools_show():
+@app.route("/show/<projectID>", methods=['GET'])
+def vtools_show(projectID):
     if request.method == 'GET':
         option = request.args.get("option", None, type=None)
-        commandAccess = vtoolsCommandAccess.getVTCommandAccess()
-        return commandAccess.vtools_show(option)
+        return vtoolsCommandAccess.vtools_show(projectID, option)
     
 
 
