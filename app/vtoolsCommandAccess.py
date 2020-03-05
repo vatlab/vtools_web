@@ -7,36 +7,10 @@ from shutil import copy2
 
 
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/app/"
-PROJECT_FOLDER = os.getenv("WORK_FOLDER")+"/testProject/"
+PROJECT_FOLDER = os.getenv("PROJECT_FOLDER")
 if not os.path.exists(PROJECT_FOLDER):
     os.makedirs(PROJECT_FOLDER)
 
-
-# class vtoolsCommandAccess:
-#     __instance = None
-#     @staticmethod
-#     def getVTCommandAccess():
-#         if vtoolsCommandAccess.__instance == None:
-#             projectID = "VT"+uuid.uuid4().hex
-#             vtoolsCommandAccess(projectID)
-#         return vtoolsCommandAccess.__instance
-    
-#     @staticmethod
-#     def getExistingVTCommandAccess(projectID):
-#         if vtoolsCommandAccess.__instance == None:
-#             vtoolsCommandAccess(projectID)
-#         return vtoolsCommandAccess.__instance
-
-#     def __init__(self,projectID):
-#         if vtoolsCommandAccess.__instance != None:
-#             raise Exception("This is a singleton.")
-#         else:
-#             vtoolsCommandAccess.__instance = self
-#             self.projectID=projectID
-#             self.projectFolder = PROJECT_FOLDER+projectID
-#             if not os.path.exists(self.projectFolder):
-#                 os.makedirs(self.projectFolder)
-#             os.chdir(self.projectFolder)
 
 
 def load_sampleData(projectID,fileType):

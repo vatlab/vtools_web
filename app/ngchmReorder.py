@@ -4,7 +4,7 @@ from scipy.spatial import distance
 from scipy.stats import mannwhitneyu
 
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/app/"
-PROJECT_FOLDER = os.getenv("WORK_FOLDER")+"/testProject/"
+PROJECT_FOLDER = os.getenv("PROJECT_FOLDER")
 if not os.path.exists(PROJECT_FOLDER):
     os.makedirs(PROJECT_FOLDER)
 

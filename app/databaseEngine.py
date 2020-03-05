@@ -3,7 +3,7 @@ import os
 import pandas as pd
 
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/app/"
-PROJECT_FOLDER = os.getenv("WORK_FOLDER")+"/testProject/"
+PROJECT_FOLDER = os.getenv("PROJECT_FOLDER")
 if not os.path.exists(PROJECT_FOLDER):
     os.makedirs(PROJECT_FOLDER)
 
@@ -13,6 +13,7 @@ class databaseEngine:
         self.datbase = None
         self.projectID=projectID
         self.projectFolder = PROJECT_FOLDER+projectID
+        print(self.projectFolder)
 
     def connect(self,database):
         self.database = self.projectFolder+"/"+database
@@ -57,18 +58,19 @@ class databaseEngine:
         cur = self.conn.cursor()
         if associationDB == "association_variant_disease_BurdenBt" and self.projectID == "test2k":
             associationDB = "HDF"
-        cur.execute("SELECT refgene_name2, pvalue_BBt FROM " +
+        cur.execute("SELECT * FROM " +
                     associationDB + " where refgene_name2=?", (name,))
         row = cur.fetchone()
         cur.close()
-        return row[1]
+        return row[5]
 
 
     def extract_pvalue(self, associationDB):
         cur = self.conn.cursor()
         if associationDB == "association_variant_disease_BurdenBt" and self.projectID == "test2k":
             associationDB = "HDF"
-        cur.execute("SELECT refgene_name2, pvalue_BBt FROM "+associationDB)
+        print(associationDB)
+        cur.execute("SELECT * FROM "+associationDB)
         rows = cur.fetchall()
         cur.close()
         return rows

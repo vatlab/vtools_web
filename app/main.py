@@ -8,14 +8,14 @@ import time
 from flask import Flask, send_file, request, redirect, jsonify, url_for, render_template
 from werkzeug.utils import secure_filename
 
-from associationResultAccess import associationResultAccess
+import associationResultAccess as associationResultAccess
 import vtoolsCommandAccess as vtoolsCommandAccess
 
 
 app = Flask(__name__)
 
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/app/"
-PROJECT_FOLDER = os.getenv("WORK_FOLDER")+"/testProject/"
+PROJECT_FOLDER = os.getenv("PROJECT_FOLDER")
 if not os.path.exists(PROJECT_FOLDER):
     os.makedirs(PROJECT_FOLDER)
 
@@ -38,12 +38,12 @@ def show_Variants(projectID,associationDB):
     name = request.args.get('name', None, type=None)
     covariate = associationDB.split("_")[2]
 
-    VTAccess = associationResultAccess.getVTResultAccess(projectID)
-    detail, chr = VTAccess.get_variants_summary(chr,name,covariate)
+    
+    detail, chr = associationResultAccess.get_variants_summary(projectID, chr,name,covariate)
     if detail is None:
         return "No such gene", 200
     else: 
-        pvalue = VTAccess.get_gene_pvalue(name, associationDB)
+        pvalue = associationResultAccess.get_gene_pvalue(projectID, name, associationDB)
         return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr),"covariate":covariate}),200
 
 
@@ -62,15 +62,13 @@ def show_NGCHM(projectID,associationDB):
         return "cache exists", 200
     covariate = associationDB.split("_")[2]
 
-    VTAccess = associationResultAccess.getVTResultAccess(projectID)
-    return VTAccess.drawHeatmap(chr, name, reorder, covariate, heatmapName)
+    return associationResultAccess.drawHeatmap(projectID, chr, name, reorder, covariate, heatmapName)
 
 
 
 @app.route('/getPvalue/<projectID>/<associationDB>', methods=['GET'])
 def get_pvalue(projectID,associationDB):
-    VTAccess = associationResultAccess.getVTResultAccess(projectID)
-    output = VTAccess.get_AssociationResult(associationDB)
+    output = associationResultAccess.get_AssociationResult(projectID,associationDB)
     return output, 200
 
 
