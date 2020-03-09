@@ -24,6 +24,8 @@ COPY ./app /home/app
 RUN mkdir /home/testProject/
 RUN chown -R vtools_user /home/app/
 RUN chown -R vtools_user /home/testProject/
+COPY ./app/.variant_tools/user_options.py /home/app/.variant_tools/
+RUN chown -R vtools_user /home/app/.variant_tools/
 
 ENV WORK_FOLDER=/home/
 ENV PROJECT_FOLDER=/home/testProject/
@@ -44,7 +46,5 @@ WORKDIR /home/app
 CMD uwsgi --socket 0.0.0.0:8087 --protocol=http --manage-script-name --mount /vtools=main:app
 
 
-WORKDIR /home/bpeng
-RUN     rm -rf temp
 
 
