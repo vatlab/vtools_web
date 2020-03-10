@@ -1,0 +1,16 @@
+version: '3'
+
+services:
+    vtools_web:
+      build:
+        context: .
+      image: vtools_web:latest
+      environment:
+        - WORK_FOLDER=/home/
+        - PROJECT_FOLDER=/home/testProject/
+      volumes:
+        - ${REFERENCE_FOLDER}:/home/app/.variant_tools/
+        - ${PROJECT_FOLDER}:/home/testProject/
+      ports:
+        - 8087:8087
+

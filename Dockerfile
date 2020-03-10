@@ -23,8 +23,7 @@ RUN useradd -d /home/app vtools_user
 COPY ./app /home/app
 RUN chown -R vtools_user /home/app/
 
-ENV WORK_FOLDER=/home/
-ENV PROJECT_FOLDER=/home/testProject/
+
 
 # run as user
 USER vtools_user
