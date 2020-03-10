@@ -21,9 +21,7 @@ ENV LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/lib
 RUN useradd -d /home/app vtools_user
 
 COPY ./app /home/app
-RUN mkdir /home/testProject/
 RUN chown -R vtools_user /home/app/
-RUN chown -R vtools_user /home/testProject/
 
 ENV WORK_FOLDER=/home/
 ENV PROJECT_FOLDER=/home/testProject/
