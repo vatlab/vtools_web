@@ -1,3 +1,4 @@
+app/static/js/env.js
 app/heatmapProperties.json
 app/.DS_Store
 *.png
