@@ -14,16 +14,16 @@ if not os.path.exists(PROJECT_FOLDER):
 
 
 def load_sampleData(projectID,fileType):
-    print(PROJECT_FOLDER+"/10k_test_2k.vcf")
+    print(WORK_FOLDER+"/testData/10k_test_2k.vcf")
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
-    if fileType == "data" and os.path.exists(PROJECT_FOLDER+"/10k_test_2k.vcf"):
-        src = os.path.realpath(PROJECT_FOLDER+"/10k_test_2k.vcf")
+    if fileType == "data" and os.path.exists(WORK_FOLDER+"/testData/10k_test_2k.vcf"):
+        src = os.path.realpath(WORK_FOLDER+"/testData/10k_test_2k.vcf")
         print("copy ", src)
         copy2(src, projectFolder+"/")
         return "copy file", 200
-    elif fileType == "pheno" and os.path.exists("../simulated.tsv"):
-        src = os.path.realpath(PROJECT_FOLDER+"/simulated.tsv")
+    elif fileType == "pheno" and os.path.exists(WORK_FOLDER+"/testData/simulated.tsv"):
+        src = os.path.realpath(WORK_FOLDER+"/testData/simulated.tsv")
         copy2(src, projectFolder+"/")
         command = "vtools phenotype --from_file " + \
             projectFolder+"/simulated.tsv"
