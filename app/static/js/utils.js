@@ -488,10 +488,10 @@ function checkImportProgress(){
                 vtoolsShow("tests",false)
                 vtoolsShow("tables",true)
                 vtoolsShow("fields",false)
-                vtoolsShow("show",false)
                 $("#showError").hide()
                 await vtoolsUse("dbSNP")
                 await vtoolsUse("refGene")
+                vtoolsShow("show",false)
 
             }else{
                 setTimeout(checkImportProgress,2000)
