@@ -220,7 +220,6 @@ $(document).ready(function(){
 
 
 function createProject(){
-    console.log(server)
     $.post("http://"+server+"/project",function(result){
         $("#localFileSource").show()
         projectID=result
