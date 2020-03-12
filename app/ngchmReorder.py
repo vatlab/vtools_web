@@ -12,7 +12,7 @@ if not os.path.exists(PROJECT_FOLDER):
 def original_order(projectID, allGenotype, heatmapName, covariateMap, covariate):
     projectFolder = PROJECT_FOLDER+projectID
     allGenotype.to_csv(projectFolder+"/fake_genotype.tsv", sep="\t")
-    command = '{}/mda_heatmap_gen/heatmap.sh {}/mda_heatmap_gen  {} chm_name|{} chm_description|validateTool matrix_files|path|{}|name|datalayer|summary_method|sample row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels classification|name|disease|path|{}|category|column_discrete output_location|{}'.format(
+    command = '{}/mda_heatmap_gen/heatmap.sh "{}/mda_heatmap_gen"  "{}" "chm_name|{}" "chm_description|validateTool" "matrix_files|path|{}|name|datalayer|summary_method|sample" "row_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels" "col_configuration|order_method|Hierarchical|distance_metric|manhattan|agglomeration_method|ward.D|tree_covar_cuts|0|data_type|labels" "classification|name|disease|path|{}|category|column_discrete" "output_location|{}"'.format(
         WORK_FOLDER, WORK_FOLDER, PROJECT_FOLDER, heatmapName, projectFolder+"/fake_genotype.tsv", projectFolder+"/"+covariate+".tsv", projectFolder+"/cache/"+heatmapName+".ngchm")
     print(command)
     return command
