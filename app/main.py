@@ -162,7 +162,9 @@ def get_fileInfo(projectID):
 @app.route('/data/<projectID>', methods=['POST'])
 def upload_file(projectID):
     if request.method == 'POST':
-        f = request.files['datafile']
+        # print(request.files.to_dict()["file"])
+        f = request.files['file']
+        # f = request.files['datafile']
         f.save(os.path.join(PROJECT_FOLDER+projectID, secure_filename(f.filename)))
     return 'uploaded', 204
 

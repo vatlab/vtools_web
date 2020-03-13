@@ -7,7 +7,8 @@ var fieldMap={};
 
 $(document).ready(function(){
     // server=env.server+"/vtoolsweb/"
-    server=env.server+":8087"
+    // server=env.server+":8087"
+    server=env.server+":5000"
 
     $("#createRandomProject").click(function(){
         console.log(server)
@@ -218,6 +219,17 @@ $(document).ready(function(){
 })
 
 
+function include(filename)
+{
+   var head = document.getElementsByTagName('head')[0];
+
+   var script = document.createElement('script');
+   script.src = filename;
+   script.type = 'text/javascript';
+   head.appendChild(script)
+}   
+
+
 
 function createProject(){
     $.post("http://"+server+"/project",function(result){
@@ -228,6 +240,8 @@ function createProject(){
         $("#projectName").text(projectID)
         $("#landing_content").hide()
         $("#accordionSidebar").show()
+
+        include("../static/js/demo-config.js")
     }).fail(function(xhr,status,error){
         alert(error)
     })

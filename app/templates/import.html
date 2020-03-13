@@ -1,9 +1,60 @@
 <div class="tab-pane active" id="import">
 	<h3></h3>
-	<div id="localFileSource">
+	<div class="row">
+        <div class="col-md-6 col-sm-12">
+          
+          <!-- Our markup, the important part here! -->
+          <div id="drag-and-drop-zone" class="dm-uploader p-5">
+            <h3 class="mb-5 mt-5 text-muted">Drag &amp; drop files here</h3>
+
+            <div class="btn btn-primary btn-block mb-5">
+                <span>Open the file Browser</span>
+                <input type="file" title='Click to add Files' />
+            </div>
+          </div><!-- /uploader -->
+
+        </div>
+        <div class="col-md-6 col-sm-12">
+          <div class="card h-100">
+            <div class="card-header">
+              File List
+            </div>
+
+            <ul class="list-unstyled p-2 d-flex flex-column col" id="files">
+              <li class="text-muted text-center empty">No files uploaded.</li>
+            </ul>
+          </div>
+        </div>
+      </div><!-- /file list -->
+
+    <script src="static/js/jquery.dm-uploader.js"></script>
+    <script src="static/js/demo-ui.js"></script>
+    <!-- <script src="static/js/demo-config.js"></script> -->
+
+    <!-- File item template -->
+    <script type="text/html" id="files-template">
+      <li class="media">
+        <div class="media-body mb-1">
+          <p class="mb-2">
+            <strong>%%filename%%</strong> - Status: <span class="text-muted">Waiting</span>
+          </p>
+          <div class="progress mb-2">
+            <div class="progress-bar progress-bar-striped progress-bar-animated bg-primary" 
+              role="progressbar"
+              style="width: 0%" 
+              aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            </div>
+          </div>
+          <hr class="mt-1 mb-1" />
+        </div>
+      </li>
+    </script>
+
+
+
+<!-- 	<div id="localFileSource">
 		<h4>Select file to import</h4>
 		<form id="dataUpload" method="POST" action="#" enctype="multipart/form-data">
-			<!-- COMPONENT START -->
 			<div class="form-group">
 				<div class="input-group input-file input-file-data" name="Fichier1">
 					<input type="text" class="form-control" id="localFileName" placeholder='Choose a file...' />
@@ -14,18 +65,19 @@
 
 				</div>
 			</div>
-			<!-- COMPONENT END -->
 			<div class="form-group">
 				<button type="submit" class="btn btn-primary pull-right">Submit</button>
 				
 				<button type="reset" class="btn btn-danger">Reset</button>
 			</div>
 		</form>
-		<button id="sampleData" class="btn btn-primary pull-right">sampleData</button>
-	</div>
+		
+	</div> -->
+
+	<!-- <button id="sampleData" class="btn btn-primary pull-right">sampleData</button> -->
 	<div id="dataSources" style="display:none;">
 		<h4>Data Sources</h4>
-		<select class="dropdowns" name="existingSourceName" id="existingSourceName">
+		<select class="dropdowns" name="existingSourceName" id="existingSourceName" size=5 multiple=multiple>
 		</select> <hr>
 	</div>
 
