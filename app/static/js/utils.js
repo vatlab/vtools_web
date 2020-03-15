@@ -550,7 +550,8 @@ function selectDataSource(fileName){
 function checkImportProgress(){
     $.get("http://"+server+"/check/import/"+projectID,async function(data){
             console.log(data)
-            $("#importProgress").text(data)
+            // $("#importProgress").text(data)
+            document.getElementById("importProgress").innerHTML='<pre style="color: silver; background: black;">'+data+'</pre>'
             if (data.includes("Importing genotypes: 100%")){
                 $('#dataDetail').show()
                 vtoolsShow("annotations -v0",false)
@@ -675,12 +676,12 @@ function addRowToTable(table,rows){
 
 }
 
-function generateInfoText(table,rows){
+function generateInfoText(table,data){
     $('#dataTable').parents('div.dataTables_wrapper').first().hide();
 
 
     $("#infoDiv").show();
-    document.getElementById("infoDiv").innerHTML='<pre style="color: silver; background: black;">'+rows+'</pre>'
+    document.getElementById("infoDiv").innerHTML='<pre style="color: silver; background: black;">'+data+'</pre>'
 
 }
 
