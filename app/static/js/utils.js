@@ -43,30 +43,30 @@ $(document).ready(function(){
     
 
 
-    $("#phenoUpload").submit(function(e){
-        e.preventDefault();
-        var formData= new FormData()
-        formData.append('datafile', $('#uploadPhenotype')[0].files[0])
-        var fileName = $('#uploadPhenotype')[0].files[0].name;
-        $("#localPhenoFileName").val(fileName);
-        $.ajax({
-            url:"http://"+server+"/phenotype/"+projectID,
-            data:formData,
-            type:'POST',
-            contentType:false,
-            processData:false, 
+    // $("#phenoUpload").submit(function(e){
+    //     e.preventDefault();
+    //     var formData= new FormData()
+    //     formData.append('datafile', $('#uploadPhenotype')[0].files[0])
+    //     var fileName = $('#uploadPhenotype')[0].files[0].name;
+    //     $("#localPhenoFileName").val(fileName);
+    //     $.ajax({
+    //         url:"http://"+server+"/phenotype/"+projectID,
+    //         data:formData,
+    //         type:'POST',
+    //         contentType:false,
+    //         processData:false, 
            
-            success: function(data) {
-                $("#phenotypeAdded").text(fileName + " added")
-                vtoolsShow("phenotypes", true)
-                addToLog("vtools phenotype --from_file " + fileName)
-                $("#runAssociation").show()
-            },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                alert(errorThrown);
-            }     
-        });
-    })
+    //         success: function(data) {
+    //             $("#phenotypeAdded").text(fileName + " added")
+    //             vtoolsShow("phenotypes", true)
+    //             addToLog("vtools phenotype --from_file " + fileName)
+    //             $("#runAssociation").show()
+    //         },
+    //         error: function(XMLHttpRequest, textStatus, errorThrown) {
+    //             alert(errorThrown);
+    //         }     
+    //     });
+    // })
 
     $("#addPhenotypeButton").click(function(){
         addPhenotype()
@@ -252,7 +252,9 @@ function createProject(){
 
         include("../static/js/demo-config.js")
     }).fail(function(xhr,status,error){
-        alert(error)
+        showErrorMessage(xhr.responseText,"createProject_error_placeholder")
+        
+       
     })
 }
 
@@ -304,7 +306,7 @@ function vtoolsUpdate(){
             vtoolsShow("show",false)
             vtoolsShow("fields",false)
         }).fail(function(xhr,status,error){
-            alert(error)
+            showErrorMessage(xhr.responseText,"update_error_placeholder")
         })
     }else{
         var selectedGeno=""
@@ -372,7 +374,8 @@ async function getProject(){
         }
       
     }).fail(function(xhr,status,error){
-        alert(error)
+        showErrorMessage(xhr.responseText,"getProject_error_placeholder")
+ 
     })
 }
 
@@ -385,6 +388,7 @@ function get_AssociationDBs(projectID){
             return cols[cols.length - 1].replace(".DB", "")
         })
         addOption("associationDBs", dbs)
+        $("#searchGeneButton").show()
     })
 }
 
@@ -568,7 +572,7 @@ function importFile(){
     var fileName=$('#existingSourceName option:selected').text();
     var genomeVersion=$("#genomeVersion").val()
     if (fileName==="" || genomeVersion===""){
-        alert("Please select a file name from dropdown list for importing.")
+        showErrorMessage("Please select a file name from dropdown list for importing.","import_error_placeholder")
         return
     }
     addToLog("vtools import "+fileName+" --build "+genomeVersion)
@@ -1019,20 +1023,24 @@ function runAssociation(){
         groupby="refGene.name2"
     }
     console.log(table,phenotype,method,discard,groupby)
-    $("#runAssociation").hide()
-    $.post("http://"+server+"/runAssociation/"+projectID,{
-    // $.post("http://localhost:5000/runAssociation",{
-        table:table,phenotype:phenotype,method:method,discard:discard,groupby:groupby
-    }).done(function(data){
-        addToLog("vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby)
-        setTimeout(checkAssociateProgress,2000)  
+    if (table=="Please select" || phenotype=="Please select" || method=="Please select"){
+        showErrorMessage("Please make selection on table, phenotypes and methods." ,"association_error_placeholder")
+    }else{
+        $("#runAssociation").hide()
+        $.post("http://"+server+"/runAssociation/"+projectID,{
+        // $.post("http://localhost:5000/runAssociation",{
+            table:table,phenotype:phenotype,method:method,discard:discard,groupby:groupby
+        }).done(function(data){
+            addToLog("vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby)
+            setTimeout(checkAssociateProgress,2000)  
 
-        
-        
-    }).fail(function(xhr,status,error){
-        showErrorMessage(xhr.responseText,"association_error_placeholder")
-        $("#runAssociation").show()
-    })
+            
+            
+        }).fail(function(xhr,status,error){
+            showErrorMessage(xhr.responseText,"association_error_placeholder")
+            $("#runAssociation").show()
+        })
+    }
 
 }
 

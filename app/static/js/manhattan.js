@@ -200,6 +200,8 @@ $(document).ready(function(){
                     var quadTree = d3.geom.quadtree(data);
                     resolve({numberPoints:numberPoints,chrs:chrs,offSets:offSets,data:data,xdata:xdata,xdataMap:xdataMap,quadTree:quadTree})
 
+            }).fail(function(xhr,status,error){
+                showErrorMessage(xhr.responseText,"manhattan_error_placeholder")
             })
         })
     //  })
@@ -209,6 +211,11 @@ $(document).ready(function(){
         let geneName = $("#searchGene").val()
         let projectID = $("#title_projectID").html().split(":")[1].trim()
         console.log(projectID)
+        if (geneName==""){
+           showErrorMessage("Please enter gene name.","manhattan_error_placeholder") 
+        }
+
+
         $.get("http://" + server + "/showVariants/" + projectID+"/"+associationDB, { name: geneName, chr: null }, function (searchResult) {
             console.log(searchResult)
             if (searchResult != "No such gene"){
@@ -226,6 +233,8 @@ $(document).ready(function(){
                 selectedPoint = chrData[searchGeneIndex].i
                 drawChr_prepare(chrData, result.offSets[selectedChr])
             }
+        }).fail(function(xhr,status,error){
+            showErrorMessage(xhr.responseText,"manhattan_error_placeholder")
         })
     })
 
@@ -607,6 +616,8 @@ $(document).ready(function(){
                     if (reorder=="Detail"){
                         $.get("http://"+server+"/showVariants/"+projectID+"/"+associationDB,{name:name,chr:chr},function(result){
                             generateDetailTable("#dataTable", result.data.split("\n"),name,pvalue)
+                        }).fail(function(xhr,status,error){
+                            showErrorMessage(xhr.responseText,"manhattan_error_placeholder")
                         })
                     }else{
                         $.get("http://"+server+"/showNGCHM/"+projectID+"/"+associationDB,{name:name,chr:chr,reorder:reorder},function(data){

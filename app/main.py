@@ -41,7 +41,7 @@ def show_Variants(projectID,associationDB):
     
     detail, chr = associationResultAccess.get_variants_summary(projectID, chr,name,covariate)
     if detail is None:
-        return "No such gene", 200
+        return "No such gene", 500
     else: 
         pvalue = associationResultAccess.get_gene_pvalue(projectID, name, associationDB)
         return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr),"covariate":covariate}),200
@@ -69,7 +69,7 @@ def show_NGCHM(projectID,associationDB):
 @app.route('/getPvalue/<projectID>/<associationDB>', methods=['GET'])
 def get_pvalue(projectID,associationDB):
     output = associationResultAccess.get_AssociationResult(projectID,associationDB)
-    return output, 200
+    return output
 
 
 
@@ -99,11 +99,11 @@ def get_project(projectID):
     if request.method == "GET":
         directory = PROJECT_FOLDER+projectID
         if not os.path.exists(directory):
-            return "project doesn't exist", 500
+            return "Project doesn't exist", 500
         else:
             vcfFiles = glob.glob(directory+"/*.vcf")
             if len(vcfFiles)==0:
-                return "empty", 200
+                return "The project is empty.", 500
             else:
                 return os.path.basename(vcfFiles[0]), 200
 
@@ -156,7 +156,7 @@ def get_fileInfo(projectID):
                     genoExists.append(geno)
             return jsonify({"genoFields": genoExists, "varFields": varExists}), 200
         else:
-            return "file name is empty", 500
+            return "The filename is empty", 500
 
 
 @app.route('/data/<projectID>', methods=['POST'])
@@ -296,8 +296,11 @@ def checkAssociateProgress(projectID):
                     f.seek(0, 0)
                     break
             last = f.readline()
+        print(last)
         if b"Testing for association" in last:
             return last, 200
+        elif b"cannot" in last:
+            return last, 500
         else:
             return "Running", 200
     else:

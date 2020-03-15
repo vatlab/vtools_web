@@ -134,27 +134,32 @@ def get_gene_pvalue(projectID, name, associationDB):
 
 
 def get_AssociationResult(projectID,associationDB):
-    gdict = load_refgene()
-    db = databaseEngine(projectID)
-    db.connect(associationDB+".DB")
-    content = db.extract_pvalue(associationDB)
-    id = 1
-    output = "id\tchr\tpos\tpvalue\tname\n"
+    try:
+        gdict = load_refgene()
+        db = databaseEngine(projectID)
+        db.connect(associationDB+".DB")
+        content = db.extract_pvalue(associationDB)
+        id = 1
+        output = "id\tchr\tpos\tpvalue\tname\n"
 
-    for line in content:
-        name = line[0].strip()
-        try:
-            pvalue = line[5]
-            if name in gdict:
-                output += str(id)+"\t"+gdict[name][0]+"\t" + \
-                    str(gdict[name][1])+"\t"+str(pvalue)+"\t"+name+"\n"
-                id = id + 1
-            else:
-                pass
-                # print(name, " not in dict")
-        except IndexError:
-            print(name)
-    return output
+        for line in content:
+            name = line[0].strip()
+            try:
+                pvalue = line[5]
+                if name in gdict:
+                    output += str(id)+"\t"+gdict[name][0]+"\t" + \
+                        str(gdict[name][1])+"\t"+str(pvalue)+"\t"+name+"\n"
+                    id = id + 1
+                else:
+                    pass
+                    # print(name, " not in dict")
+            except IndexError:
+                print(name)
+        return output, 200
+    except Exception as e:
+            # print e.__doc__
+            # print e.message
+        return "Error in getting association result",500
 
 
 
