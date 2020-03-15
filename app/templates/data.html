@@ -1,172 +1,178 @@
 <!-- <div class="tab-pane" id="data"> -->
 	<h3></h3>
 	<!-- <div class="container"> -->
-	
-				<div class="tab-pane" id="dataAnnotation" >
-					<legend>Data Annotation</legend>
-					<select class="selectpicker" id="annotationOptions" size="1">
+
+		<div class="tab-pane" id="dataAnnotation" >
+			<legend>Data Annotation</legend>
+			<select class="selectpicker" id="annotationOptions" size="1">
+			</select>
+			<button id="useButton" class="btn btn-primary" >Add annotation</button>
+			<p id="useFinished"></p>
+			<div id = "annotation_error_placeholder"></div>
+		</div>
+
+		<div class="tab-pane" id="vtoolsSelect">
+			<legend class="togvis">Select</legend>
+			<!-- <select id="fields" size="1"></select><br> -->
+			<div id="fields">
+				<!-- <div class="selection_label">
+					<label class="lb-md" for="selectionTables">Tables</label>
+					<select id="selectionTables" class="selectionBox">
 					</select>
-					<button id="useButton" class="btn btn-primary" >Add annotation</button>
-					<p id="useFinished"></p>
+				</div> -->
+		
+				<div class="selection_label">
+					<label class="lb-md" for="selectionFields">Fields</label>
+					<select id="selectionFields" class="selectpicker">
+						<option selected value="Plsease select">Please select</option>
+						<option value="Variant_tables">Variant_tables</option>
+						<option value="Annotation_databases">Annotation_databases</option>
+					</select>
 				</div>
-			
-				<div class="tab-pane" id="vtoolsSelect">
-					<legend class="togvis">Select</legend>
-					<!-- <select id="fields" size="1"></select><br> -->
-					<div id="fields">
-						<!-- <div class="selection_label">
-							<label class="lb-md" for="selectionTables">Tables</label>
-							<select id="selectionTables" class="selectionBox">
-							</select>
-						</div> -->
 				
-						<div class="selection_label">
-							<label class="lb-md" for="selectionFields">Fields</label>
-							<select id="selectionFields" class="selectpicker">
-								<option selected value="Plsease select">Please select</option>
-								<option value="Variant_tables">Variant_tables</option>
-								<option value="Annotation_databases">Annotation_databases</option>
-							</select>
-						</div>
+				<div class="selection_label" id="secondSelectionDiv" style="display:none">
+					<label class="lb-md" ></label>
+					<select id="secondSelection" class="selectpicker">
 						
-						<div class="selection_label" id="secondSelectionDiv" style="display:none">
-							<label class="lb-md" ></label>
-							<select id="secondSelection" class="selectpicker">
-								
-							</select>
-						</div>
-
-						<div class="selection_label" id="thirdSelectionDiv" style="display:none">
-							<label class="lb-md"></label>
-							<select id="thirdSelection" class="selectpicker" >
-								
-							</select>
-						</div>
-
-						<div class="selection_label" id="fourthSelectionDiv" style="display:none">
-							<label class="lb-md"></label>
-							<select id="fourthSelection" class="selectpicker">
-					
-							</select>
-						</div>
-
-						<div class="selection_label" id="selectionInputDiv" style="display:none">
-							<label class="lb-md"></label>
-							<input class="std_input" id="selectionInput" type="text"></input>
-							<button id="addToCondition" class="btn btn-primary">Add to Condition</button>
-						</div>
-						
-
-					</div>
-
-					<div style="float:left">
-						<div class="selection_label">
-							<label class="lb-md" for="selectCondition">Condition</label>
-							<input class="std_input" id="selectCondition" type="text">
-						</div>
-						<div class="selection_label">
-							<label class="lb-md formLabel1" for="newTable">New table</label>
-							<input class="std_input" id="newTable" type="text"><br>
-						</div>
-						<button id="selectButton" class="btn btn-primary">Select</button>
-					</div>
-				</div>
-			
-				<div class="tab-pane" id="vtoolsUpdate">
-					<legend class="togvis">Update</legend>
-					<div class="selection_label">
-						<label class="lb-md formLabel1" for="updateTables">Tables</label>
-						<select id="updateTables" class="selectpicker selectionBox">
-						</select>
-					</div>
-					
-					<div class="selection_label">
-						<label class="lb-md formLabel1" for="updateCheckbox">Update from:</label>
-						<!-- <input type="checkbox" id="updateCheckbox"> -->
-						<select class="selectpicker dropdowns" name="updateCheckbox" id="updateCheckbox">
-							<option selected>Please select</option>
-							<option>from_stat</option>
-							<option>from_file</option>
-						</select>
-					</div>
-
-					<div id="div_fromFile" style="display:none">
-						<div class="selection_label">
-							<label class="lb-md formLabel1" for="existingSourceName">From file</label>
-							<select class="selectpicker dropdowns" name="existingSourceName" id="existingSourceNameUpdate"></select>
-						</div>
-						<!-- <legend>Select an external file to upload</legend>
-								<form id="dataUploadExternal"  enctype="multipart/form-data">
-								    <label class="formLabel1" for="externalFile">File Name</label>
-								    <input class="std_input" id="externalFile" type="text">
-								    <input id="uploadExternalFile" type = "file" name = "datafile" >
-						         	<input type = "submit">
-								</form> -->
-						<div class="selection_label" id="div_varInfo" style="display:none">
-							<label class="lb-md formLabel1" for="updateVarInfo">var_info</label>
-							<select class="selectpicker dropdowns" name="updateVarInfo" id="updateVarInfo" multiple></select>
-						</div>
-						<div class="selection_label" id="div_genoInfo" style="display:none">
-							<label class="lb-md formLabel1" for="updateGenoInfo">geno_info</label>
-							<select class="selectpicker dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
-						</div>
-					</div>
-					<div class="selection_label" id="div_fromStat" style="display:none">
-						<label class="lb-md formLabel1" for="updateStates">From stat</label>
-						<select class="selectpicker" id="updateStates" multiple>
-							<option>GT=#(GT)</option>
-							<option>alt=#(alt)</option>
-							<option>hom=#(hom)</option>
-							<option>het=#(het)</option>
-							<option>other=#(other)</option>
-							<option>wtGT=#(wtGT)</option>
-							<option>mutGT=#(mutGT)</option>
-							<option>missing=#(missing)</option>
-							<option>maf=maf()</option>
-						</select>
-					</div>
-					<button id="updateButton" class="btn btn-primary">Update</button>
-				</div>
-			
-				<div class="tab-pane" id="vtoolsRemove">
-					<legend>Remove</legend>
-					<select class="selectpicker" id="selectRemoveOptions">
-						<option></option>
-						<option>Fields</option>
-						<option>Genotypes</option>
-						<option>Phenotypes</option>
-						<option>Variants</option>
-						<option>Samples</option>
-						<option>Annotations</option>
 					</select>
-
-					<div id="divRemoveFields" style="display:none">
-						<label class="formLabel1" for="fields">Fields</label>
-						<select class="selectpicker" id="fields" size="1"></select><br>
-					</div>
-
-					<div id="divRemoveGenotype" style="display:none">
-						<label class="formLabel1" for="removeGenotype">Genotypes</label>
-						<input class="std_input" id="removeGenotype" type="text"><br>
-					</div>
-					<div id="divRemovePhenotype" style="display:none">
-						<label class="formLabel1" for="removePhenotype">Phenotypes</label>
-						<input class="std_input" id="removePhenotype" type="text"><br>
-					</div>
-					<div id="divRemoveVariants" style="display:none">
-						<label class="formLabel1" for="removeVariants">Variants</label>
-						<select class="selectpicker" id="removeVariants" size="1"></select><br>
-					</div>
-					<div id="divRemoveSamples" style="display:none">
-						<label class="formLabel1" for="removeSamples">Samples</label>
-						<input class="std_input" id="removeSamples" type="text"><br>
-						<ß/div> <div id="divRemoveAnnotation" style="display:none">
-							<label class="formLabel1" for="removeAnnotation">Annotations</label>
-							<select class="selectpicker" id="removeAnnotation" size="1"></select> <br>
-					</div>
-					<button id="removeButton" class="btn btn-primary">Remove</button>
-
 				</div>
+
+				<div class="selection_label" id="thirdSelectionDiv" style="display:none">
+					<label class="lb-md"></label>
+					<select id="thirdSelection" class="selectpicker" >
+						
+					</select>
 				</div>
+
+				<div class="selection_label" id="fourthSelectionDiv" style="display:none">
+					<label class="lb-md"></label>
+					<select id="fourthSelection" class="selectpicker">
+			
+					</select>
+				</div>
+
+				<div class="selection_label" id="selectionInputDiv" style="display:none">
+					<label class="lb-md"></label>
+					<input class="std_input" id="selectionInput" type="text"></input>
+					<button id="addToCondition" class="btn btn-primary">Add to Condition</button>
+				</div>
+				
+
+			</div>
+
+			<div style="float:left">
+				<div class="selection_label">
+					<label class="lb-md" for="selectCondition">Condition</label>
+					<input class="std_input" id="selectCondition" type="text">
+				</div>
+				<div class="selection_label">
+					<label class="lb-md formLabel1" for="newTable">New table</label>
+					<input class="std_input" id="newTable" type="text"><br>
+				</div>
+				<button id="selectButton" class="btn btn-primary">Select</button>
+			</div>
+			<div id = "select_error_placeholder"></div>
+		</div>
+
+		<div class="tab-pane" id="vtoolsUpdate">
+			<legend class="togvis">Update</legend>
+			<div class="selection_label">
+				<label class="lb-md formLabel1" for="updateTables">Tables</label>
+				<select id="updateTables" class="selectpicker selectionBox">
+				</select>
+			</div>
+			
+			<div class="selection_label">
+				<label class="lb-md formLabel1" for="updateCheckbox">Update from:</label>
+				<!-- <input type="checkbox" id="updateCheckbox"> -->
+				<select class="selectpicker dropdowns" name="updateCheckbox" id="updateCheckbox">
+					<option selected>Please select</option>
+					<option>from_stat</option>
+					<option>from_file</option>
+				</select>
+			</div>
+
+			<div id="div_fromFile" style="display:none">
+				<div class="selection_label">
+					<label class="lb-md formLabel1" for="existingSourceName">From file</label>
+					<select class="selectpicker dropdowns" name="existingSourceName" id="existingSourceNameUpdate"></select>
+				</div>
+				<!-- <legend>Select an external file to upload</legend>
+						<form id="dataUploadExternal"  enctype="multipart/form-data">
+						    <label class="formLabel1" for="externalFile">File Name</label>
+						    <input class="std_input" id="externalFile" type="text">
+						    <input id="uploadExternalFile" type = "file" name = "datafile" >
+				         	<input type = "submit">
+						</form> -->
+				<div class="selection_label" id="div_varInfo" style="display:none">
+					<label class="lb-md formLabel1" for="updateVarInfo">var_info</label>
+					<select class="selectpicker dropdowns" name="updateVarInfo" id="updateVarInfo" multiple></select>
+				</div>
+				<div class="selection_label" id="div_genoInfo" style="display:none">
+					<label class="lb-md formLabel1" for="updateGenoInfo">geno_info</label>
+					<select class="selectpicker dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
+				</div>
+			</div>
+			<div class="selection_label" id="div_fromStat" style="display:none">
+				<label class="lb-md formLabel1" for="updateStates">From stat</label>
+				<select class="selectpicker" id="updateStates" multiple>
+					<option>GT=#(GT)</option>
+					<option>alt=#(alt)</option>
+					<option>hom=#(hom)</option>
+					<option>het=#(het)</option>
+					<option>other=#(other)</option>
+					<option>wtGT=#(wtGT)</option>
+					<option>mutGT=#(mutGT)</option>
+					<option>missing=#(missing)</option>
+					<option>maf=maf()</option>
+				</select>
+			</div>
+			<button id="updateButton" class="btn btn-primary">Update</button>
+			<div id = "update_error_placeholder"></div>
+		</div>
+
+		<div class="tab-pane" id="vtoolsRemove">
+			<legend>Remove</legend>
+			<select class="selectpicker" id="selectRemoveOptions">
+				<option></option>
+				<option>Fields</option>
+				<option>Genotypes</option>
+				<option>Phenotypes</option>
+				<option>Variants</option>
+				<option>Samples</option>
+				<option>Annotations</option>
+			</select>
+
+			<div id="divRemoveFields" style="display:none">
+				<label class="formLabel1" for="fields">Fields</label>
+				<select class="selectpicker" id="fields" size="1"></select><br>
+			</div>
+
+			<div id="divRemoveGenotype" style="display:none">
+				<label class="formLabel1" for="removeGenotype">Genotypes</label>
+				<input class="std_input" id="removeGenotype" type="text"><br>
+			</div>
+			<div id="divRemovePhenotype" style="display:none">
+				<label class="formLabel1" for="removePhenotype">Phenotypes</label>
+				<input class="std_input" id="removePhenotype" type="text"><br>
+			</div>
+			<div id="divRemoveVariants" style="display:none">
+				<label class="formLabel1" for="removeVariants">Variants</label>
+				<select class="selectpicker" id="removeVariants" size="1"></select><br>
+			</div>
+			<div id="divRemoveSamples" style="display:none">
+				<label class="formLabel1" for="removeSamples">Samples</label>
+				<input class="std_input" id="removeSamples" type="text"><br>
+				<ß/div> <div id="divRemoveAnnotation" style="display:none">
+					<label class="formLabel1" for="removeAnnotation">Annotations</label>
+					<select class="selectpicker" id="removeAnnotation" size="1"></select> <br>
+			</div>
+			<button id="removeButton" class="btn btn-primary">Remove</button>
+			<div id = "remove_error_placeholder"></div>
+		</div>
+
+
+	</div>
+
 	<!-- </div> -->
 <!-- </div> -->

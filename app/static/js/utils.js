@@ -184,42 +184,45 @@ $(document).ready(function(){
         return false;
     });
 
+
+
+
    
 
 
-    function bs_input_file(typeID,fieldID) {
-         $("."+typeID).before(
-                function() {
-                    if ( ! $(this).prev().hasClass('input-ghost') ) {
-                        var element = $("<input id='"+fieldID+"' type='file' class='input-ghost' style='visibility:hidden; height:0'>");
-                        element.attr("name",$(this).attr("name"));
-                        element.change(function(){
-                            element.next(element).find('input').val((element.val()).split('\\').pop());
-                        });
-                        $(this).find("button.btn-choose").click(function(){
-                            element.click();
-                        });
-                        $(this).find("button.btn-reset").click(function(){
-                            element.val(null);
-                            $(this).parents("."+typeID).find('input').val('');
-                        });
-                        $(this).find('input').css("cursor","pointer");
-                        $(this).find('input').mousedown(function() {
-                            $(this).parents('.'+typeID).prev().click();
-                            return false;
-                        });
-                        return element;
-                    }
-                }
-            );
-        }
+    // function bs_input_file(typeID,fieldID) {
+    //      $("."+typeID).before(
+    //             function() {
+    //                 if ( ! $(this).prev().hasClass('input-ghost') ) {
+    //                     var element = $("<input id='"+fieldID+"' type='file' class='input-ghost' style='visibility:hidden; height:0'>");
+    //                     element.attr("name",$(this).attr("name"));
+    //                     element.change(function(){
+    //                         element.next(element).find('input').val((element.val()).split('\\').pop());
+    //                     });
+    //                     $(this).find("button.btn-choose").click(function(){
+    //                         element.click();
+    //                     });
+    //                     $(this).find("button.btn-reset").click(function(){
+    //                         element.val(null);
+    //                         $(this).parents("."+typeID).find('input').val('');
+    //                     });
+    //                     $(this).find('input').css("cursor","pointer");
+    //                     $(this).find('input').mousedown(function() {
+    //                         $(this).parents('.'+typeID).prev().click();
+    //                         return false;
+    //                     });
+    //                     return element;
+    //                 }
+    //             }
+    //         );
+    //     }
 
 
-    $(function() {
-        bs_input_file("input-file-data","uploadData");
-        bs_input_file("input-file-phenotype","uploadPhenotype");
-        // $('select').selectpicker()
-    });
+    // $(function() {
+    //     bs_input_file("input-file-data","uploadData");
+    //     bs_input_file("input-file-phenotype","uploadPhenotype");
+    //     // $('select').selectpicker()
+    // });
         
 
 })
@@ -253,6 +256,28 @@ function createProject(){
     })
 }
 
+function showErrorMessage(message,placeholder){
+    var messageID=placeholder+"_errorMessage"
+    var errorText=placeholder+"_errorText"
+    var errorClose=placeholder+"_errorClose"
+    $('#'+placeholder).html('<div id='+messageID+' class="alert alert-danger text-center alert-dismissible" role="alert" style="display:none">\
+         <button type="button" id="'+errorClose+'" class="close" aria-label="Close"><span aria-hidden="true">&times;</span></button>\
+         <p id="'+errorText+'">\
+              This is a danger alert—check it out!\
+          </p>\
+    </div>')
+        
+    $("#"+errorClose).click(function(){
+        $("#"+errorText).text("")
+        $("#"+messageID).hide()
+
+    })
+    console.log(message)
+    $("#"+messageID).show()
+    $("#"+errorText).html(message)
+
+}
+
 
 function vtoolsSelect(){
     $.post("http://"+server+"/select/"+projectID,{"variantTable":$("#secondSelection").val(),"condition":$("#selectCondition").val(),"tableName":$("#newTable").val()},function(result){
@@ -262,7 +287,7 @@ function vtoolsSelect(){
         vtoolsShow("show",false)
         
     }).fail(function(xhr,status,error){
-        alert(error)
+        showErrorMessage(xhr.responseText,"select_error_placeholder")
     })
 }
 
@@ -301,7 +326,7 @@ function vtoolsUpdate(){
             vtoolsShow("show",false)
             vtoolsShow("fields",false)
         }).fail(function(xhr,status,error){
-            alert(error)
+            showErrorMessage(xhr.responseText,"update_error_placeholder")
         })
     }
 
@@ -553,7 +578,7 @@ function importFile(){
         console.log(data)
         setTimeout(checkImportProgress,2000)         
     }).fail(function(xhr,status,error){
-        alert(error)
+        showErrorMessage(xhr.responseText,"import_error_placeholder")
     })
 }
 
@@ -580,7 +605,7 @@ function vtoolsOutput(){
         generateDataTable("#dataTable",rows)
     })
     .fail(function(xhr,status,error){
-        alert(error)
+        showErrorMessage(xhr.responseText,"output_error_placeholder")
     })  
 }
 
@@ -882,7 +907,7 @@ function vtoolsShow(option,display){
                 }
         }
     }).fail(function(xhr,status,error){
-        alert(error)
+        showErrorMessage(xhr.responseText,"show_error_placeholder")
     })
 }
 
@@ -899,7 +924,7 @@ function vtoolsUse(option){
             resolve(option+" imported")
 
         }).fail(function(xhr,status,error){
-            alert(error)
+            showErrorMessage(xhr.responseText,"use_error_placeholder")
         })
     })
 }
@@ -917,7 +942,7 @@ function addPhenotype(){
             addToLog("vtools phenotype --from_file " + fileName)
             $("#runAssociation").show()   
         }).fail(function(xhr,status,error){
-            alert(error)
+            showErrorMessage(xhr.responseText,"phenotype_error_placeholder")
         })
 
         
@@ -995,7 +1020,7 @@ function runAssociation(){
         
         
     }).fail(function(xhr,status,error){
-        alert(error)
+        showErrorMessage(xhr.responseText,"association_error_placeholder")
         $("#runAssociation").show()
     })
 
