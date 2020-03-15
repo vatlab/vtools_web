@@ -617,7 +617,7 @@ function generateDataTable(table,rows){
     if (dataTable !== undefined){
         dataTable.destroy()
     }
-    $("#infoTable").empty()
+    $("#infoTable").hide()
     $(table).empty()
     var headers=rows[0].split(/(\s+)/).filter( function(e) { return e.trim().length > 0; } );
     var columns=[]
@@ -640,10 +640,14 @@ function generateDataTable(table,rows){
     rows=rows.filter((row)=>row!==undefined) 
     console.log(rows)
     console.log(columns)
-    dataTable=$(table).DataTable({
-        data:rows,
-        columns:columns
-    })
+    if (rows.length==0){
+        showErrorMessage("Table is empty","show_error_placeholder")
+    }else{
+        dataTable=$(table).DataTable({
+            data:rows,
+            columns:columns
+        })
+    }
 }
 
 
@@ -668,6 +672,7 @@ function addRowToTable(table,rows){
 function generateInfoTable(table,rows){
     $('#dataTable').parents('div.dataTables_wrapper').first().hide();
     $(table).empty()
+    $("#infoTable").show()
     rows.forEach((row)=>{
         cells=row.split(/(\t)/).filter( function(e) { return e.trim().length > 0; } );
         var row="<tr>"
@@ -687,6 +692,7 @@ function populateDropDownOutput(info){
         $("#outputTableFields").empty()
         addOption("outputTableFields", vals.map((val)=>val.split(" ")[0])) 
         $("#outputTableFields").selectpicker("refresh")
+        $("#outputButton").show()
     })
   
     $("#outputAnnoFields").empty()
@@ -701,6 +707,7 @@ function populateDropDownOutput(info){
         // })
         addOption("outputAnnoFields", vals) 
         $("#outputAnnoFields").selectpicker("refresh")
+        $("#outputButton").show()
     })
     
 
@@ -791,7 +798,6 @@ function populateDropDownSelect(info){
 
 
 function vtoolsShow(option,display){
-    
     // $.get("http://localhost:5000/show",{option:option
     $.get("http://"+server+"/show/"+projectID,{option:option
     }).done(function(data){
@@ -897,8 +903,12 @@ function vtoolsShow(option,display){
                     $("#useFinished").text(annoText+" imported")  
                 }
                 console.log(info)
-                populateDropDownSelect(info)
-                populateDropDownOutput(info)
+                if (info["Primary reference genome"]==""){
+                    showErrorMessage("Please import genotype first","show_error_placeholder")
+                }else{
+                    populateDropDownSelect(info)
+                    populateDropDownOutput(info)
+                }
                 break;
 
             default:

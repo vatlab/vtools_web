@@ -196,8 +196,8 @@ def runCommand(command):
                 stderr=PIPE, universal_newlines=True)
     # print("stderr "+result.stderr)
     # print("stdout "+result.stdout)
-    if "ERROR" in result.stderr:
-        return "Internal error", 500
+    if "ERROR" in result.stderr or "error" in result.stderr:
+        return result.stderr, 500
     else:
         if result.stdout == "":
             return result.stderr, 200

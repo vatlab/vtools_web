@@ -38,8 +38,8 @@ def vtools_create(projectID):
     command = "vtools init "+projectID+" -f"
     result = run(command.split(" "), stdout=PIPE,
                  stderr=PIPE, universal_newlines=True)
-    if "ERROR" in result.stderr:
-        return "Internal error", 500
+    if "ERROR" in result.stderr or "error" in result.stderr:
+        return result.stderr, 500
     else:
         return projectID, 200
 
@@ -155,11 +155,13 @@ def vtools_show(projectID,option):
     elif option == "anotations -v0":
         command = "vtools show annotations -v0 "
     elif option == "genotypes":
-        command = "vtools show genotypes -l 10"
+        command = "vtools show genotypes -l 20"
     elif option == "tables":
         command = "vtools show tables"
     elif option == "fields":
-        command = "vtools show fields -l 10"
+        command = "vtools show fields -l 20"
+    elif option == "phenotypes":
+        command = "vtools show phenotypes"
     return runCommand(command)
     # return run(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
 
@@ -172,7 +174,7 @@ def runCommand(command):
     result = run(commandCols, stdout=PIPE,
                 stderr=PIPE, universal_newlines=True)
     print("stderr "+result.stderr)
-    # print("stdout "+result.stdout)
+    print("stdout "+result.stdout)
     if "ERROR" in result.stderr or "error" in result.stderr:
         return result.stderr, 500
     else:
