@@ -132,6 +132,10 @@ body
     float:right;
     width:80px;
 }
+select.selectionArea
+{
+    min-width:240px;
+}
 
 select.dropdowns
 {

@@ -31,6 +31,10 @@ $(function(){
       ui_multi_add_file(id, file);
       console.log(file)
       filename=file.name
+      addOptionArea("existingSourceName", [filename])
+      addOption("existingSourceNameUpdate", [filename])
+      $('.progress').show();
+      $('.card').show(); 
 
     },
     onBeforeUpload: function(id){
@@ -55,10 +59,14 @@ $(function(){
       ui_multi_update_file_status(id, 'success', 'Upload Complete');
       ui_multi_update_file_progress(id, 100, 'success', false);
       console.log("on upload success",id,data)
-      addOption("existingSourceName", [filename])
-      addOption("existingSourceNameUpdate", [filename])
+
       $('#dataSources').show();
-      $('#addPhenotype').show();  
+      setTimeout(()=>{
+         $('.progress').hide();
+         $('.card').hide(); 
+        },1000
+      )
+   
     },
     onUploadError: function(id, xhr, status, message){
       ui_multi_update_file_status(id, 'danger', message);

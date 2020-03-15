@@ -4,7 +4,7 @@
 	
 				<div class="tab-pane" id="dataAnnotation" >
 					<legend>Data Annotation</legend>
-					<select id="annotationOptions" size="1">
+					<select class="selectpicker" id="annotationOptions" size="1">
 					</select>
 					<button id="useButton" class="btn btn-primary" >Add annotation</button>
 					<p id="useFinished"></p>
@@ -76,14 +76,14 @@
 					<legend class="togvis">Update</legend>
 					<div class="selection_label">
 						<label class="lb-md formLabel1" for="updateTables">Tables</label>
-						<select id="updateTables" class="selectionBox">
+						<select id="updateTables" class="selectpicker selectionBox">
 						</select>
 					</div>
 					
 					<div class="selection_label">
 						<label class="lb-md formLabel1" for="updateCheckbox">Update from:</label>
 						<!-- <input type="checkbox" id="updateCheckbox"> -->
-						<select class="dropdowns" name="updateCheckbox" id="updateCheckbox">
+						<select class="selectpicker dropdowns" name="updateCheckbox" id="updateCheckbox">
 							<option selected>Please select</option>
 							<option>from_stat</option>
 							<option>from_file</option>
@@ -93,7 +93,7 @@
 					<div id="div_fromFile" style="display:none">
 						<div class="selection_label">
 							<label class="lb-md formLabel1" for="existingSourceName">From file</label>
-							<select class="dropdowns" name="existingSourceName" id="existingSourceNameUpdate"></select>
+							<select class="selectpicker dropdowns" name="existingSourceName" id="existingSourceNameUpdate"></select>
 						</div>
 						<!-- <legend>Select an external file to upload</legend>
 								<form id="dataUploadExternal"  enctype="multipart/form-data">
@@ -104,16 +104,16 @@
 								</form> -->
 						<div class="selection_label" id="div_varInfo" style="display:none">
 							<label class="lb-md formLabel1" for="updateVarInfo">var_info</label>
-							<select class="dropdowns" name="updateVarInfo" id="updateVarInfo" multiple></select>
+							<select class="selectpicker dropdowns" name="updateVarInfo" id="updateVarInfo" multiple></select>
 						</div>
 						<div class="selection_label" id="div_genoInfo" style="display:none">
 							<label class="lb-md formLabel1" for="updateGenoInfo">geno_info</label>
-							<select class="dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
+							<select class="selectpicker dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
 						</div>
 					</div>
 					<div class="selection_label" id="div_fromStat" style="display:none">
 						<label class="lb-md formLabel1" for="updateStates">From stat</label>
-						<select id="updateStates" multiple>
+						<select class="selectpicker" id="updateStates" multiple>
 							<option>GT=#(GT)</option>
 							<option>alt=#(alt)</option>
 							<option>hom=#(hom)</option>
@@ -130,7 +130,7 @@
 			
 				<div class="tab-pane" id="vtoolsRemove">
 					<legend>Remove</legend>
-					<select id="selectRemoveOptions">
+					<select class="selectpicker" id="selectRemoveOptions">
 						<option></option>
 						<option>Fields</option>
 						<option>Genotypes</option>
@@ -142,7 +142,7 @@
 
 					<div id="divRemoveFields" style="display:none">
 						<label class="formLabel1" for="fields">Fields</label>
-						<select id="fields" size="1"></select><br>
+						<select class="selectpicker" id="fields" size="1"></select><br>
 					</div>
 
 					<div id="divRemoveGenotype" style="display:none">
@@ -155,14 +155,14 @@
 					</div>
 					<div id="divRemoveVariants" style="display:none">
 						<label class="formLabel1" for="removeVariants">Variants</label>
-						<select id="removeVariants" size="1"></select><br>
+						<select class="selectpicker" id="removeVariants" size="1"></select><br>
 					</div>
 					<div id="divRemoveSamples" style="display:none">
 						<label class="formLabel1" for="removeSamples">Samples</label>
 						<input class="std_input" id="removeSamples" type="text"><br>
 						<ß/div> <div id="divRemoveAnnotation" style="display:none">
 							<label class="formLabel1" for="removeAnnotation">Annotations</label>
-							<select id="removeAnnotation" size="1"></select> <br>
+							<select class="selectpicker" id="removeAnnotation" size="1"></select> <br>
 					</div>
 					<button id="removeButton" class="btn btn-primary">Remove</button>
 

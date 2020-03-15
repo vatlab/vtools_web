@@ -77,18 +77,19 @@
 	<!-- <button id="sampleData" class="btn btn-primary pull-right">sampleData</button> -->
 	<div id="dataSources" style="display:none;">
 		<h4>Data Sources</h4>
-		<select class="dropdowns" name="existingSourceName" id="existingSourceName" size=5 multiple=multiple>
+		<select  class="selectionArea" name="existingSourceName" id="existingSourceName" size=5 multiple=multiple>
 		</select> <hr>
 	</div>
 
 	<div id="importData" style="display:none;">
 		<h4>Data Import</h4>
 		<p style="display:inline" id="selectedFileName"></p>
-		<select id="genomeVersion" size="1">
+		<select class="selectpicker" id="genomeVersion" size="1">
 			<option Selected>hg19</option>
 			<option>hg18</option>
 		</select>
-		<button class="btn btn-primary" id="importButton">Import</button>
+		<button class="btn btn-primary" id="importButton">Import genotype</button>
 		<p id="importProgress"></p>
 	</div>
+  <button id="addPhenotypeButton" class="btn btn-primary" style="display:none;">Add phenotype</button>
 </div>

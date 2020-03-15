@@ -47,6 +47,7 @@ def vtools_create(projectID):
 def vtools_import(projectID,fileName,genomeVersion):
     
     def run_vtools_import(projectFolder, fileName, genomeVersion):
+        print(projectFolder,fileName,genomeVersion)
         command = "vtools import "+projectFolder + "/"+fileName+" --build " + genomeVersion+" -f"
         with open(projectFolder+"/import_log.txt", "a+") as output:
             Popen(command.split(" "), stdout=output,

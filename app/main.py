@@ -162,7 +162,6 @@ def get_fileInfo(projectID):
 @app.route('/data/<projectID>', methods=['POST'])
 def upload_file(projectID):
     if request.method == 'POST':
-        # print(request.files.to_dict()["file"])
         f = request.files['file']
         # f = request.files['datafile']
         f.save(os.path.join(PROJECT_FOLDER+projectID, secure_filename(f.filename)))
@@ -203,13 +202,12 @@ def checkImportProgress(projectID):
 
 
 @app.route('/phenotype/<projectID>', methods=['POST', 'PUT'])
-def upload_phenotype(projectID):
+def add_phenotype(projectID):
     if request.method == 'POST':
-        phenoFile = request.files['datafile']
+        phenoFile = request.form['fileName']
+        print(phenoFile)
         phenotype_fileName = os.path.join(
-            PROJECT_FOLDER+projectID, secure_filename(phenoFile.filename))
-        phenoFile.save(phenotype_fileName)
-        
+            PROJECT_FOLDER+projectID, secure_filename(phenoFile))      
         return vtoolsCommandAccess.vtools_phenotype(projectID,phenotype_fileName)
         
 
