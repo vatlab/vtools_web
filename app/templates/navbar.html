@@ -16,13 +16,13 @@
             </a>
         </div>
         <ul class="nav-tabs nav">
-            <li class="nav-item">
+            <li class="nav-item" id="importTab">
                 <a href="#import" data-toggle="tab" class="nav-link active">Import</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="showTab">
                 <a href="#show" data-toggle="tab" class="nav-link">Show</a>
             </li>
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown" id="dataTab">
                 <!-- <a href="#data" data-toggle="tab" class="nav-link">Data</a> -->
                 <a class="dropdown-toggle nav-link" data-toggle="dropdown" href="#">Data <b class="caret"></b></a>
                 <ul class="dropdown-menu">
@@ -32,13 +32,13 @@
                     <li><a href="#vtoolsRemove" role="tab" data-toggle="tab">Remove</a></li>
                 </ul>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="outputTab">
                 <a href="#output" data-toggle="tab" class="nav-link">Output</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="associationTab">
                 <a href="#associate" data-toggle="tab" class="nav-link">Association</a>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" id="manhattanTab">
                 <a href="#manhattanPlot" data-toggle="tab" class="nav-link">Manhattan</a>
             </li>
         </ul>
@@ -50,7 +50,7 @@
             {% include 'associate.html' %}
             {% include 'manhattanPlot.html' %}
             {% include 'admin.html' %}
-         
+
 
         </div>
 

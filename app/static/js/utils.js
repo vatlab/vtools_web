@@ -249,7 +249,8 @@ function createProject(){
         $("#projectName").text(projectID)
         $("#landing_content").hide()
         $("#accordionSidebar").show()
-
+        $(".nav-item").hide()
+        $("#importTab").show()
         include("../static/js/demo-config.js")
     }).fail(function(xhr,status,error){
         showErrorMessage(xhr.responseText,"createProject_error_placeholder")
@@ -371,6 +372,7 @@ async function getProject(){
                 $("#logsText").val(outputLog)
             })
             get_AssociationDBs(projectID)
+            $(".nav-item").show()
         }
       
     }).fail(function(xhr,status,error){
@@ -560,6 +562,7 @@ function checkImportProgress(){
                 await vtoolsUse("dbSNP")
                 await vtoolsUse("refGene")
                 vtoolsShow("show",false)
+                $(".nav-item").show()
 
             }else{
                 setTimeout(checkImportProgress,2000)
