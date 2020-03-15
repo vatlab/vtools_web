@@ -205,7 +205,6 @@ def checkImportProgress(projectID):
 def add_phenotype(projectID):
     if request.method == 'POST':
         phenoFile = request.form['fileName']
-        print(phenoFile)
         phenotype_fileName = os.path.join(
             PROJECT_FOLDER+projectID, secure_filename(phenoFile))      
         return vtoolsCommandAccess.vtools_phenotype(projectID,phenotype_fileName)

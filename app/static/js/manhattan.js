@@ -84,7 +84,7 @@ $(document).ready(function(){
         if (dataTable !== undefined) {
             dataTable.destroy()
         }
-        $("#infoTable").empty()
+        $("#infoDiv").empty()
         $(table).empty()
         var headers = rows[0].split(/(\s+)/).filter(function (e) { return e.trim().length > 0; });
         headers.unshift("Summary")

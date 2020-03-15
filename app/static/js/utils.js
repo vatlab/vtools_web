@@ -477,7 +477,6 @@ function addOption(id,contents){
     contents.forEach((content)=>{
         selectOption+='<option>'+content+'</option>'
     })
-    console.log(id, selectOption)
     $('#' + id).html(selectOption).selectpicker("refresh")
 
 }
@@ -624,7 +623,7 @@ function generateDataTable(table,rows){
     if (dataTable !== undefined){
         dataTable.destroy()
     }
-    $("#infoTable").hide()
+    $("#infoDiv").hide()
     $(table).empty()
     var headers=rows[0].split(/(\s+)/).filter( function(e) { return e.trim().length > 0; } );
     var columns=[]
@@ -676,19 +675,12 @@ function addRowToTable(table,rows){
 
 }
 
-function generateInfoTable(table,rows){
+function generateInfoText(table,rows){
     $('#dataTable').parents('div.dataTables_wrapper').first().hide();
-    $(table).empty()
-    $("#infoTable").show()
-    rows.forEach((row)=>{
-        cells=row.split(/(\t)/).filter( function(e) { return e.trim().length > 0; } );
-        var row="<tr>"
-        for(var i =0; i < cells.length; i++){
-            row+="<td>"+cells[i]+"</td>"
-        }
-        row+="</tr>"
-        $(table).append(row)
-    })
+
+
+    $("#infoDiv").show();
+    document.getElementById("infoDiv").innerHTML='<pre style="color: silver; background: black;">'+rows+'</pre>'
 
 }
 
@@ -808,20 +800,21 @@ function vtoolsShow(option,display){
     // $.get("http://localhost:5000/show",{option:option
     $.get("http://"+server+"/show/"+projectID,{option:option
     }).done(function(data){
-        var rows=data.split("\n")
+        
         switch(option){
             case "genotypes":
-                rows=rows.filter((line)=>!line.includes("omitted"))
+                var rows=data.split("\n").filter((line)=>!line.includes("omitted"))
                 if (display){
                     generateDataTable("#dataTable",rows)
                 }
                 break;
             case "samples":
                 if(display){
-                    generateDataTable("#dataTable",rows)
+                    generateDataTable("#dataTable",data.split("\n"))
                 }
                 break;
             case "annotations -v0":
+                var rows=data.split("\n")
                 var uniqAnnotations=Array.from(new Set(rows.map((row)=>row.split("-")[0])))
 
                 addOption("annotationOptions",uniqAnnotations)
@@ -830,17 +823,18 @@ function vtoolsShow(option,display){
                 break;
 
             case "tables":
-                var tables=rows.slice(1).map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+                var tables=data.split("\n").slice(1).map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
                 addOption("projectTables",tables)
                 addOption("outputTables", tables)
                 addOption("updateTables", tables)
                 // addOption("selectionTables", tables)
                 if(display){
-                    generateInfoTable('#infoTable',rows)
+                    generateInfoText('#infoTable',data)
                 }
                 break;
             
-            case "phenotypes":  
+            case "phenotypes": 
+                var rows=data.split("\n")
                 var phenotypes=rows[0].split(/(\s+)/)
                 phenotypes=phenotypes.filter((phenotype)=>phenotype.trim().length>0).slice(2)
                 addOption("projectPhenotypes",phenotypes)
@@ -850,12 +844,12 @@ function vtoolsShow(option,display){
                 break;
 
             case "tests":
-                var methods=rows.map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
+                var methods=data.split("\n").map((row)=>row.split(/(\s+)/)[0]).filter( function(e) { return e.trim().length > 0; } )
                 addOption("associateMethods",methods)
                 break;
 
             case "fields":
-                var fields=rows.filter((e)=>! (e.startsWith(" "))).filter((e)=>e.length>0)
+                var fields=data.split("\n").filter((e)=>! (e.startsWith(" "))).filter((e)=>e.length>0)
                 
                 fields=fields.map((row)=>{
                     var cols=row.split(" ")
@@ -881,6 +875,7 @@ function vtoolsShow(option,display){
                 info={}
                 onTable=false
                 onDatabases=false
+                var rows=data.split("\n")
                 rows.forEach((row)=>{
                     cols=row.split(":")
                     if (row.includes(":") && cols[0]!=="Variant tables" && cols[0]!=="Annotation databases"){
@@ -920,7 +915,7 @@ function vtoolsShow(option,display){
 
             default:
                 if(display){
-                    generateInfoTable('#infoTable',rows)
+                    generateInfoText('#infoTable',data)
                 }
         }
     }).fail(function(xhr,status,error){
