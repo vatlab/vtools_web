@@ -17,22 +17,19 @@ if not os.path.exists(PROJECT_FOLDER):
     os.makedirs(PROJECT_FOLDER)
 
 
-
-
 def prepare_dbSNP_annotation(projectID):
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
     annotationFile = projectFolder+"/dbSNP_annotation.tsv"
     command = "vtools output variant variant_id chr pos ref alt dbSNP.name --header"
-    if not os.path.isfile(annotationFile) :
+    if not os.path.isfile(annotationFile):
         commandCols = []
         for col in command.split():
             commandCols.append(col)
-        result = run(commandCols, stdout=PIPE,
-                    stderr=PIPE, universal_newlines=True)
+        result = run(commandCols, stdout=PIPE, stderr=PIPE, universal_newlines=True)
         outputFile = open(annotationFile, "w")
         outputFile.write(result.stdout)
-    dbSNP_map={}
+    dbSNP_map = {}
     with open(annotationFile, "r") as lines:
         for line in lines:
             cols = line.strip().split("\t")
@@ -43,8 +40,9 @@ def prepare_dbSNP_annotation(projectID):
     return dbSNP_map
 
 
-def get_dbSNP_annotation(dbSNP_map,rownames):
+def get_dbSNP_annotation(dbSNP_map, rownames):
     return [dbSNP_map[str(rowname)] for rowname in rownames]
+
 
 def get_genotype(projectID, chr, name):
     projectFolder = PROJECT_FOLDER+projectID
@@ -95,16 +93,17 @@ def get_genotype(projectID, chr, name):
         print("No such node")
         return None, None, "No such node"
 
+
 def get_variants_summary(projectID, chr, name, covariate):
-    dbSNP_map=prepare_dbSNP_annotation(projectID)
+    dbSNP_map = prepare_dbSNP_annotation(projectID)
     allGenotype, variantIDs, chr = get_genotype(projectID, chr, name)
-    if chr=="No such node" or chr=="No such gene":
+    if chr == "No such node" or chr == "No such gene":
         return None, chr
     db = databaseEngine(projectID)
     db.connect(projectID+".proj")
     covariateMap = db.get_CovariateMap(covariate)
     variant_details = db.get_variant_details(variantIDs)
-    variant_details["dbSNP"] = get_dbSNP_annotation(dbSNP_map,variantIDs)
+    variant_details["dbSNP"] = get_dbSNP_annotation(dbSNP_map, variantIDs)
     for key, value in covariateMap.items():
         if (len(value) != 0):
             values = [int(x) for x in value]
@@ -122,8 +121,7 @@ def get_variants_summary(projectID, chr, name, covariate):
                             "_hetero"] = [0 if math.isnan(x) else int(x) for x in hetero]
             variant_details[header +
                             "_homo"] = [0 if math.isnan(x) else int(x) for x in homo]
-            variant_details["Sum"] = variant_details[header +
-                                                    "_hetero"]+variant_details[header+"_homo"]
+            variant_details["Sum"] = variant_details[header + "_hetero"]+variant_details[header+"_homo"]
     return variant_details.sort_values(by=["Sum"], ascending=False).drop(["Sum"], axis=1), chr
 
 
@@ -133,7 +131,7 @@ def get_gene_pvalue(projectID, name, associationDB):
     return db.extract_one_pvalue(name, associationDB)
 
 
-def get_AssociationResult(projectID,associationDB):
+def get_AssociationResult(projectID, associationDB):
     try:
         gdict = load_refgene()
         db = databaseEngine(projectID)
@@ -157,10 +155,9 @@ def get_AssociationResult(projectID,associationDB):
                 print(name)
         return output, 200
     except Exception as e:
-            # print e.__doc__
-            # print e.message
-        return "Error in getting association result",500
-
+        print(e.__doc__)
+        print(e.message)
+        return "Error in getting association result", 500
 
 
 def load_refgene():
@@ -197,8 +194,7 @@ def runCommand(command):
     for col in command.split():
         commandCols.append(col)
     print(commandCols)
-    result = run(commandCols, stdout=PIPE,
-                stderr=PIPE, universal_newlines=True)
+    result = run(commandCols, stdout=PIPE, stderr=PIPE, universal_newlines=True)
     # print("stderr "+result.stderr)
     # print("stdout "+result.stdout)
     if "ERROR" in result.stderr or "error" in result.stderr:
@@ -208,4 +204,3 @@ def runCommand(command):
             return result.stderr, 200
         else:
             return result.stdout, 200
-

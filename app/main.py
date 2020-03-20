@@ -32,24 +32,22 @@ def allowed_file(filename):
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-@app.route('/showVariants/<projectID>/<associationDB>',methods=['GET'])
-def show_Variants(projectID,associationDB):
+@app.route('/showVariants/<projectID>/<associationDB>', methods=['GET'])
+def show_Variants(projectID, associationDB):
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     covariate = associationDB.split("_")[2]
-
-    
-    detail, chr = associationResultAccess.get_variants_summary(projectID, chr,name,covariate)
+    detail, chr = associationResultAccess.get_variants_summary(projectID, chr, name, covariate)
     if detail is None:
         return "No such gene", 500
-    else: 
+    else:
         pvalue = associationResultAccess.get_gene_pvalue(projectID, name, associationDB)
-        return jsonify({"data":detail.to_string(index=False),"pvalue":str(pvalue),"chr":str(chr),"covariate":covariate}),200
+        return jsonify({"data":detail.to_string(index=False),"pvalue": str(pvalue),"chr": str(chr), "covariate": covariate}), 200
 
 
 @app.route('/showNGCHM/<projectID>/<associationDB>', methods=['GET'])
-def show_NGCHM(projectID,associationDB):
-    projectFolder=PROJECT_FOLDER+projectID
+def show_NGCHM(projectID, associationDB):
+    projectFolder = PROJECT_FOLDER+projectID
     chr = request.args.get('chr', None, type=None)
     name = request.args.get('name', None, type=None)
     reorder = request.args.get('reorder', None, type=None)
@@ -65,16 +63,14 @@ def show_NGCHM(projectID,associationDB):
     return associationResultAccess.drawHeatmap(projectID, chr, name, reorder, covariate, heatmapName)
 
 
-
 @app.route('/getPvalue/<projectID>/<associationDB>', methods=['GET'])
-def get_pvalue(projectID,associationDB):
-    output = associationResultAccess.get_AssociationResult(projectID,associationDB)
+def get_pvalue(projectID, associationDB):
+    output = associationResultAccess.get_AssociationResult(projectID, associationDB)
     return output
 
 
-
 @app.route("/ngchmView/<projectID>/<heatmapName>", methods=['GET'])
-def download_ngchm(projectID,heatmapName):
+def download_ngchm(projectID, heatmapName):
     print("donwload NGCHM")
     path = PROJECT_FOLDER+projectID+"/cache/{}.ngchm".format(heatmapName)
     return send_file(path)
@@ -92,7 +88,7 @@ def create_project():
     if request.method == 'POST':
         projectID = "VT"+uuid.uuid4().hex
         return vtoolsCommandAccess.vtools_create(projectID)
-        
+
 
 @app.route('/project/<projectID>', methods=['GET'])
 def get_project(projectID):
@@ -102,11 +98,10 @@ def get_project(projectID):
             return "Project doesn't exist", 500
         else:
             vcfFiles = glob.glob(directory+"/*.vcf")
-            if len(vcfFiles)==0:
+            if len(vcfFiles) == 0:
                 return "The project is empty.", 500
             else:
                 return os.path.basename(vcfFiles[0]), 200
-
 
 
 @app.route('/logs/<projectID>', methods=['POST', 'GET'])
@@ -124,7 +119,6 @@ def logs(projectID):
         data = f.readlines()
         f.close()
         return ("\n").join(data), 200
-
 
 
 @app.route('/fileInfo/<projectID>', methods=['GET'])
@@ -174,9 +168,8 @@ def vtools_import(projectID):
         fileName = request.args.get('fileName', None, type=None)
         genomeVersion = request.args.get("genomeVersion", None, type=None)
 
-        vtoolsCommandAccess.vtools_import(projectID, fileName,genomeVersion)
+        vtoolsCommandAccess.vtools_import(projectID, fileName, genomeVersion)
         return "import running", 200
-
 
 
 @app.route('/check/import/<projectID>', methods=['GET'])
@@ -206,10 +199,8 @@ def add_phenotype(projectID):
     if request.method == 'POST':
         phenoFile = request.form['fileName']
         phenotype_fileName = os.path.join(
-            PROJECT_FOLDER+projectID, secure_filename(phenoFile))      
-        return vtoolsCommandAccess.vtools_phenotype(projectID,phenotype_fileName)
-        
-
+            PROJECT_FOLDER+projectID, secure_filename(phenoFile))
+        return vtoolsCommandAccess.vtools_phenotype(projectID, phenotype_fileName)
 
 
 @app.route('/output/<projectID>', methods=['GET'])
@@ -219,7 +210,7 @@ def vtools_output(projectID):
         outputTableFields = request.args.get("outputTableFields", None, type=None)
         outputAnnoFields = request.args.get("outputAnnoFields", None, type=None)
 
-        return vtoolsCommandAccess.vtools_output(projectID,outputTable, outputTableFields, outputAnnoFields)
+        return vtoolsCommandAccess.vtools_output(projectID, outputTable, outputTableFields, outputAnnoFields)
 
 
 @app.route("/use/<projectID>", methods=['POST'])
@@ -228,7 +219,6 @@ def vtools_use(projectID):
         option = request.form["option"]
 
         return vtoolsCommandAccess.vtools_use(projectID, option)
-    
 
 
 @app.route("/select/<projectID>", methods=['POST'])
@@ -238,7 +228,6 @@ def vtools_select(projectID):
         newTable = request.form["tableName"]
 
         return vtoolsCommandAccess.vtools_select(projectID, condition, newTable)
-        
 
 
 @app.route("/update/<projectID>", methods=['POST'])
@@ -258,10 +247,8 @@ def vtools_associate(projectID):
         discard = request.form["discard"]
         groupby = request.form["groupby"]
         print(table, phenotype, method, discard, groupby)
-        
-        commandAccess = vtoolsCommandAccess.vtools_association(projectID, table, phenotype, method, groupby)
+        vtoolsCommandAccess.vtools_association(projectID, table, phenotype, method, groupby)
         return "associate running", 200
-
 
 
 @app.route("/associationResult/<projectID>", methods=['GET'])
@@ -277,7 +264,6 @@ def get_AssociationResult(projectID):
         return ("\n").join(data), 200
     else:
         return "Association result is not available.", 200
-
 
 
 @app.route('/check/associate/<projectID>', methods=['GET'])
@@ -308,12 +294,11 @@ def checkAssociateProgress(projectID):
 
 @app.route('/associationDBs/<projectID>', methods=['GET'])
 def checkAssociationDBs(projectID):
-    DBfiles=[]
+    DBfiles = []
     for file in glob.glob(PROJECT_FOLDER+projectID+"/association*.DB"):
         DBfiles.append(file)
     print(DBfiles)
     return jsonify({"DBs": DBfiles}), 200
-
 
 
 @app.route("/show/<projectID>", methods=['GET'])
@@ -321,8 +306,6 @@ def vtools_show(projectID):
     if request.method == 'GET':
         option = request.args.get("option", None, type=None)
         return vtoolsCommandAccess.vtools_show(projectID, option)
-    
-
 
 
 @app.route("/hello")

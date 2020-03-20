@@ -1,3 +1,4 @@
+app/.variant_tools
 .env
 app/static/js/env.js
 app/heatmapProperties.json

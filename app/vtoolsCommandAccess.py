@@ -1,7 +1,5 @@
 import os
-import uuid
 from subprocess import PIPE, run, Popen, STDOUT
-import sys
 from multiprocessing import Process
 from shutil import copy2
 
@@ -12,8 +10,7 @@ if not os.path.exists(PROJECT_FOLDER):
     os.makedirs(PROJECT_FOLDER)
 
 
-
-def load_sampleData(projectID,fileType):
+def load_sampleData(projectID, fileType):
     print(WORK_FOLDER+"/testData/10k_test_2k.vcf")
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
@@ -44,31 +41,26 @@ def vtools_create(projectID):
         return projectID, 200
 
 
-def vtools_import(projectID,fileName,genomeVersion):
-    
+def vtools_import(projectID, fileName, genomeVersion):
     def run_vtools_import(projectFolder, fileName, genomeVersion):
-        print(projectFolder,fileName,genomeVersion)
+        print(projectFolder, fileName, genomeVersion)
         command = "vtools import "+projectFolder + "/"+fileName+" --build " + genomeVersion+" -f"
         with open(projectFolder+"/import_log.txt", "a+") as output:
-            Popen(command.split(" "), stdout=output,
-                stderr=output, universal_newlines=True)
-    
+            Popen(command.split(" "), stdout=output, stderr=output, universal_newlines=True)
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
     import_process = Process(target=run_vtools_import, args=(projectFolder, fileName, genomeVersion))
     import_process.start()
 
 
-
-def vtools_phenotype(projectID,phenotype_fileName):
+def vtools_phenotype(projectID, phenotype_fileName):
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
     command = "vtools phenotype --from_file " + phenotype_fileName
     return runCommand(command)
 
 
-
-def vtools_output(projectID,outputTable, outputTableFields, outputAnnoFields):
+def vtools_output(projectID, outputTable, outputTableFields, outputAnnoFields):
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
     command = "vtools output "+outputTable+" "
@@ -80,7 +72,6 @@ def vtools_output(projectID,outputTable, outputTableFields, outputAnnoFields):
     return runCommand(command)
 
 
-
 def vtools_use(projectID, option):
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
@@ -88,8 +79,7 @@ def vtools_use(projectID, option):
     return runCommand(command)
 
 
-
-def vtools_select(projectID,condition, newTable):
+def vtools_select(projectID, condition, newTable):
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
     command = "vtools select "+condition+" -t "+newTable
@@ -130,8 +120,7 @@ def vtools_association(projectID, table, phenotype, method, groupby):
         if os.path.exists(resultfile):
             os.remove(resultfile)
         print(command)
-        result = Popen(command.split(" "), stdout=PIPE,
-                    stderr=PIPE, universal_newlines=True)
+        result = Popen(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
         tee = Popen(['tee', logfile], stdin=result.stderr)
         tee.communicate()
         tee2 = Popen(['tee', resultfile], stdin=result.stdout)
@@ -141,12 +130,11 @@ def vtools_association(projectID, table, phenotype, method, groupby):
     os.chdir(projectFolder)
 
     associate_process = Process(target=run_vtools_associate, args=(
-        projectFolder,table, phenotype, method, groupby))
+        projectFolder, table, phenotype, method, groupby))
     associate_process.start()
 
 
-
-def vtools_show(projectID,option):
+def vtools_show(projectID, option):
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
     command = "vtools show "+option
@@ -171,8 +159,7 @@ def runCommand(command):
     for col in command.split():
         commandCols.append(col)
     print(commandCols)
-    result = run(commandCols, stdout=PIPE,
-                stderr=PIPE, universal_newlines=True)
+    result = run(commandCols, stdout=PIPE, stderr=PIPE, universal_newlines=True)
     print("stderr "+result.stderr)
     print("stdout "+result.stdout)
     if "ERROR" in result.stderr or "error" in result.stderr:
@@ -185,5 +172,3 @@ def runCommand(command):
 
 
 
-
-    
