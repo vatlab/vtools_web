@@ -1,5 +1,6 @@
 version: '3'
 
+
 services:
     vtools_web:
       build:
@@ -11,6 +12,35 @@ services:
       volumes:
         - ${REFERENCE_FOLDER}:/home/app/.variant_tools/
         - ${PROJECT_FOLDER}:/home/testProject/
+      labels:
+        - "traefik.enable=true"
+        - "traefik.backend=flask"
+        - "traefik.frontend.rule=Host:localhost:8087/vtools/"
+        - "traefik.domain=localhost:8087/vtools/"
       ports:
         - 8087:8087
+      networks:
+        - vtoolsnet
 
+
+    traefik:
+      # build:
+      #   context: .
+      #   dockerfile: ./compose/traefik/Dockerfile
+      image: traefik:v1.7.16
+      restart: always
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - ./traefik/traefik.toml:/etc/traefik/traefik.toml
+        - ./traefik/acme:/etc/traefik/acme
+      ports:
+       - "81:80"
+       - "443:443"
+       - "8090:8080"
+      networks:
+        - vtoolsnet
+
+
+networks:
+  vtoolsnet:
+    external: true
