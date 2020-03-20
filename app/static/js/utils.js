@@ -6,10 +6,7 @@ var fieldMap={};
 
 
 $(document).ready(function(){
-    // server=env.server+"/vtoolsweb/"
-    // server=env.server+":8087"
-    server=env.server+":5000"
-
+    server=env.server
     $("#createRandomProject").click(function(){
         console.log(server)
         createProject();
