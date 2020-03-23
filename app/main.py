@@ -253,7 +253,11 @@ def vtools_associate(projectID):
 
 @app.route("/associationResult/<projectID>", methods=['GET'])
 def get_AssociationResult(projectID):
-    resultfile = PROJECT_FOLDER+projectID+"/associate_result.txt"
+    table = request.args.get("table", None, type=None)
+    phenotype = request.args.get("phenotype", None, type=None)
+    method = request.args.get("method", None, type=None)
+    associationName="association_"+table+"_"+phenotype+"_"+method
+    resultfile = PROJECT_FOLDER+projectID+"/"+associationName+"_result.txt"
     starttime = time.time()
     while not os.path.exists(resultfile) and time.time()-starttime < 5:
         time.sleep(2)
@@ -269,7 +273,11 @@ def get_AssociationResult(projectID):
 @app.route('/check/associate/<projectID>', methods=['GET'])
 def checkAssociateProgress(projectID):
     last = ""
-    logfile = PROJECT_FOLDER+projectID+"/associate_log.txt"
+    table = request.args.get("table", None, type=None)
+    phenotype = request.args.get("phenotype", None, type=None)
+    method = request.args.get("method", None, type=None)
+    associationName="association_"+table+"_"+phenotype+"_"+method
+    logfile = PROJECT_FOLDER+projectID+"/"+associationName+"_log.txt"
 
     if os.path.exists(logfile) and os.path.getsize(logfile) > 5:
         with open(logfile, "rb") as f:

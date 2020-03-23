@@ -171,7 +171,7 @@ $(document).ready(function(){
     function loadData(db){
         console.log(projectID,db)
         return new Promise((resolve,reject)=>{
-            $.get("http://" + server + "/getPvalue/"+projectID+"/"+db, function (data) {
+            $.get(location.protocol+"//" + server + "/getPvalue/"+projectID+"/"+db, function (data) {
                     fdata=tsvJSON(data)
                     fdata=fdata.filter((ele)=>ele.chr!=="X" && ele.chr!=="Y" && ele.chr !== undefined)
                     var numberPoints = fdata.length
@@ -216,7 +216,7 @@ $(document).ready(function(){
         }
 
 
-        $.get("http://" + server + "/showVariants/" + projectID+"/"+associationDB, { name: geneName, chr: null }, function (searchResult) {
+        $.get(location.protocol+"//" + server + "/showVariants/" + projectID+"/"+associationDB, { name: geneName, chr: null }, function (searchResult) {
             console.log(searchResult)
             if (searchResult != "No such gene"){
                 pvalue = searchResult.pvalue
@@ -614,18 +614,18 @@ $(document).ready(function(){
                     console.log(projectID)
                     $("#searchGene").val(name)
                     if (reorder=="Detail"){
-                        $.get("http://"+server+"/showVariants/"+projectID+"/"+associationDB,{name:name,chr:chr},function(result){
+                        $.get(location.protocol+"//"+server+"/showVariants/"+projectID+"/"+associationDB,{name:name,chr:chr},function(result){
                             generateDetailTable("#dataTable", result.data.split("\n"),name,pvalue)
                         }).fail(function(xhr,status,error){
                             showErrorMessage(xhr.responseText,"manhattan_error_placeholder")
                         })
                     }else{
-                        $.get("http://"+server+"/showNGCHM/"+projectID+"/"+associationDB,{name:name,chr:chr,reorder:reorder},function(data){
+                        $.get(location.protocol+"//"+server+"/showNGCHM/"+projectID+"/"+associationDB,{name:name,chr:chr,reorder:reorder},function(data){
                             $("#plotNGCHM").show();
                             let heatmapName="chr"+chr+"_"+name
                             
                             heatmapName = heatmapName + "_"+reorder
-                            var ajaxUrl="http://"+server+"/ngchmView/"+projectID+"/"+heatmapName
+                            var ajaxUrl=location.protocol+"//"+server+"/ngchmView/"+projectID+"/"+heatmapName
                             console.log(ajaxUrl)
                             
                             var xmlhttp=new XMLHttpRequest();

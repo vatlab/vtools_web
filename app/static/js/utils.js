@@ -7,6 +7,7 @@ var fieldMap={};
 
 $(document).ready(function(){
     server=env.server
+    protocol=window.location.protocol
     $("#createRandomProject").click(function(){
         console.log(server)
         createProject();
@@ -19,7 +20,7 @@ $(document).ready(function(){
         $("#localFileName").val(fileName);
         formData.append('datafile',$('#uploadData')[0].files[0])
         $.ajax({
-            url:"http://"+server+"/data/"+projectID,
+            url:protocol+"//"+server+"/data/"+projectID,
             data:formData,
             type:'POST',
             contentType:false,
@@ -117,7 +118,7 @@ $(document).ready(function(){
     });
 
     $("#showAssociation").click(function(){
-        $.get("http://"+server+"/associationResult/"+projectID,function(data){
+        $.get(protocol+"//"+server+"/associationResult/"+projectID,function(data){
             var rows=data.split("\n")
             generateDataTable("#dataTable",rows)
             $("#runAssociation").show()
@@ -238,7 +239,7 @@ function include(filename)
 
 
 function createProject(){
-    $.post("http://"+server+"/project",function(result){
+    $.post(protocol+"//"+server+"/project",function(result){
         $("#localFileSource").show()
         projectID=result
         $("#title_projectID").html("ProjectID: " + projectID)
@@ -280,7 +281,7 @@ function showErrorMessage(message,placeholder){
 
 
 function vtoolsSelect(){
-    $.post("http://"+server+"/select/"+projectID,{"variantTable":$("#secondSelection").val(),"condition":$("#selectCondition").val(),"tableName":$("#newTable").val()},function(result){
+    $.post(protocol+"//"+server+"/select/"+projectID,{"variantTable":$("#secondSelection").val(),"condition":$("#selectCondition").val(),"tableName":$("#newTable").val()},function(result){
         console.log(result)
         vtoolsShow("fields",false)
         vtoolsShow("tables",true)
@@ -296,7 +297,7 @@ function vtoolsUpdate(){
 
     if ($("#updateCheckbox").is(":checked")){
         console.log($("#updateStates").val().join(" "))
-        $.post("http://"+server+"/update/"+projectID,{
+        $.post(protocol+"//"+server+"/update/"+projectID,{
             "table":$("#updateTables").val(),
             "stat":$("#updateStates").val().join(" "),
             "method":"fromStat"
@@ -316,7 +317,7 @@ function vtoolsUpdate(){
             selectedVar=$("#updateVarInfo").val().join(",")
         }
 
-        $.post("http://"+server+"/update/"+projectID,{
+        $.post(protocol+"//"+server+"/update/"+projectID,{
             "table":$("#updateTables").val(),
             "fileName":$("#existingSourceNameUpdate").val(),
             "selectedGeno":selectedGeno,
@@ -335,7 +336,7 @@ function vtoolsUpdate(){
 async function getProject(){
     projectID=$("#projectID").val()
     $("#title_projectID").html("ProjectID: "+projectID)
-    $.get("http://"+server+"/project/"+projectID,async function(fileName){
+    $.get(protocol+"//"+server+"/project/"+projectID,async function(fileName){
         if (fileName!=="empty"){
             // $(".existingSourceNameClass").each((idx,obj)=>{
             //   addOption(obj.id,["",fileName])
@@ -353,7 +354,7 @@ async function getProject(){
             $("#runAssociation").show()
             $("#showError").hide()
 
-            $.get("http://" + server + "/logs/" + projectID, function (logstring) {
+            $.get(protocol+"//" + server + "/logs/" + projectID, function (logstring) {
                 $('#dataDetail').show()
                 logs = logstring.split("\n").filter((log) => log !== "")
                 console.log(logs)
@@ -380,7 +381,7 @@ async function getProject(){
 
 
 function get_AssociationDBs(projectID){
-    $.get("http://" + server + "/associationDBs/" + projectID, function (data) {
+    $.get(protocol+"//" + server + "/associationDBs/" + projectID, function (data) {
 
         var dbs = data.DBs.map(function (db) {
             var cols = db.split("/")
@@ -429,7 +430,7 @@ function addToLog(log){
     }
     $("#logsText").val(outputLog)
 
-    $.post("http://"+server+"/logs/"+projectID,{
+    $.post(protocol+"//"+server+"/logs/"+projectID,{
         "log":log
     }).done(function(result){
         console.log("log saved.")
@@ -481,7 +482,7 @@ function addOption(id,contents){
 
 function getFileInfo(fileName){
 
-    $.get("http://"+server+"/fileInfo/"+projectID,{"fileName":fileName}).done(function(result){
+    $.get(protocol+"//"+server+"/fileInfo/"+projectID,{"fileName":fileName}).done(function(result){
         if (result["genoFields"].length>0){
             $("#div_genoInfo").show()
             addOption("updateGenoInfo",result["genoFields"])
@@ -512,7 +513,7 @@ function loadSampleData(){
     // $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"data"}).done(function(message){
     //     console.log(message)
     // })
-    $.get("http://"+server+"/loadSampleData/"+projectID).done(function(message){
+    $.get(protocol+"//"+server+"/loadSampleData/"+projectID).done(function(message){
         console.log(message)
     })
 
@@ -523,7 +524,7 @@ function loadSampleData(){
 function loadSamplePhenotype(){
     var fileName="simulated.tsv"
     $("#localPhenoFileName").val(fileName)
-    $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"pheno"}).done(function(data){
+    $.get(protocol+"//"+server+"/loadSampleData/"+projectID,{"fileType":"pheno"}).done(function(data){
         $("#phenotypeAdded").text(fileName + " added")
         vtoolsShow("phenotypes", true)
         addToLog("vtools phenotype --from_file " + fileName)
@@ -548,7 +549,7 @@ function selectDataSource(fileName){
 
 
 function checkImportProgress(){
-    $.get("http://"+server+"/check/import/"+projectID,async function(data){
+    $.get(protocol+"//"+server+"/check/import/"+projectID,async function(data){
             console.log(data)
             // $("#importProgress").text(data)
             document.getElementById("importProgress").innerHTML='<pre style="color: silver; background: black;">'+data+'</pre>'
@@ -579,7 +580,7 @@ function importFile(){
         return
     }
     addToLog("vtools import "+fileName+" --build "+genomeVersion)
-    $.get("http://"+server+"/import/"+projectID,{
+    $.get(protocol+"//"+server+"/import/"+projectID,{
         fileName:fileName,genomeVersion:genomeVersion
     }).done( function(data){
         console.log(data)
@@ -602,7 +603,7 @@ function vtoolsOutput(){
     if ($("#outputAnnoFields").val()!==null){
         outputAnnoFields=$("#outputAnnoFields").val().join(" ")
     }
-    $.get("http://"+server+"/output/"+projectID,{
+    $.get(protocol+"//"+server+"/output/"+projectID,{
             "outputTable":$("#outputTables").val(),
             "outputTableFields":outputTableFields,
             // "outputAnno":$("#outputAnnos").val(),
@@ -799,7 +800,7 @@ function populateDropDownSelect(info){
 
 function vtoolsShow(option,display){
     // $.get("http://localhost:5000/show",{option:option
-    $.get("http://"+server+"/show/"+projectID,{option:option
+    $.get(protocol+"//"+server+"/show/"+projectID,{option:option
     }).done(function(data){
         
         switch(option){
@@ -927,7 +928,7 @@ function vtoolsShow(option,display){
 function vtoolsUse(option){
     return new Promise((resolve, reject) => {
         addToLog("vtools use "+option)
-        $.post("http://"+server+"/use/"+projectID,{
+        $.post(protocol+"//"+server+"/use/"+projectID,{
             option:option
         }).done(function(result){
             console.log(option+ "imported")
@@ -948,7 +949,7 @@ function addPhenotype(){
         var fileName = $('#existingSourceName option:selected').text();     
         console.log(fileName)
 
-        $.post("http://"+server+"/phenotype/"+projectID,{
+        $.post(protocol+"//"+server+"/phenotype/"+projectID,{
             fileName:fileName
         }).done( function(data){
             vtoolsShow("phenotypes", true)
@@ -987,8 +988,11 @@ function addPhenotype(){
 // }
 
 
-function checkAssociateProgress(){
-    $.get("http://"+server+"/check/associate/"+projectID,function(data){
+function checkAssociateProgress(table,phenotype,method){
+    $.get(protocol+"//"+server+"/check/associate/"+projectID,{
+        // $.post("http://localhost:5000/runAssociation",{
+            table:table,phenotype:phenotype,method:method
+        }, function(data){
             console.log(data)
             // if (data.includes("Testing for association")){
             $("#associateProgress").text(data)
@@ -996,7 +1000,10 @@ function checkAssociateProgress(){
             if (data.includes("Testing for association: 100%")){
                 
                 console.log("association done")
-                $.get("http://"+server+"/associationResult/"+projectID,function(data){
+                $.get("http://"+server+"/associationResult/"+projectID,{
+        // $.post("http://localhost:5000/runAssociation",{
+            table:table,phenotype:phenotype,method:method
+        },function(data){
                     if (data!=="Association result is not available."){
                         var rows=data.split("\n")
                         generateDataTable("#dataTable",rows)
@@ -1006,7 +1013,7 @@ function checkAssociateProgress(){
                     }
                 })
             }else{
-                setTimeout(checkAssociateProgress,2000)
+                setTimeout(checkAssociateProgress(table,phenotype,method),2000)
             }
         })
 }
@@ -1026,12 +1033,12 @@ function runAssociation(){
         showErrorMessage("Please make selection on table, phenotypes and methods." ,"association_error_placeholder")
     }else{
         $("#runAssociation").hide()
-        $.post("http://"+server+"/runAssociation/"+projectID,{
+        $.post(protocol+"//"+server+"/runAssociation/"+projectID,{
         // $.post("http://localhost:5000/runAssociation",{
             table:table,phenotype:phenotype,method:method,discard:discard,groupby:groupby
         }).done(function(data){
             addToLog("vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby)
-            setTimeout(checkAssociateProgress,2000)  
+            setTimeout(checkAssociateProgress(table,phenotype,method),2000)  
 
             
             

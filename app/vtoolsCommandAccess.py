@@ -119,7 +119,7 @@ def vtools_update(projectID, request, method, table):
 def vtools_association(projectID, table, phenotype, method, groupby):
     def run_vtools_associate(projectFolder, table, phenotype, method, groupby):
         associationName="association_"+table+"_"+phenotype+"_"+method
-        dbName = associationName+".db"
+        dbName = associationName+".DB"
         command = "vtools associate "+table+" "+phenotype+" --method " + \
             method+" --group_by "+groupby+" --to_db "+dbName+" -f -j 8 -v 1"
         logfile = projectFolder + "/" + associationName+"_log.txt"
