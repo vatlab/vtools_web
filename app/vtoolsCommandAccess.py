@@ -10,21 +10,30 @@ if not os.path.exists(PROJECT_FOLDER):
     os.makedirs(PROJECT_FOLDER)
 
 
-def load_sampleData(projectID, fileType):
+def load_sampleData(projectID):
     print(WORK_FOLDER+"/testData/10k_test_2k.vcf")
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
-    if fileType == "data" and os.path.exists(WORK_FOLDER+"/testData/10k_test_2k.vcf"):
+    if os.path.exists(WORK_FOLDER+"/testData/10k_test_2k.vcf"):
         src = os.path.realpath(WORK_FOLDER+"/testData/10k_test_2k.vcf")
-        print("copy ", src)
         copy2(src, projectFolder+"/")
-        return "copy file", 200
-    elif fileType == "pheno" and os.path.exists(WORK_FOLDER+"/testData/simulated.tsv"):
+    if os.path.exists(WORK_FOLDER+"/testData/simulated.tsv"):
         src = os.path.realpath(WORK_FOLDER+"/testData/simulated.tsv")
         copy2(src, projectFolder+"/")
-        command = "vtools phenotype --from_file " + \
-            projectFolder+"/simulated.tsv"
-        return runCommand(command)
+    return "copy file", 200
+
+
+    # if fileType == "data" and os.path.exists(WORK_FOLDER+"/testData/10k_test_2k.vcf"):
+    #     src = os.path.realpath(WORK_FOLDER+"/testData/10k_test_2k.vcf")
+    #     print("copy ", src)
+    #     copy2(src, projectFolder+"/")
+    #     return "copy file", 200
+    # elif fileType == "pheno" and os.path.exists(WORK_FOLDER+"/testData/simulated.tsv"):
+    #     src = os.path.realpath(WORK_FOLDER+"/testData/simulated.tsv")
+    #     copy2(src, projectFolder+"/")
+    #     command = "vtools phenotype --from_file " + \
+    #         projectFolder+"/simulated.tsv"
+    #     return runCommand(command)
 
 
 def vtools_create(projectID):
@@ -108,13 +117,13 @@ def vtools_update(projectID, request, method, table):
 
 
 def vtools_association(projectID, table, phenotype, method, groupby):
-
     def run_vtools_associate(projectFolder, table, phenotype, method, groupby):
-        dbName = "association_"+table+"_"+phenotype+"_"+method+".db"
+        associationName="association_"+table+"_"+phenotype+"_"+method
+        dbName = associationName+".db"
         command = "vtools associate "+table+" "+phenotype+" --method " + \
             method+" --group_by "+groupby+" --to_db "+dbName+" -f -j 8 -v 1"
-        logfile = projectFolder + "/associate_log.txt"
-        resultfile = projectFolder + "/associate_result.txt"
+        logfile = projectFolder + "/" + associationName+"_log.txt"
+        resultfile = projectFolder + "/"+ associationName+"_result.txt"
         if os.path.exists(logfile):
             os.remove(logfile)
         if os.path.exists(resultfile):

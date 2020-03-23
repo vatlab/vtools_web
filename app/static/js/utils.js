@@ -503,13 +503,16 @@ function getFileInfo(fileName){
 
 function loadSampleData(){
     var fileName="10k_test_2k.vcf"
-    $("#localFileName").val(fileName);
-    
+    // $("#localFileName").val(fileName);
     $('#dataSources').show();
 
-    addOption("existingSourceName",[fileName])
+    addOptionArea("existingSourceName", ["10k_test_2k.vcf"])
+    addOptionArea("existingSourceName", ["simulated.tsv"])
 
-    $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"data"}).done(function(message){
+    // $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"data"}).done(function(message){
+    //     console.log(message)
+    // })
+    $.get("http://"+server+"/loadSampleData/"+projectID).done(function(message){
         console.log(message)
     })
 
