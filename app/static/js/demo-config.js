@@ -7,7 +7,7 @@ $(function(){
    */
   $('#drag-and-drop-zone').dmUploader({ //
     // url: 'backend/upload.php',
-    url: "http://"+server+"/data/"+projectID,
+    url: window.location.protocol+"//"+server+"/data/"+projectID,
     maxFileSize: 300000000, // 300M
     onDragEnter: function(){
       // Happens when dragging something over the DnD area
