@@ -1002,18 +1002,20 @@ function checkAssociateProgress(table,phenotype,method){
                 console.log("association done")
                 $.get("http://"+server+"/associationResult/"+projectID,{
         // $.post("http://localhost:5000/runAssociation",{
-            table:table,phenotype:phenotype,method:method
-        },function(data){
-                    if (data!=="Association result is not available."){
-                        var rows=data.split("\n")
-                        generateDataTable("#dataTable",rows)
-                        $("#runAssociation").show()
-                        get_AssociationDBs(projectID)
-                        
-                    }
-                })
+                    table:table,phenotype:phenotype,method:method
+                },function(data){
+                            if (data!=="Association result is not available."){
+                                var rows=data.split("\n")
+                                generateDataTable("#dataTable",rows)
+                                $("#runAssociation").show()
+                                get_AssociationDBs(projectID)
+                                
+                            }
+                        })
             }else{
-                setTimeout(checkAssociateProgress(table,phenotype,method),2000)
+                setTimeout(function(){
+                    checkAssociateProgress(table,phenotype,method);
+                },2000)
             }
         })
 }

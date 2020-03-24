@@ -282,7 +282,7 @@ def checkAssociateProgress(projectID):
     if os.path.exists(logfile) and os.path.getsize(logfile) > 5:
         with open(logfile, "rb") as f:
             f.seek(-2, os.SEEK_END)     # Jump to the second last byte.
-            while f.read(1) != b"\n":   # Until EOL is found...
+            while f.read(1) != b"\r":   # Until EOL is found...
                 try:
                     f.seek(-2, os.SEEK_CUR)  # ...jump back the read byte plus one more.
                 except OSError:

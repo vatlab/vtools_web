@@ -129,6 +129,7 @@ def vtools_association(projectID, table, phenotype, method, groupby):
         if os.path.exists(resultfile):
             os.remove(resultfile)
         print(command)
+
         result = Popen(command.split(" "), stdout=PIPE, stderr=PIPE, universal_newlines=True)
         tee = Popen(['tee', logfile], stdin=result.stderr)
         tee.communicate()
@@ -169,8 +170,8 @@ def runCommand(command):
         commandCols.append(col)
     print(commandCols)
     result = run(commandCols, stdout=PIPE, stderr=PIPE, universal_newlines=True)
-    print("stderr "+result.stderr)
-    print("stdout "+result.stdout)
+    # print("stderr "+result.stderr)
+    # print("stdout "+result.stdout)
     if "ERROR" in result.stderr or "error" in result.stderr:
         return result.stderr, 500
     else:
