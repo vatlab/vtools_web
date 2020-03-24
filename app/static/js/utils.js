@@ -1000,7 +1000,7 @@ function checkAssociateProgress(table,phenotype,method){
             if (data.includes("Testing for association: 100%")){
                 
                 console.log("association done")
-                $.get("http://"+server+"/associationResult/"+projectID,{
+                $.get(protocol+"//"+server+"/associationResult/"+projectID,{
         // $.post("http://localhost:5000/runAssociation",{
                     table:table,phenotype:phenotype,method:method
                 },function(data){
