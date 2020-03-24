@@ -1009,6 +1009,7 @@ function checkAssociateProgress(table,phenotype,method){
                                 generateDataTable("#dataTable",rows)
                                 $("#runAssociation").show()
                                 get_AssociationDBs(projectID)
+                                addToLog("vtools associate "+table+" "+phenotype+" --method "+method)
                                 
                             }
                         })
@@ -1039,11 +1040,8 @@ function runAssociation(){
         // $.post("http://localhost:5000/runAssociation",{
             table:table,phenotype:phenotype,method:method,discard:discard,groupby:groupby
         }).done(function(data){
-            addToLog("vtools associate "+table+" "+phenotype+" --method "+method+" --group_by "+groupby)
             setTimeout(checkAssociateProgress(table,phenotype,method),2000)  
 
-            
-            
         }).fail(function(xhr,status,error){
             showErrorMessage(xhr.responseText,"association_error_placeholder")
             $("#runAssociation").show()
