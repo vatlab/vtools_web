@@ -10,6 +10,8 @@ from werkzeug.utils import secure_filename
 
 import associationResultAccess as associationResultAccess
 import vtoolsCommandAccess as vtoolsCommandAccess
+from os import listdir
+from os.path import isfile, join
 
 
 app = Flask(__name__)
@@ -76,11 +78,20 @@ def download_ngchm(projectID, heatmapName):
     return send_file(path)
 
 
-@app.route('/loadSampleData/<projectID>', methods=['GET'])
-def load_sampleData(projectID):
+# @app.route('/loadSampleData/<projectID>', methods=['GET'])
+# def load_sampleData(projectID):
+#     if request.method == "GET":
+#         # fileType = request.args.get('fileType', None, type=None)
+#         return vtoolsCommandAccess.load_sampleData(projectID)
+
+
+@app.route('/getExampleDataList/<projectID>', methods=['GET'])
+def get_ExampleDataList(projectID):
     if request.method == "GET":
-        # fileType = request.args.get('fileType', None, type=None)
-        return vtoolsCommandAccess.load_sampleData(projectID)
+        testDataPath=WORK_FOLDER+"/testData/"
+        dataFiles = [f for f in listdir(testDataPath) if isfile(join(testDataPath+f))]
+        return ("\n").join(dataFiles), 200
+
 
 
 @app.route('/project', methods=['POST'])
@@ -99,7 +110,7 @@ def get_project(projectID):
         else:
             vcfFiles = glob.glob(directory+"/*.vcf")
             if len(vcfFiles) == 0:
-                return "The project is empty.", 500
+                return "The project is empty.", 200
             else:
                 return os.path.basename(vcfFiles[0]), 200
 

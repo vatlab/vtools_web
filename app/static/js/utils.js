@@ -91,8 +91,8 @@ $(document).ready(function(){
         vtoolsOutput();
     });
 
-    $("#sampleData").click(function(){
-        loadSampleData();
+    $("#exampleData").click(function(){
+        loadExampleData();
     });
 
     $("#samplePhenotype").click(function(){
@@ -184,7 +184,12 @@ $(document).ready(function(){
 
 
 
-
+   $('a[href="#landingPage"]').click(function(){
+       console.log(projectID)
+       $("#landing_content").show()
+        $("#accordionSidebar").hide()
+       $("#projectID").val(projectID)
+   })
    
 
 
@@ -336,12 +341,12 @@ function vtoolsUpdate(){
 async function getProject(){
     projectID=$("#projectID").val()
     $("#title_projectID").html("ProjectID: "+projectID)
-    $.get(protocol+"//"+server+"/project/"+projectID,async function(fileName){
-        if (fileName!=="empty"){
+    $.get(protocol+"//"+server+"/project/"+projectID,async function(message){
+           console.log(message)
             // $(".existingSourceNameClass").each((idx,obj)=>{
             //   addOption(obj.id,["",fileName])
             // })
-            addOption("existingSourceName", ["", fileName])
+            // addOption("existingSourceName", ["", fileName])
             $("#landing_content").hide()
             $("#accordionSidebar").show()
             await vtoolsUse("dbSNP")
@@ -371,7 +376,7 @@ async function getProject(){
             })
             get_AssociationDBs(projectID)
             $(".nav-item").show()
-        }
+        
       
     }).fail(function(xhr,status,error){
         showErrorMessage(xhr.responseText,"getProject_error_placeholder")
@@ -502,20 +507,24 @@ function getFileInfo(fileName){
 
 
 
-function loadSampleData(){
-    var fileName="10k_test_2k.vcf"
-    // $("#localFileName").val(fileName);
-    $('#dataSources').show();
+function loadExampleData(){
 
-    addOptionArea("existingSourceName", ["10k_test_2k.vcf"])
-    addOptionArea("existingSourceName", ["simulated.tsv"])
+    
+    if( $('#exampleDataList').has('option').length==0 ) {
+        $.get(protocol+"//"+server+"/getExampleDataList/"+projectID).done(function(exampleFiles){
+            fileList=exampleFiles.split("\n")
+            for (var file of fileList){
+                console.log(file)
+                addOptionArea("existingExampleName", [file])
+            }
+            $('#exampleDataList').show();
+        })
+    }
 
-    // $.get("http://"+server+"/loadSampleData/"+projectID,{"fileType":"data"}).done(function(message){
+    
+    // $.get(protocol+"//"+server+"/loadSampleData/"+projectID).done(function(message){
     //     console.log(message)
     // })
-    $.get(protocol+"//"+server+"/loadSampleData/"+projectID).done(function(message){
-        console.log(message)
-    })
 
 
 }
