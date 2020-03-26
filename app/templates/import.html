@@ -5,9 +5,9 @@
           
           <!-- Our markup, the important part here! -->
           <div id="drag-and-drop-zone" class="dm-uploader p-5">
-            <h3 class="mb-5 mt-5 text-muted">Drag &amp; drop files here</h3>
-              <div id="dataSources" style="display:none;">
-                <h4>Uploaded data</h4>
+            <!-- <h4 class="mb-5 mt-5 text-muted">Drag &amp; drop files here</h4> -->
+              <div id="dataSources">
+                <h4 class="mb-5 mt-5 text-muted">Uploaded data (Drag &amp; drop files here)</h4>
                 <select  class="selectionArea" name="existingSourceName" id="existingSourceName" size=5 multiple=multiple>
                 </select> <hr>
               </div>
@@ -89,13 +89,9 @@
 	
 
 	<div id="importData" style="display:none;">
-		<h4>Data Import</h4>
-		<p style="display:inline" id="selectedFileName"></p>
-		<select class="selectpicker" id="genomeVersion" size="1">
-			<option Selected>hg19</option>
-			<option>hg18</option>
-		</select>
-		<button class="btn btn-primary" id="importButton">Import genotype</button>
+		<!-- <p style="display:inline" id="selectedFileName"></p> -->
+		<br>
+		<button class="btn btn-primary" id="importButton">Import Data</button>
 		<p id="importProgress"></p>
 	</div>
   <button id="addPhenotypeButton" class="btn btn-primary" style="display:none;">Add phenotype</button>

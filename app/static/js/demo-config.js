@@ -61,6 +61,7 @@ $(function(){
       console.log("on upload success",id,data)
 
       $('#dataSources').show();
+      $('#importData').show()
       setTimeout(()=>{
          $('.progress').hide();
          $('.card').hide(); 

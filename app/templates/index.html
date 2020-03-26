@@ -16,6 +16,10 @@
 
         <div class="align-items-center text-center">
             <h3>Create project</h3>
+            <select class="selectpicker" id="genomeVersion" size="1">
+                <option Selected>hg19</option>
+                <option>hg18</option>
+            </select>
             <button class="btn btn-primary btn-xl" id="createRandomProject">Create</button>
             <h3>Get project</h3>
             <input class="std_input" class="form-control" id="projectID" type="text">
@@ -27,7 +31,7 @@
 
     {% include 'navbar.html' %}
     <hr>
-    <div class="row justify-content-center" style="margin:auto;width:70%">
+    <div id="infoArea" class="row justify-content-center" style="margin:auto;width:70%">
         <div class="col-auto">
             <table class="table table-striped" id="dataTable"></table>
             <div id="infoDiv"></div>

@@ -29,7 +29,7 @@ $(document).ready(function(){
                 console.log("Upload success")
                 addOption("existingSourceName", ["", fileName])
                 addOption("existingSourceNameUpdate", ["", fileName])
-                $('#dataSources').show();
+                // $('#dataSources').show();
             },
          
         });
@@ -66,9 +66,10 @@ $(document).ready(function(){
     //     });
     // })
 
-    $("#addPhenotypeButton").click(function(){
-        addPhenotype()
-    })
+    // $("#addPhenotypeButton").click(function(){
+    //     var fileName = $('#existingSourceName option:selected').text();     
+    //     addPhenotype(fileName)
+    // })
 
     $("#getProjectButton").click(function(){
         getProject()
@@ -92,7 +93,7 @@ $(document).ready(function(){
     });
 
     $("#exampleData").click(function(){
-        loadExampleData();
+        $('#exampleDataList').toggle();
     });
 
     $("#samplePhenotype").click(function(){
@@ -100,9 +101,9 @@ $(document).ready(function(){
     });
 
 
-    $('#existingSourceName').change(function() {
-        selectDataSource(this.value);
-    });
+    // $('#existingSourceName').change(function() {
+    //     selectDataSource(this.value);
+    // });
 
     $('#existingSourceNameUpdate').change(function() {
         getFileInfo(this.value)
@@ -188,6 +189,8 @@ $(document).ready(function(){
        console.log(projectID)
        $("#landing_content").show()
         $("#accordionSidebar").hide()
+        $("#infoArea").hide()
+        $("#plotNGCHM").hide()
        $("#projectID").val(projectID)
    })
    
@@ -244,8 +247,19 @@ function include(filename)
 
 
 function createProject(){
+    loadExampleData();
     $.post(protocol+"//"+server+"/project",function(result){
         $("#localFileSource").show()
+        // $("#dataSources").hide()
+        $('#existingSourceName')
+            .find('option')
+            .remove()
+            .end()
+        $("#infoDiv").empty()
+        dataTable.destroy()
+        $("#plotNGCHM").empty()
+        $("#infoArea").show()
+        $("#plotNGCHM").show()
         projectID=result
         $("#title_projectID").html("ProjectID: " + projectID)
         console.log(projectID)
@@ -349,6 +363,8 @@ async function getProject(){
             // addOption("existingSourceName", ["", fileName])
             $("#landing_content").hide()
             $("#accordionSidebar").show()
+            $("#infoArea").show()
+            $("#plotNGCHM").show()
             await vtoolsUse("dbSNP")
             vtoolsShow("annotations -v0", false)
             vtoolsShow("tests", false)
@@ -447,7 +463,6 @@ function addToLog(log){
 
 function addOptionArea(id,contents){
     let options = $.map($("#"+id+" option"), (option)=>option.value)
-    console.log(options)
     let selectOption=""
     // if (options.length == 1 && options[0]=="") {
     //     selectOption="<option value='Please select'>Please select</option>";
@@ -460,7 +475,6 @@ function addOptionArea(id,contents){
     contents.forEach((content)=>{
         selectOption+='<option>'+content+'</option>'
     })
-    console.log(id, selectOption)
     $('#' + id).html(selectOption)
 }
 
@@ -509,17 +523,18 @@ function getFileInfo(fileName){
 
 function loadExampleData(){
 
-    
-    if( $('#exampleDataList').has('option').length==0 ) {
+   
+
+    if ($('#exampleDataList').has('option').length==0){
         $.get(protocol+"//"+server+"/getExampleDataList/"+projectID).done(function(exampleFiles){
             fileList=exampleFiles.split("\n")
             for (var file of fileList){
-                console.log(file)
                 addOptionArea("existingExampleName", [file])
             }
-            $('#exampleDataList').show();
         })
+        $('#importData').show()
     }
+        
 
     
     // $.get(protocol+"//"+server+"/loadSampleData/"+projectID).done(function(message){
@@ -543,18 +558,18 @@ function loadSamplePhenotype(){
 
 
 
-function selectDataSource(fileName){
-    console.log(fileName)
-    if (fileName.slice(-3)==="vcf"){
-        $('#importData').show()
-        $('#selectedFileName').text("Import "+fileName)
-        $('#addPhenotypeButton').hide()
-    }else if (fileName.slice(-3)==="tsv"){
-        $('#addPhenotypeButton').show()
-        $('#importData').hide()
+// function selectDataSource(fileName){
+//     console.log(fileName)
+//     if (fileName.slice(-3)==="vcf"){
+//         $('#importData').show()
+//         // $('#selectedFileName').text("Import "+fileName)
+//         $('#addPhenotypeButton').hide()
+//     }else if (fileName.slice(-3)==="tsv"){
+//         $('#addPhenotypeButton').show()
+//         $('#importData').hide()
        
-    }
-}
+//     }
+// }
 
 
 function checkImportProgress(){
@@ -574,6 +589,13 @@ function checkImportProgress(){
                 vtoolsShow("show",false)
                 $(".nav-item").show()
 
+                var fileNames=$('#existingSourceName').val();
+                tsvFiles=fileNames.filter((file)=>file.endsWith("tsv"))
+                if (tsvFiles.length>0){
+                    phenotypeFile=tsvFiles[0]
+                    importPhenotype(phenotypeFile)
+                }
+
             }else{
                 setTimeout(checkImportProgress,2000)
             }
@@ -582,22 +604,60 @@ function checkImportProgress(){
 
 
 function importFile(){
-    var fileName=$('#existingSourceName option:selected').text();
-    var genomeVersion=$("#genomeVersion").val()
-    if (fileName==="" || genomeVersion===""){
-        showErrorMessage("Please select a file name from dropdown list for importing.","import_error_placeholder")
-        return
+    // var fileName=$('#existingSourceName option:selected').text();
+    var fileNames=$('#existingSourceName').val();
+    files=fileNames.join(" ")
+    console.log(files)
+    
+    if (files==""){
+        $('#existingSourceName option').prop('selected', true);
+        fileNames=$('#existingSourceName').val();
+        files=fileNames.join(" ")
+        if (files==""){
+            showErrorMessage("Please select a file name from dropdown list for importing.","import_error_placeholder")
+            return
+        }
     }
-    addToLog("vtools import "+fileName+" --build "+genomeVersion)
-    $.get(protocol+"//"+server+"/import/"+projectID,{
-        fileName:fileName,genomeVersion:genomeVersion
-    }).done( function(data){
-        console.log(data)
-        setTimeout(checkImportProgress,2000)         
-    }).fail(function(xhr,status,error){
-        showErrorMessage(xhr.responseText,"import_error_placeholder")
-    })
+    vcfFiles=fileNames.filter((file)=>file.endsWith("vcf"))
+    tsvFiles=fileNames.filter((file)=>file.endsWith("tsv"))
+    if (vcfFiles.length>0){
+        vcfFileList=vcfFiles.join(" ")
+        importGenotype(vcfFileList, false)      
+    }
+    if (vcfFiles.length==0 && tsvFiles.length>0){
+        phenotypeFile=tsvFiles[0]
+        importPhenotype(phenotypeFile)
+    }
 }
+
+function importGenotype(fileName){
+    var genomeVersion=$("#genomeVersion").val()
+    $.get(protocol+"//"+server+"/import/"+projectID,{
+            fileName:fileName,genomeVersion:genomeVersion
+        }).done(function(data){
+            console.log(data)
+            addToLog("vtools import "+files+" --build "+genomeVersion)
+            setTimeout(checkImportProgress,2000)         
+        }).fail(function(xhr,status,error){
+            showErrorMessage(xhr.responseText,"import_error_placeholder")
+        })
+}
+
+
+function importPhenotype(fileName){
+        $.post(protocol+"//"+server+"/phenotype/"+projectID,{
+            fileName:fileName
+        }).done( function(data){
+            vtoolsShow("phenotypes", true)
+            addToLog("vtools phenotype --from_file " + fileName)
+            $("#runAssociation").show()   
+        }).fail(function(xhr,status,error){
+            showErrorMessage(xhr.responseText,"phenotype_error_placeholder")
+        })   
+}
+
+
+
 
 
 
@@ -953,48 +1013,8 @@ function vtoolsUse(option){
 }
 
 
-function addPhenotype(){
-
-        var fileName = $('#existingSourceName option:selected').text();     
-        console.log(fileName)
-
-        $.post(protocol+"//"+server+"/phenotype/"+projectID,{
-            fileName:fileName
-        }).done( function(data){
-            vtoolsShow("phenotypes", true)
-            addToLog("vtools phenotype --from_file " + fileName)
-            $("#runAssociation").show()   
-        }).fail(function(xhr,status,error){
-            showErrorMessage(xhr.responseText,"phenotype_error_placeholder")
-        })
-
-        
-
-   
-}
 
 
-
-
-
-// function addPhenotype(){
-//     var fileName=$("#localPhenoFileName").val()
-//     console.log(fileName)
-//     $.ajax({
-//         url: "http://"+server+"/phenotype/"+projectID,
-//         type:"PUT",
-//         data:fileName,
-//         success:function(data){
-//              $("#phenotypeAdded").text(fileName+" added")
-//             vtoolsShow("phenotypes",true)
-//             addToLog("vtools phenotype --from_file "+fileName)
-//             $("#runAssociation").show()
-//         },
-//         error:function(XMLHttpRequest, textStatus, errorThrown) {
-//             alert(errorThrown);
-//         }
-//       }); 
-// }
 
 
 function checkAssociateProgress(table,phenotype,method){
