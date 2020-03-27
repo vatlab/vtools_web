@@ -13,36 +13,43 @@ var importPage = (function(){
     }
 
     function importFile(){
-        // var fileName=$('#existingSourceName option:selected').text();
-        var fileNames=$('#existingSourceName').val();
-        files=fileNames.join(" ")
-        console.log(files)
-        
-        if (files==""){
-            $('#existingSourceName option').prop('selected', true);
-            fileNames=$('#existingSourceName').val();
-            files=fileNames.join(" ")
-            if (files==""){
+        var uploadedFiles=$('#existingSourceName').val();
+        var exampleFiles=$('#existingExampleName').val();
+        if (uploadedFiles.length==0 && exampleFiles.length>0){
+                importSelectedFile(exampleFiles,"true")
+        }else if (uploadedFiles.length==0 && exampleFiles.length==0){
+            $('#existingSourceName option').prop('selected', "true");
+            uploadedFiles=$('#existingSourceName').val();
+            if (uploadedFiles.length==0){
                 utils.showErrorMessage("Please select a file name from dropdown list for importing.","import_error_placeholder")
                 return
+            }else{
+                 importSelectedFile(uploadedFiles,"false")
             }
+        }else if (uploadedFiles.length>0){
+            importSelectedFile(uploadedFiles,"false")
         }
+    }
+
+
+    function importSelectedFile(fileNames,fromExample){
+        console.log(fileNames)        
         vcfFiles=fileNames.filter((file)=>file.endsWith("vcf"))
         tsvFiles=fileNames.filter((file)=>file.endsWith("tsv"))
         if (vcfFiles.length>0){
             vcfFileList=vcfFiles.join(" ")
-            importGenotype(vcfFileList, false)      
+            importGenotype(vcfFileList, fromExample)      
         }
         if (vcfFiles.length==0 && tsvFiles.length>0){
             phenotypeFile=tsvFiles[0]
-            importPhenotype(phenotypeFile)
+            importPhenotype(phenotypeFile,fromExample)
         }
     }
 
-    function importGenotype(fileName){
+    function importGenotype(fileName,fromExample){
         var genomeVersion=$("#genomeVersion").val()
         $.get(protocol+"//"+server+"/import/"+projectID,{
-                fileName:fileName,genomeVersion:genomeVersion
+                fileName:fileName,genomeVersion:genomeVersion,fromExample:fromExample
             }).done(function(data){
                 console.log(data)
                 utils.addToLog("vtools import "+files+" --build "+genomeVersion)
@@ -53,9 +60,9 @@ var importPage = (function(){
     }
 
 
-    function importPhenotype(fileName){
+    function importPhenotype(fileName,fromExample){
             $.post(protocol+"//"+server+"/phenotype/"+projectID,{
-                fileName:fileName
+                fileName:fileName,fromExample:fromExample
             }).done( function(data){
                 showPage.vtoolsShow("phenotypes", true)
                 utils.addToLog("vtools phenotype --from_file " + fileName)
@@ -74,7 +81,7 @@ var importPage = (function(){
                     $('#dataDetail').show()
                     await utils.vtoolsUse("dbSNP")
                     await utils.vtoolsUse("refGene")
-                    showPage.vtoolsShow("annotations -v0",false)
+                    await showPage.vtoolsShow("annotations -v0",false)
                     showPage.vtoolsShow("tests",false)
                     showPage.vtoolsShow("tables",true)        
                     $("#showError").hide()
@@ -86,9 +93,14 @@ var importPage = (function(){
                     tsvFiles=fileNames.filter((file)=>file.endsWith("tsv"))
                     if (tsvFiles.length>0){
                         phenotypeFile=tsvFiles[0]
-                        importPhenotype(phenotypeFile)
+                        importPhenotype(phenotypeFile,"false")
                     }
-
+                    fileNames=$('#existingExampleName').val();
+                    tsvFiles=fileNames.filter((file)=>file.endsWith("tsv"))
+                    if (tsvFiles.length>0){
+                        phenotypeFile=tsvFiles[0]
+                        importPhenotype(phenotypeFile,"true")
+                    }
                 }else{
                     setTimeout(checkImportProgress,2000)
                 }
@@ -104,8 +116,19 @@ var importPage = (function(){
             $("#importButton").click(function(){
                 importFile();
             });
+
             $("#exampleData").click(function(){
                 $('#exampleDataList').toggle();
+                if ($('#exampleDataList').is(":visible")){
+                    $('#importData').show()
+                }
+                var fileNames=[]
+                $('#existingSourceName option').each(function() { 
+                    fileNames.push($(this).attr('value') );
+                });
+                if ($('#exampleDataList').is(":hidden") && fileNames.length==0){
+                    $('#importData').hide()
+                }
             });
         }
     };

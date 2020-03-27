@@ -78,6 +78,7 @@ var associationPage = (function(){
 
 
          return {
+             get_AssociationDBs:get_AssociationDBs,
             bindEvents: function(){
                
                 $("#runAssociation").click(function(){

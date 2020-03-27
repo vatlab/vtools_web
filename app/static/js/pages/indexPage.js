@@ -23,8 +23,13 @@ var indexPage = (function(){
                     .remove()
                     .end()
                 $("#infoDiv").empty()
-                // dataTable.destroy()
+                if (dataTable != undefined){
+                    dataTable.destroy()
+                }
                 $("#plotNGCHM").empty()
+                $("#exampleDataList").hide()
+                $("#importProgress").text("")
+                $("#importData").hide()
                 $("#infoArea").show()
                 $("#plotNGCHM").show()
                 projectID=result
@@ -56,7 +61,7 @@ var indexPage = (function(){
                     $("#plotNGCHM").show()
                     await utils.vtoolsUse("dbSNP")
                     await utils.vtoolsUse("refGene")
-                    showPage.vtoolsShow("annotations -v0", false)
+                    await showPage.vtoolsShow("annotations -v0", false)
                     showPage.vtoolsShow("tests", false)
                     showPage.vtoolsShow("tables", false)
                     showPage.vtoolsShow("show", true)

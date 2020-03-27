@@ -50,15 +50,18 @@ def vtools_create(projectID):
         return projectID, 200
 
 
-def vtools_import(projectID, fileName, genomeVersion):
-    def run_vtools_import(projectFolder, fileName, genomeVersion):
-        print(projectFolder, fileName, genomeVersion)
+def vtools_import(projectID, fileName, genomeVersion,fromExample):
+    def run_vtools_import(projectFolder, fileName, genomeVersion,fromExample):
+        print(projectFolder, fileName, genomeVersion,fromExample)
         command = "vtools import "+projectFolder + "/"+fileName+" --build " + genomeVersion+" -f"
+        if fromExample=="true":
+            command = "vtools import "+WORK_FOLDER + "/testData/"+fileName+" --build " + genomeVersion+" -f"
         with open(projectFolder+"/import_log.txt", "a+") as output:
+            print(command)
             Popen(command.split(" "), stdout=output, stderr=output, universal_newlines=True)
     projectFolder = PROJECT_FOLDER+projectID
     os.chdir(projectFolder)
-    import_process = Process(target=run_vtools_import, args=(projectFolder, fileName, genomeVersion))
+    import_process = Process(target=run_vtools_import, args=(projectFolder, fileName, genomeVersion,fromExample))
     import_process.start()
 
 

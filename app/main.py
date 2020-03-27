@@ -79,12 +79,6 @@ def download_ngchm(projectID, heatmapName):
     return send_file(path)
 
 
-# @app.route('/loadSampleData/<projectID>', methods=['GET'])
-# def load_sampleData(projectID):
-#     if request.method == "GET":
-#         # fileType = request.args.get('fileType', None, type=None)
-#         return vtoolsCommandAccess.load_sampleData(projectID)
-
 
 @app.route('/getExampleDataList/<projectID>', methods=['GET'])
 def get_ExampleDataList(projectID):
@@ -179,8 +173,8 @@ def vtools_import(projectID):
     if request.method == 'GET':
         fileName = request.args.get('fileName', None, type=None)
         genomeVersion = request.args.get("genomeVersion", None, type=None)
-
-        vtoolsCommandAccess.vtools_import(projectID, fileName, genomeVersion)
+        fromExample = request.args.get("fromExample", None, type=None)
+        vtoolsCommandAccess.vtools_import(projectID, fileName, genomeVersion,fromExample)
         return "import running", 200
 
 
@@ -210,8 +204,13 @@ def checkImportProgress(projectID):
 def add_phenotype(projectID):
     if request.method == 'POST':
         phenoFile = request.form['fileName']
+        fromExample = request.form['fromExample']
         phenotype_fileName = os.path.join(
             PROJECT_FOLDER+projectID, secure_filename(phenoFile))
+        if fromExample=="true":
+            phenotype_fileName = os.path.join(
+                WORK_FOLDER+"/testData/", secure_filename(phenoFile))
+
         return vtoolsCommandAccess.vtools_phenotype(projectID, phenotype_fileName)
 
 
