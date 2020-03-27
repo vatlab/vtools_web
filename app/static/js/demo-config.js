@@ -31,8 +31,8 @@ $(function(){
       ui_multi_add_file(id, file);
       console.log(file)
       filename=file.name
-      addOptionArea("existingSourceName", [filename])
-      addOption("existingSourceNameUpdate", [filename])
+      utils.addOptionArea("existingSourceName", [filename])
+      utils.addOption("existingSourceNameUpdate", [filename])
       $('.progress').show();
       $('.card').show(); 
 

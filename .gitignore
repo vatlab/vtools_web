@@ -1,3 +1,5 @@
+compose/
+tests/__pycache__/test_front_end.cpython-36.pyc
 tests/__pycache__/page.cpython-36.pyc
 app/.variant_tools
 .env

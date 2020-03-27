@@ -15,6 +15,7 @@ from os.path import isfile, join
 
 
 app = Flask(__name__)
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
 
 WORK_FOLDER = os.getenv("WORK_FOLDER")+"/app/"
 PROJECT_FOLDER = os.getenv("PROJECT_FOLDER")
