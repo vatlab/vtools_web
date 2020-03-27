@@ -18,3 +18,11 @@ class IndexPage(BasePage):
 		ID=self.driver.find_element_by_id("title_projectID").text.split(":")[1]
 		print(ID)
 		return ID
+
+	def getProject(self,projectID):
+		self.driver.find_element_by_id("projectID").sendKeys(projectID)
+		self.driver.find_element_by_id("getProjectButton").click()
+		return self.get_ProjectID()
+
+
+

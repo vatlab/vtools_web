@@ -12,7 +12,7 @@ from flask import Flask
 import time
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
-import page
+from .page import IndexPage
 
 class TestBase(LiveServerTestCase):
 
@@ -46,8 +46,17 @@ class TestBase(LiveServerTestCase):
 class TestVtools(TestBase):
 
     def test_createProject(self):
-        indexPage = page.IndexPage(self.driver)
-        self.assertIn("VT", indexPage.createRandomeProject())
+        indexPage = IndexPage(self.driver)
+        projectID = indexPage.createRandomeProject()
+        self.projectID=projectID
+        self.assertIn("VT", projectID)
+
+    # def test_getProject(self):
+    #     print(self.projectID)
+    #     currentID = indexPage.getProject(self.projectID)
+    #     self.assertEqual(currentID, self.2projectID)
+
+
 
         
 
