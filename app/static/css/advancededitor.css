@@ -375,3 +375,12 @@ label {
     font-size: 25px
 }
 
+section {
+  padding: 150px 0;
+}
+
+
+.bg-light {
+    background-color: #f8f9fa!important;
+}
+

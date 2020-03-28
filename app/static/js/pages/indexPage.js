@@ -37,7 +37,8 @@ var indexPage = (function(){
                 console.log(projectID)
 
                 $("#projectName").text(projectID)
-                $("#landing_content").hide()
+                $("#content-wrapper").hide()
+                // $("#landing_content").hide()
                 $("#accordionSidebar").show()
                 $(".nav-item").hide()
                 $("#importTab").show()
