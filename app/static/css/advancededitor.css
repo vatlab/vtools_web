@@ -359,10 +359,16 @@ label {
     margin-left: 40px;
 }
 
-.helpPage{
+#helpPage{
     position:absolute;
     top:20px;
     right:50px;
+}
+
+#logPage{
+    position:absolute;
+    top:20px;
+    right:100px;
 }
 
 .nav-link {

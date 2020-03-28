@@ -11,7 +11,12 @@
         <div class="projectIDTitle">
             <h5 id="title_projectID">This is P element</h5>
         </div>
-        <div class="helpPage">
+        {% include 'log_modal.html' %}
+        <button id="logPage" type="button" class="btn btn-primary" data-toggle="modal" data-target="#logModal">
+          Log
+        </button>
+        
+        <div id="helpPage">
             <a href="https://vatlab.github.io/vat-docs/">
                 <h4>Help</h4>
             </a>

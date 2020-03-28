@@ -52,7 +52,7 @@ var importPage = (function(){
                 fileName:fileName,genomeVersion:genomeVersion,fromExample:fromExample
             }).done(function(data){
                 console.log(data)
-                utils.addToLog("vtools import "+files+" --build "+genomeVersion)
+                utils.addToLog("vtools import "+fileName+" --build "+genomeVersion)
                 setTimeout(checkImportProgress,2000)         
             }).fail(function(xhr,status,error){
                 utils.showErrorMessage(xhr.responseText,"import_error_placeholder")

@@ -21,6 +21,8 @@ $(document).ready(function(){
    })
 
 
+
+
     indexPage.bindEvents();
     importPage.bindEvents();
     dataPage.bindEvents();
@@ -60,9 +62,9 @@ $(document).ready(function(){
             var outputLog="";
             for (i=0;i<logs.length;i++){
                   var ii=i+1
-                  outputLog+=ii+"."+logs[i]+"\n"
+                  outputLog+=ii+"."+logs[i]+"<br>"
             }
-            $("#logsText").val(outputLog)
+            $("#logsText").html(outputLog)
 
             $.post(protocol+"//"+server+"/logs/"+projectID,{
                 "log":log
