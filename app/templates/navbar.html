@@ -2,24 +2,26 @@
 
 
     <div class="container-fluid">
-        <div style="display:inline-block">
-            <!-- <a href="index.html"> -->
-            <a href="#landingPage">
-                <h3>VariantTools</h3>
-            </a>
-        </div>
-        <div class="projectIDTitle">
-            <h5 id="title_projectID">This is P element</h5>
-        </div>
-        {% include 'log_modal.html' %}
-        <button id="logPage" type="button" class="btn btn-primary" data-toggle="modal" data-target="#logModal">
-          Log
-        </button>
-        
-        <div id="helpPage">
-            <a href="https://vatlab.github.io/vat-docs/">
-                <h4>Help</h4>
-            </a>
+
+       
+        <div id="indexNav">
+            <div style="display:inline-block">
+                <a href="#landingPage">
+                    <h3>VariantTools</h3>
+                </a>
+            </div>
+            <div class="projectIDTitle">
+                <h5 id="title_projectID">This is P element</h5>
+            </div>
+            {% include 'log_modal.html' %}
+            <button id="logPage" type="button" class="btn btn-primary" data-toggle="modal" data-target="#logModal">
+              Log
+            </button>
+            <div id="helpPage">
+                <a href="https://vatlab.github.io/vat-docs/">
+                    <h4>Help</h4>
+                </a>
+            </div>
         </div>
         <ul class="nav-tabs nav">
             <li class="nav-item" id="importTab">

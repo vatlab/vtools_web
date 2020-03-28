@@ -23,15 +23,18 @@ var indexPage = (function(){
                     .remove()
                     .end()
                 $("#infoDiv").empty()
-                if (dataTable != undefined){
-                    dataTable.destroy()
-                }
+                // console.log(dataTable)
+                // if (dataTable != undefined){
+                 $('#dataTable tbody').empty();
+                // }
                 $("#plotNGCHM").empty()
                 $("#exampleDataList").hide()
                 $("#importProgress").text("")
                 $("#importData").hide()
                 $("#infoArea").show()
                 $("#plotNGCHM").show()
+                $("#landingNav").hide()
+                $("#indexNav").show()
                 projectID=result
                 $("#title_projectID").html("ProjectID: " + projectID)
                 console.log(projectID)
@@ -56,10 +59,12 @@ var indexPage = (function(){
             $.get(protocol+"//"+server+"/project/"+projectID,async function(message){
                    console.log(message)
  
-                    $("#landing_content").hide()
+                    $("#content-wrapper").hide()
                     $("#accordionSidebar").show()
                     $("#infoArea").show()
                     $("#plotNGCHM").show()
+                    $("#landingNav").hide()
+                    $("#indexNav").show()
                     await utils.vtoolsUse("dbSNP")
                     await utils.vtoolsUse("refGene")
                     await showPage.vtoolsShow("annotations -v0", false)
@@ -101,7 +106,18 @@ var indexPage = (function(){
                 $("#createRandomProject").click(function(){
                         createProject();
                 })
-            }
+
+                $('a[href="#landingPage"]').click(function(){
+                       console.log(projectID)
+                       $("#content-wrapper").show()
+                       $("#accordionSidebar").hide()
+                       $("#infoArea").hide()
+                       $("#plotNGCHM").hide()
+                       $("#landingNav").show()
+                       $("#indexNav").hide()
+                       $("#projectID").val(projectID)
+                   })
+                }
         };
 
     })()

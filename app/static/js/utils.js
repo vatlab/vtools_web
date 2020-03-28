@@ -11,18 +11,6 @@ var utils;
 $(document).ready(function(){
     server=env.server
 
-   $('a[href="#landingPage"]').click(function(){
-       console.log(projectID)
-       $("#landing_content").show()
-        $("#accordionSidebar").hide()
-        $("#infoArea").hide()
-        $("#plotNGCHM").hide()
-       $("#projectID").val(projectID)
-   })
-
-
-
-
     indexPage.bindEvents();
     importPage.bindEvents();
     dataPage.bindEvents();
