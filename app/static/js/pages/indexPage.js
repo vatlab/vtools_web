@@ -35,11 +35,11 @@ var indexPage = (function(){
                 $("#importData").hide()
 
                 $("#landingNav").hide()
-                  $("#content-wrapper").hide()
+                $("#content-wrapper").hide()
                 
                 $("#indexNav").show()
                 $("#accordionSidebar").show()
-                $(".nav-item").hide()
+                $(".nav-tab").hide()
                 $("#importTab").show()
                 projectID=result
                 $("#title_projectID").html("ProjectID: " + projectID)
@@ -76,7 +76,7 @@ var indexPage = (function(){
                     $("#runAssociation").show()
                     $("#showError").hide()
                     associationPage.get_AssociationDBs(projectID)
-                    $(".nav-item").show()
+                    $(".nav-tab").show()
 
                     $.get(protocol+"//" + server + "/logs/" + projectID, function (logString) {
                         utils.updateLog(logString);

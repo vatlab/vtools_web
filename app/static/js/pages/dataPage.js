@@ -4,7 +4,8 @@ var dataPage = (function(){
         function vtoolsRemove(){
            var removeOption=$("#selectRemoveOptions").val()
            console.log(removeOption)
-           $('#vtoolsRemove div').css('display', 'none');
+           // $('#vtoolsRemove div').css('display', 'none');
+           $(".removeSelection").hide()
            switch (removeOption){
             case "Fields":
                 $("#divRemoveFields").show()
@@ -45,12 +46,12 @@ var dataPage = (function(){
         }
 
 
-        function vtoolsUpdate(){
+        function vtoolsUpdate_fromstat(){
 
             var updateStates=$("#updateStates").val().join(" ")
-            var updateFile=$("#existingSourceNameUpdate").val().join(",")
+            
             console.log(updateStates)
-            console.log(updateFile)
+       
             if (updateStates.length>0){
                 $.post(protocol+"//"+server+"/update/"+projectID,{
                     "table":$("#updateTables").val(),
@@ -63,7 +64,13 @@ var dataPage = (function(){
                     utils.showErrorMessage(xhr.responseText,"update_error_placeholder")
                 })
             }
-            // }else{
+
+        }
+
+        function vtoolsUpdate_fromfile(){
+
+            var updateFile=$("#existingSourceNameUpdate").val().join(",")
+            console.log(updateFile)
             if (updateFile.length>0){
                 var selectedGeno=""
                 var selectedVar=""
@@ -91,6 +98,9 @@ var dataPage = (function(){
             // }
 
         }
+
+
+
 
 
         function populateDropDownSelect(info){
@@ -224,8 +234,12 @@ var dataPage = (function(){
                     vtoolsSelect();
                 })
 
-                $("#updateButton").click(function(){
-                    vtoolsUpdate();
+                $("#updateButton_fromstat").click(function(){
+                    vtoolsUpdate_fromstat();
+                })
+
+                $("#updateButton_fromfile").click(function(){
+                    vtoolsUpdate_fromfile();
                 })
 
 

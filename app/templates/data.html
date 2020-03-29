@@ -107,7 +107,7 @@
 							<label class="lb-md formLabel1" for="updateGenoInfo">geno_info</label>
 							<select class="selectpicker dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
 						</div>
-						<button id="updateButton" class="btn btn-primary">Update</button>
+						<button id="updateButton_fromfile" class="btn btn-primary">Update</button>
 	               
 					<!-- <legend>Select an external file to upload</legend>
 							<form id="dataUploadExternal"  enctype="multipart/form-data">
@@ -131,7 +131,7 @@
 						<option>missing=#(missing)</option>
 						<option>maf=maf()</option>
 					</select>
-					<button id="updateButton" class="btn btn-primary">Update</button>
+					<button id="updateButton_fromstat" class="btn btn-primary">Update</button>
 				</div>
 				
 				
@@ -151,30 +151,30 @@
 				<option>Annotations</option>
 			</select>
 
-			<div id="divRemoveFields" style="display:none">
-				<label class="formLabel1" for="fields">Fields</label>
-				<select class="selectpicker" id="fields" size="1"></select><br>
+			<div id="divRemoveFields" class="removeSelection" style="display:none">
+				<label class="formLabel1" for="removeFields">Fields</label>
+				<select class="selectpicker" id="removeFields" size="1"></select><br>
 			</div>
 
-			<div id="divRemoveGenotype" style="display:none">
+			<div id="divRemoveGenotype" class="removeSelection" style="display:none">
 				<label class="formLabel1" for="removeGenotype">Genotypes</label>
 				<input class="std_input" id="removeGenotype" type="text"><br>
 			</div>
-			<div id="divRemovePhenotype" style="display:none">
+			<div id="divRemovePhenotype" class="removeSelection" style="display:none">
 				<label class="formLabel1" for="removePhenotype">Phenotypes</label>
 				<input class="std_input" id="removePhenotype" type="text"><br>
 			</div>
-			<div id="divRemoveVariants" style="display:none">
+			<div id="divRemoveVariants" class="removeSelection" style="display:none">
 				<label class="formLabel1" for="removeVariants">Variants</label>
 				<select class="selectpicker" id="removeVariants" size="1"></select><br>
 			</div>
-			<div id="divRemoveSamples" style="display:none">
+			<div id="divRemoveSamples"  class="removeSelection" style="display:none">
 				<label class="formLabel1" for="removeSamples">Samples</label>
 				<input class="std_input" id="removeSamples" type="text"><br>
-				<ß/div> <div id="divRemoveAnnotation" style="display:none">
+				<div id="divRemoveAnnotation" style="display:none">
 					<label class="formLabel1" for="removeAnnotation">Annotations</label>
 					<select class="selectpicker" id="removeAnnotation" size="1"></select> <br>
-			</div>
+				</div>
 			<button id="removeButton" class="btn btn-primary">Remove</button>
 			<div id = "remove_error_placeholder"></div>
 		</div>

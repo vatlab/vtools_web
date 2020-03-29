@@ -86,7 +86,7 @@ var importPage = (function(){
                     $("#showError").hide()
                     showPage.vtoolsShow("fields",false)
                     showPage.vtoolsShow("show",false)
-                    $(".nav-item").show()
+                    $(".nav-tab").show()
 
                     var fileNames=$('#existingSourceName').val();
                     tsvFiles=fileNames.filter((file)=>file.endsWith("tsv"))

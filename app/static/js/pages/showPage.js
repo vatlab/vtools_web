@@ -66,6 +66,7 @@
                                 var cols=row.split(" ")
                                 return cols[0]+" "+cols[1].replace("(","").replace(")","")
                             })
+                          
                             fields.forEach((field)=>{
                                 cols=field.split(" ")
                                 var fieldType=cols[0].split(".")[0]

@@ -108,7 +108,7 @@ $(document).ready(function(){
             let options = $.map($("#"+id+" option"), (option)=>option.value)
     
             let selectOption="";
-            if (options.length == 1 && options[0]=="") {
+            if (options.length == 0) {
                 selectOption="<option value='Please select'>Please select</option>";
             }else{
                 options.forEach((option)=>{
