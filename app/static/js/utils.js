@@ -207,7 +207,7 @@ $(document).ready(function(){
                         resolve(option+" imported")
 
                     }).fail(function(xhr,status,error){
-                        showErrorMessage(xhr.responseText,"use_error_placeholder")
+                        showErrorMessage(xhr.responseText,"annotation_error_placeholder")
                     })
                 })
             }

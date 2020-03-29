@@ -47,11 +47,15 @@ var dataPage = (function(){
 
         function vtoolsUpdate(){
 
-            if ($("#updateCheckbox").is(":checked")){
-                console.log($("#updateStates").val().join(" "))
+            // if ($("#updateCheckbox").is(":checked")){
+            var updateStates=$("#updateStates").val().join(" ")
+            var updateFile=$("#updateGenoInfo").val().join(",")
+            console.log(updateStates)
+            console.log(updateFile)
+            if (updateStates.length>0){
                 $.post(protocol+"//"+server+"/update/"+projectID,{
                     "table":$("#updateTables").val(),
-                    "stat":$("#updateStates").val().join(" "),
+                    "stat":updateStates,
                     "method":"fromStat"
                 },function(result){
                     showPage.vtoolsShow("show",false)
@@ -59,11 +63,13 @@ var dataPage = (function(){
                 }).fail(function(xhr,status,error){
                     utils.showErrorMessage(xhr.responseText,"update_error_placeholder")
                 })
-            }else{
+            }
+            // }else{
+            if (updateFile.length>0){
                 var selectedGeno=""
                 var selectedVar=""
-                if ($("#updateGenoInfo").val()!==undefined){
-                    selectedGeno=$("#updateGenoInfo").val().join(",")
+                if (updateFile.length>0){
+                    selectedGeno=updateFile
                 }
                 if ($("updateVarInfo").val()!==undefined){
                     selectedVar=$("#updateVarInfo").val().join(",")
@@ -82,6 +88,7 @@ var dataPage = (function(){
                     utils.showErrorMessage(xhr.responseText,"update_error_placeholder")
                 })
             }
+            // }
 
         }
 
