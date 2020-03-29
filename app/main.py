@@ -113,18 +113,23 @@ def get_project(projectID):
 @app.route('/logs/<projectID>', methods=['POST', 'GET'])
 def logs(projectID):
     logfile = PROJECT_FOLDER+projectID+"/"+projectID+"_log.txt"
+    while not os.path.exists(logfile):
+        # return "log file doesn't exist", 200
+        open(logfile, 'a').close()
+    f = open(logfile, "r")
+    logs = f.readlines()
+    f.close()
+
     if request.method == "POST":
-        log = request.form["log"]
-        with open(logfile, "a+") as f:
-            f.write(log+"\n")
-        return "log added", 200
-    if request.method == "GET":
-        while not os.path.exists(logfile):
-            return "log file doesn't exist", 200
-        f = open(logfile, "r")
-        data = f.readlines()
-        f.close()
-        return ("\n").join(data), 200
+        log = request.form["log"]+"\n"
+        if log not in logs:
+            logs.append(log)
+            with open(logfile, "a+") as f:
+                f.write(log+"\n")
+            # return "log added", 200
+            f.close()
+    # if request.method == "GET":
+    return ("\n").join(logs), 200
 
 
 @app.route('/fileInfo/<projectID>', methods=['GET'])

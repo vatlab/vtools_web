@@ -7,6 +7,8 @@ var associationPage = (function(){
                     var cols = db.split("/")
                     return cols[cols.length - 1].replace(".DB", "")
                 })
+                $("#associationDBs").empty()
+                $("#associationDBs_show").empty()
                 utils.addOption("associationDBs", dbs)
                 utils.addOption("associationDBs_show", dbs)
                 $("#searchGeneButton").show()

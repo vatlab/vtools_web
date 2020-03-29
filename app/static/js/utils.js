@@ -1,6 +1,6 @@
 var server;
 var dataTable;
-var logs=[];
+
 var projectID;
 var fieldMap={};
 var protocol=window.location.protocol;
@@ -45,22 +45,43 @@ $(document).ready(function(){
 
 
         function addToLog(log){
-            logs.push(log)
-            var i;
-            var outputLog="";
-            for (i=0;i<logs.length;i++){
-                  var ii=i+1
-                  outputLog+=ii+"."+logs[i]+"<br>"
-            }
-            $("#logsText").html(outputLog)
+            // console.log(log,logs)
+            // if (!logs.includes(log)){
+            //     logs.push(log)
+            //     var i;
+            //     var outputLog="";
+            //     for (i=0;i<logs.length;i++){
+            //           var ii=i+1
+            //           outputLog+=ii+"."+logs[i]+"<br>"
+            //     }
+            //     $("#logsText").html(outputLog)
 
-            $.post(protocol+"//"+server+"/logs/"+projectID,{
-                "log":log
-            }).done(function(result){
-                console.log("log saved.")
-            }).fail(function(xhr,status,error){
-                alert(error)
-            })
+                $.post(protocol+"//"+server+"/logs/"+projectID,{
+                    "log":log
+                }).done(function(logString){
+                    updateLog(logString)
+                    console.log("log saved.")
+                }).fail(function(xhr,status,error){
+                    alert(error)
+                })
+            // }
+        }
+
+
+        function updateLog(logString){
+            var logs = logString.split("\n").filter((log) => log !== "")
+                       
+            var i;
+            var outputLog = "";
+            for (i = 0; i < logs.length; i++) {
+                var ii = i + 1
+                outputLog += ii + "." + logs[i] + "<br>"
+                if (logs[i].includes("vtools associate")) {
+                    $("#showAssociationArea").show()
+                }
+            }
+            console.log(outputLog)
+            $("#logsText").html(outputLog)
         }
 
 
@@ -194,6 +215,7 @@ $(document).ready(function(){
             return{
                 showErrorMessage:showErrorMessage,
                 addToLog:addToLog,
+                updateLog:updateLog,
                 addOptionArea:addOptionArea,
                 addOption:addOption,
                 generateDataTable:generateDataTable,

@@ -78,7 +78,6 @@ var importPage = (function(){
                 // $("#importProgress").text(data)
                 document.getElementById("importProgress").innerHTML='<pre style="color: silver; background: black;">'+data+'</pre>'
                 if (data.includes("Importing genotypes: 100%")){
-                    $('#dataDetail').show()
                     await utils.vtoolsUse("dbSNP")
                     await utils.vtoolsUse("refGene")
                     await showPage.vtoolsShow("annotations -v0",false)

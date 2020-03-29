@@ -44,6 +44,8 @@ var indexPage = (function(){
                 $("#title_projectID").html("ProjectID: " + projectID)
                 console.log(projectID)
                 $("#projectName").text(projectID)
+                $("#logsText").html("")
+                logs=[]
 
                 include("../static/js/demo-config.js")
             }).fail(function(xhr,status,error){
@@ -75,20 +77,8 @@ var indexPage = (function(){
                     associationPage.get_AssociationDBs(projectID)
                     $(".nav-item").show()
 
-                    $.get(protocol+"//" + server + "/logs/" + projectID, function (logstring) {
-                        $('#dataDetail').show()
-                        logs = logstring.split("\n").filter((log) => log !== "")
-                        console.log(logs)
-                        var i;
-                        var outputLog = "";
-                        for (i = 0; i < logs.length; i++) {
-                            var ii = i + 1
-                            outputLog += ii + "." + logs[i] + "\n"
-                            if (logs[i].includes("vtools associate")) {
-                                $("#showAssociationArea").show()
-                            }
-                        }
-                        $("#logsText").val(outputLog)
+                    $.get(protocol+"//" + server + "/logs/" + projectID, function (logString) {
+                        utils.updateLog(logString);
                     })
             }).fail(function(xhr,status,error){
                 utils.showErrorMessage(xhr.responseText,"getProject_error_placeholder")
