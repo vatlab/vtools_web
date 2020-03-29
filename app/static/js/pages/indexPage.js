@@ -18,6 +18,7 @@ var indexPage = (function(){
             $.post(protocol+"//"+server+"/project",function(result){
                 // $("#localFileSource").show()
                 // $("#dataSources").hide()
+                include("../static/js/demo-config.js")
                 $('#existingSourceName')
                     .find('option')
                     .remove()
@@ -47,7 +48,7 @@ var indexPage = (function(){
                 $("#logsText").html("")
                 logs=[]
 
-                include("../static/js/demo-config.js")
+                
             }).fail(function(xhr,status,error){
                 utils.showErrorMessage(xhr.responseText,"createProject_error_placeholder")
             })
@@ -59,7 +60,7 @@ var indexPage = (function(){
             $("#title_projectID").html("ProjectID: "+projectID)
             $.get(protocol+"//"+server+"/project/"+projectID,async function(message){
                    console.log(message)
- 
+                     include("../static/js/demo-config.js")
                     $("#content-wrapper").hide()
                     $("#accordionSidebar").show()
                     $("#infoArea").show()

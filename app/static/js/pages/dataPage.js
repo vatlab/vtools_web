@@ -47,9 +47,8 @@ var dataPage = (function(){
 
         function vtoolsUpdate(){
 
-            // if ($("#updateCheckbox").is(":checked")){
             var updateStates=$("#updateStates").val().join(" ")
-            var updateFile=$("#updateGenoInfo").val().join(",")
+            var updateFile=$("#existingSourceNameUpdate").val().join(",")
             console.log(updateStates)
             console.log(updateFile)
             if (updateStates.length>0){
@@ -68,16 +67,17 @@ var dataPage = (function(){
             if (updateFile.length>0){
                 var selectedGeno=""
                 var selectedVar=""
-                if (updateFile.length>0){
-                    selectedGeno=updateFile
+         
+                if ($("#updateGenoInfo").val()!==undefined){
+                    selectedGeno=$("#updateGenoInfo").val().join(",")
                 }
-                if ($("updateVarInfo").val()!==undefined){
+                if ($("#updateVarInfo").val()!==undefined){
                     selectedVar=$("#updateVarInfo").val().join(",")
                 }
 
                 $.post(protocol+"//"+server+"/update/"+projectID,{
                     "table":$("#updateTables").val(),
-                    "fileName":$("#existingSourceNameUpdate").val(),
+                    "fileName":updateFile,
                     "selectedGeno":selectedGeno,
                     "selectedVar":selectedVar,
                     "method":"fromFile"
@@ -229,7 +229,7 @@ var dataPage = (function(){
                 })
 
 
-                $("#updateCheckbox").change(function () {
+                $("#updateSelection").change(function () {
                      $("#div_fromStat").toggle()
                      if (this.value=="from_stat"){
                          $("#div_fromFile").hide()
@@ -243,7 +243,7 @@ var dataPage = (function(){
 
                 
                     $('#existingSourceNameUpdate').change(function() {
-                        utils.getFileInfo(this.value)
+                        getFileInfo(this.value)
                     });
 
 

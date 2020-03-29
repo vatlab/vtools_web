@@ -105,8 +105,9 @@ $(document).ready(function(){
 
 
         function addOption(id,contents){
-            let options = $.map($("#"+id), (option)=>option.value)
-            let selectOption=""
+            let options = $.map($("#"+id+" option"), (option)=>option.value)
+    
+            let selectOption="";
             if (options.length == 1 && options[0]=="") {
                 selectOption="<option value='Please select'>Please select</option>";
             }else{
@@ -114,7 +115,6 @@ $(document).ready(function(){
                     selectOption += '<option>' + option + '</option>'
                 })
             }
-
             contents.forEach((content)=>{
                 selectOption+='<option>'+content+'</option>'
             })

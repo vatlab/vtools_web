@@ -83,52 +83,60 @@
 			</div>
 			
 			<div class="selection_label">
-				<label class="lb-md formLabel1" for="updateCheckbox">Update from:</label>
+				<label class="lb-md formLabel1" for="updateSelection">Update from:</label>
 				<!-- <input type="checkbox" id="updateCheckbox"> -->
-				<select class="selectpicker dropdowns" name="updateCheckbox" id="updateCheckbox">
+				<select class="selectpicker dropdowns" name="updateSelection" id="updateSelection">
 					<option selected>Please select</option>
 					<option>from_stat</option>
 					<option>from_file</option>
 				</select>
 			</div>
-
-			<div id="div_fromFile" style="display:none">
-				<div class="selection_label">
-					<label class="lb-md formLabel1" for="existingSourceName">From file</label>
-					<select class="selectpicker dropdowns" name="existingSourceName" id="existingSourceNameUpdate"></select>
+			
+				<div id="div_fromFile" style="display:none">
+						<div class="selection_label">
+							<!-- <label class="lb-md formLabel1" for="existingSourceName">From file</label> -->
+							<label class="lb-md formLabel1" for="existingSourceNameUpdate">From file</label>
+							<select  class="selectpicker" name="existingSourceNameUpdate" id="existingSourceNameUpdate" multiple=multiple>
+							</select>
+						</div>
+						<div class="selection_label" id="div_varInfo" style="display:none">
+							<label class="lb-md formLabel1" for="updateVarInfo">var_info</label>
+							<select class="selectpicker dropdowns" name="updateVarInfo" id="updateVarInfo" multiple></select>
+						</div>
+						<div class="selection_label" id="div_genoInfo" style="display:none">
+							<label class="lb-md formLabel1" for="updateGenoInfo">geno_info</label>
+							<select class="selectpicker dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
+						</div>
+						<button id="updateButton" class="btn btn-primary">Update</button>
+	               
+					<!-- <legend>Select an external file to upload</legend>
+							<form id="dataUploadExternal"  enctype="multipart/form-data">
+							    <label class="formLabel1" for="externalFile">File Name</label>
+							    <input class="std_input" id="externalFile" type="text">
+							    <input id="uploadExternalFile" type = "file" name = "datafile" >
+					         	<input type = "submit">
+							</form> -->
+					
 				</div>
-				<!-- <legend>Select an external file to upload</legend>
-						<form id="dataUploadExternal"  enctype="multipart/form-data">
-						    <label class="formLabel1" for="externalFile">File Name</label>
-						    <input class="std_input" id="externalFile" type="text">
-						    <input id="uploadExternalFile" type = "file" name = "datafile" >
-				         	<input type = "submit">
-						</form> -->
-				<div class="selection_label" id="div_varInfo" style="display:none">
-					<label class="lb-md formLabel1" for="updateVarInfo">var_info</label>
-					<select class="selectpicker dropdowns" name="updateVarInfo" id="updateVarInfo" multiple></select>
+				<div class="selection_label" id="div_fromStat" style="display:none">
+					<label class="lb-md formLabel1" for="updateStates">From stat</label>
+					<select class="selectpicker" id="updateStates" multiple>
+						<option>GT_num=#(GT)</option>
+						<option>alt_num=#(alt)</option>
+						<option>hom=#(hom)</option>
+						<option>het=#(het)</option>
+						<option>other=#(other)</option>
+						<option>wtGT=#(wtGT)</option>
+						<option>mutGT=#(mutGT)</option>
+						<option>missing=#(missing)</option>
+						<option>maf=maf()</option>
+					</select>
+					<button id="updateButton" class="btn btn-primary">Update</button>
 				</div>
-				<div class="selection_label" id="div_genoInfo" style="display:none">
-					<label class="lb-md formLabel1" for="updateGenoInfo">geno_info</label>
-					<select class="selectpicker dropdowns" name="updateGenoInfo" id="updateGenoInfo" multiple></select>
-				</div>
-			</div>
-			<div class="selection_label" id="div_fromStat" style="display:none">
-				<label class="lb-md formLabel1" for="updateStates">From stat</label>
-				<select class="selectpicker" id="updateStates" multiple>
-					<option>GT_num=#(GT)</option>
-					<option>alt_num=#(alt)</option>
-					<option>hom=#(hom)</option>
-					<option>het=#(het)</option>
-					<option>other=#(other)</option>
-					<option>wtGT=#(wtGT)</option>
-					<option>mutGT=#(mutGT)</option>
-					<option>missing=#(missing)</option>
-					<option>maf=maf()</option>
-				</select>
-			</div>
-			<button id="updateButton" class="btn btn-primary">Update</button>
-			<div id = "update_error_placeholder"></div>
+				
+				
+				<div id = "update_error_placeholder"></div>
+			
 		</div>
 
 		<div class="tab-pane" id="vtoolsRemove">
