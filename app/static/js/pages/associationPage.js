@@ -8,6 +8,7 @@ var associationPage = (function(){
                     return cols[cols.length - 1].replace(".DB", "")
                 })
                 utils.addOption("associationDBs", dbs)
+                utils.addOption("associationDBs_show", dbs)
                 $("#searchGeneButton").show()
             })
         }
@@ -25,7 +26,8 @@ var associationPage = (function(){
                     if (data.includes("Testing for association: 100%")){
                         
                         console.log("association done")
-                        $.get(protocol+"//"+server+"/associationResult/"+projectID,{
+                        let associationDB="association"+"_"+table+"_"+phenotype+"_"+method
+                        $.get(protocol+"//"+server+"/associationResult/"+projectID+"/"+associationDB,{
                 // $.post("http://localhost:5000/runAssociation",{
                             table:table,phenotype:phenotype,method:method
                         },function(data){
@@ -33,6 +35,7 @@ var associationPage = (function(){
                                         var rows=data.split("\n")
                                         utils.generateDataTable("#dataTable",rows)
                                         $("#runAssociation").show()
+                                        $("#showAssociationArea").show()
                                         get_AssociationDBs(projectID)
                                         utils.addToLog("vtools associate "+table+" "+phenotype+" --method "+method)
                                         
@@ -84,13 +87,24 @@ var associationPage = (function(){
                 $("#runAssociation").click(function(){
                     runAssociation();
                 });
-                $("#showAssociation").click(function(){
-                    $.get(protocol+"//"+server+"/associationResult/"+projectID,function(data){
+                // $("#showAssociation").click(function(){
+                //     $.get(protocol+"//"+server+"/associationResult/"+projectID,function(data){
+                //         var rows=data.split("\n")
+                //         generateDataTable("#dataTable",rows)
+                //         $("#runAssociation").show()
+                //         $("#showAssociation").hide()
+                //     })
+                // })
+                $("#associationDBs_show").change(function(){
+                    associationDB=this.value
+                    $.get(protocol+"//"+server+"/associationResult/"+projectID+"/"+associationDB,function(data){
                         var rows=data.split("\n")
-                        generateDataTable("#dataTable",rows)
+                        utils.generateDataTable("#dataTable",rows)
                         $("#runAssociation").show()
                         $("#showAssociation").hide()
                     })
+                    
+
                 })
             }
         };

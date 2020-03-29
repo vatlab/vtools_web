@@ -138,6 +138,8 @@ $(document).ready(function(){
                         data:rows,
                         columns:columns
                     })
+                    $("#dataTable").show()
+                    $("#infoArea").show()
                 }
             }
 
@@ -165,6 +167,7 @@ $(document).ready(function(){
 
 
                 $("#infoDiv").show();
+                $("#infoArea").show()
                 document.getElementById("infoDiv").innerHTML='<pre style="color: silver; background: black;">'+data+'</pre>'
 
             }

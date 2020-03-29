@@ -23,30 +23,29 @@ var indexPage = (function(){
                     .remove()
                     .end()
                 $("#infoDiv").empty()
-                // console.log(dataTable)
-                // if (dataTable != undefined){
-                 $('#dataTable tbody').empty();
-                // }
+                $("#infoArea").hide()
+                $('#dataTable tbody').empty();
+                
                 $("#plotNGCHM").empty()
+                $("#plotNGCHM").hide()
+
                 $("#exampleDataList").hide()
                 $("#importProgress").text("")
                 $("#importData").hide()
-                $("#infoArea").show()
-                $("#plotNGCHM").show()
-                $("#landingNav").hide()
-                $("#indexNav").show()
-                projectID=result
-                $("#title_projectID").html("ProjectID: " + projectID)
-                console.log(projectID)
 
-                $("#projectName").text(projectID)
-                $("#content-wrapper").hide()
-                // $("#landing_content").hide()
+                $("#landingNav").hide()
+                  $("#content-wrapper").hide()
+                
+                $("#indexNav").show()
                 $("#accordionSidebar").show()
                 $(".nav-item").hide()
                 $("#importTab").show()
-                include("../static/js/demo-config.js")
+                projectID=result
+                $("#title_projectID").html("ProjectID: " + projectID)
+                console.log(projectID)
+                $("#projectName").text(projectID)
 
+                include("../static/js/demo-config.js")
             }).fail(function(xhr,status,error){
                 utils.showErrorMessage(xhr.responseText,"createProject_error_placeholder")
             })
@@ -62,7 +61,6 @@ var indexPage = (function(){
                     $("#content-wrapper").hide()
                     $("#accordionSidebar").show()
                     $("#infoArea").show()
-                    $("#plotNGCHM").show()
                     $("#landingNav").hide()
                     $("#indexNav").show()
                     await utils.vtoolsUse("dbSNP")
@@ -87,7 +85,7 @@ var indexPage = (function(){
                             var ii = i + 1
                             outputLog += ii + "." + logs[i] + "\n"
                             if (logs[i].includes("vtools associate")) {
-                                $("#showAssociation").show()
+                                $("#showAssociationArea").show()
                             }
                         }
                         $("#logsText").val(outputLog)

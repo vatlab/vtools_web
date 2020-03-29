@@ -262,12 +262,12 @@ def vtools_associate(projectID):
         return "associate running", 200
 
 
-@app.route("/associationResult/<projectID>", methods=['GET'])
-def get_AssociationResult(projectID):
-    table = request.args.get("table", None, type=None)
-    phenotype = request.args.get("phenotype", None, type=None)
-    method = request.args.get("method", None, type=None)
-    associationName="association_"+table+"_"+phenotype+"_"+method
+@app.route("/associationResult/<projectID>/<associationDB>", methods=['GET'])
+def get_AssociationResult(projectID,associationDB):
+    # table = request.args.get("table", None, type=None)
+    # phenotype = request.args.get("phenotype", None, type=None)
+    # method = request.args.get("method", None, type=None)
+    associationName=associationDB
     resultfile = PROJECT_FOLDER+projectID+"/"+associationName+"_result.txt"
     starttime = time.time()
     while not os.path.exists(resultfile) and time.time()-starttime < 5:
