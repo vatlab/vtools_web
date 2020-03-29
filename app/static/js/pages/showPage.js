@@ -66,7 +66,6 @@
                                 var cols=row.split(" ")
                                 return cols[0]+" "+cols[1].replace("(","").replace(")","")
                             })
-                            console.log(fields)
                             fields.forEach((field)=>{
                                 cols=field.split(" ")
                                 var fieldType=cols[0].split(".")[0]
@@ -122,6 +121,10 @@
                             }else{
                                 dataPage.populateDropDownSelect(info)
                                 outputPage.populateDropDownOutput(info)
+                            }
+
+                            if(display){
+                                utils.generateInfoText('#infoTable',data)
                             }
                             resolve("done")
                             break;
