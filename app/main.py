@@ -110,6 +110,7 @@ def get_project(projectID):
                 return os.path.basename(vcfFiles[0]), 200
 
 
+
 @app.route('/logs/<projectID>', methods=['POST', 'GET'])
 def logs(projectID):
     logfile = PROJECT_FOLDER+projectID+"/"+projectID+"_log.txt"

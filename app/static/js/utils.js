@@ -73,15 +73,25 @@ $(document).ready(function(){
                        
             var i;
             var outputLog = "";
+            var vcfFiles;
+            var phenoFiles;
             for (i = 0; i < logs.length; i++) {
                 var ii = i + 1
                 outputLog += ii + "." + logs[i] + "<br>"
                 if (logs[i].includes("vtools associate")) {
                     $("#showAssociationArea").show()
                 }
+                if (logs[i].includes("vtools import")){
+                    vcfFiles=logs[i].match(/\s([a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*vcf)\s/g)   
+                }
+                 if (logs[i].includes("vtools phenotype")){
+                    phenoFiles=logs[i].match(/\s([a-zA-Z0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*tsv)\s?/g)                 
+                }
+                
             }
             console.log(outputLog)
             $("#logsText").html(outputLog)
+            return [vcfFiles,phenoFiles]
         }
 
 

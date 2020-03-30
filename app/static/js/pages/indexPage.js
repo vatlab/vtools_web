@@ -79,7 +79,17 @@ var indexPage = (function(){
                     $(".nav-tab").show()
 
                     $.get(protocol+"//" + server + "/logs/" + projectID, function (logString) {
-                        utils.updateLog(logString);
+                        [vcfFiles,phenoFiles]=utils.updateLog(logString);
+                        if (vcfFiles!=undefined){
+                            for (var vcfFile of vcfFiles){
+                                utils.addOptionArea("existingSourceName", [$.trim(vcfFile)])
+                            }
+                        }
+                        if (phenoFiles!=undefined){
+                            for (var phenoFile of phenoFiles){
+                                utils.addOptionArea("existingSourceName", [$.trim(phenoFile)])
+                            }
+                        }
                     })
             }).fail(function(xhr,status,error){
                 utils.showErrorMessage(xhr.responseText,"getProject_error_placeholder")
