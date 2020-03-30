@@ -5,11 +5,11 @@ defaultEntryPoints = ["https","http"]
 
 [web]
 # Port for the status page
-address = ":8090"
+address = ":8080"
 
 [entryPoints]
   [entryPoints.http]
-  address = ":81"
+  address = ":80"
     [entryPoints.http.redirect]
     entryPoint = "https"
   [entryPoints.https]
@@ -20,7 +20,7 @@ address = ":8090"
 
 [docker]
 endpoint = "unix:///var/run/docker.sock"
-domain = "localhost:8087/vtools/"
+domain = "collabondata.com"
 watch = true
 exposedByDefault = false
 
@@ -29,5 +29,6 @@ email = "junmahouston@gmail.com"
 storage = "acme.json"
 entryPoint = "https"
 onHostRule = true
+caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
 [acme.httpChallenge]
 entryPoint = "http"

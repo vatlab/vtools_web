@@ -15,7 +15,7 @@ services:
       labels:
         - "traefik.enable=true"
         - "traefik.backend=flask"
-        - "traefik.frontend.rule=Host:localhost:8087/vtools/"
+        - "traefik.frontend.rule=Host:collabondata.com"
         - "traefik.domain=localhost:8087/vtools/"
       ports:
         - 8087:8087
@@ -34,9 +34,9 @@ services:
         - ./traefik/traefik.toml:/etc/traefik/traefik.toml
         - ./traefik/acme:/etc/traefik/acme
       ports:
-       - "81:80"
+       - "80:80"
        - "443:443"
-       - "8090:8080"
+       - "8080:8080"
       networks:
         - vtoolsnet
 
