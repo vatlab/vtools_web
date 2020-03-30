@@ -62,9 +62,10 @@ $(function(){
 
       $('#dataSources').show();
       $('#importData').show()
+      var uploadID="uploaderFile"+id
       setTimeout(()=>{
-         $('.progress').hide();
-         $('.card').hide(); 
+         $("#"+uploadID).hide();
+         // $('.card').hide(); 
         },1000
       )
    

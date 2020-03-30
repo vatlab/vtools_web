@@ -126,7 +126,9 @@ $(document).ready(function(){
                 })
             }
             contents.forEach((content)=>{
-                selectOption+='<option>'+content+'</option>'
+                if (!options.includes(content)){
+                    selectOption+='<option>'+content+'</option>'
+                }
             })
             $('#' + id).html(selectOption).selectpicker("refresh")
 
