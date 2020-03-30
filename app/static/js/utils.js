@@ -9,7 +9,7 @@ var utils;
 
 
 $(document).ready(function(){
-    server=env.server
+    server=window.location.hostname
 
     indexPage.bindEvents();
     importPage.bindEvents();
