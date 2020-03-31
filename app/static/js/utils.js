@@ -9,7 +9,11 @@ var utils;
 
 
 $(document).ready(function(){
-    server=window.location.hostname
+    if (window.location.hostname!="collabondata.com"){
+        server=window.location.hostname+":5000"
+    }else{
+        server=window.location.hostname
+    }
 
     indexPage.bindEvents();
     importPage.bindEvents();
