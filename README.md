@@ -1,25 +1,61 @@
 Vtools website
-1. For variant tools website to work,variant tools needs to be installed on the server. Checkout vtools_web branch from gitlab 
-   ( https://bcbgitlab1.mdanderson.edu/jma7/VariantTools/tree/vtools_web ) and install, there is minor adjustment in the output format of progress bar 
-   to make the progress bar on frontend works.
-   
-2. Then creat an env.js file in app/static folder, the content of env.js file is:
-   ```
-   env={server: server IP address(for example, localhost)}
-   ```
-3.	```
+
+1.	```
+	git clone https://github.com/vatlab/vtools_web.git
 	cd vtools_website/app/
 	```
-4. Set the main script for flask, run
+2. Set the main script for flask, run
 	```
 	export FLASK_APP=main.py
 	```
 
-5. If doing development, run
+3. If doing development, run
 	```
 	export FLASK_ENV=development
 	```
-6. run
+4.  Set the folder for project storage, run
+	```
+	export PROJECT_FOLDER=PATH_TO_PROJECT_STORAGE
+	```
+5.  Set the vtools_web folder (the folder created by git clone), run
+	```
+	export WORK_FOLDER=PATH_TO_VTOOLS_WEB
+	```
+5. run
 	```
 	flask run
 	```
+
+Docker version:
+On Digital Ocean
+1. In /home/vtools_user/vtools_web folder, set .env, current setting is
+	```
+	REFERENCE_FOLDER=/home/vtools_user/.variant_tools
+	PROJECT_FOLDER=/home/vtools_user/testProject
+    ```
+    .variant_tools folder has all the reference files for variantTools to use. 
+2.  A docker network has been created on digital ocean.
+	```
+	docker network create vtoolsnet
+	```
+2.  Run docker-compose,
+	```
+	docker-compose  up --build -d
+	```
+
+
+Tests:
+1. To make selenium work, install following packages first
+	```
+	pip install selenium
+	pip install nose2
+	pip install Flask-Testing
+	pip install urllib2
+	```
+2. Download chrome driver (https://chromedriver.chromium.org/getting-started).
+3. Start Flask in app folder, then run tests:
+    ```
+	cd tests
+	nose2
+   ```
+
