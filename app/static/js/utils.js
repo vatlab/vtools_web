@@ -105,12 +105,12 @@ $(document).ready(function(){
             //     selectOption="<option value='Please select'>Please select</option>";
             // }else{
                 options.forEach((option)=>{
-                    selectOption += '<option>' + option + '</option>'
+                    selectOption += "<option value='"+option+"'>" + option + '</option>'
                 })
             // }
 
             contents.forEach((content)=>{
-                selectOption+='<option>'+content+'</option>'
+                selectOption+="<option value='"+content+"'>"+content+'</option>'
             })
             $('#' + id).html(selectOption)
         }
@@ -125,12 +125,12 @@ $(document).ready(function(){
                 selectOption="<option value='Please select'>Please select</option>";
             }else{
                 options.forEach((option)=>{
-                    selectOption += '<option>' + option + '</option>'
+                    selectOption += "<option value='"+option+"'>" + option + '</option>'
                 })
             }
             contents.forEach((content)=>{
                 if (!options.includes(content)){
-                    selectOption+='<option>'+content+'</option>'
+                    selectOption+="<option value='"+content+"'>"+content+'</option>'
                 }
             })
             $('#' + id).html(selectOption).selectpicker("refresh")

@@ -1,6 +1,5 @@
 compose/
-tests/__pycache__/test_front_end.cpython-36.pyc
-tests/__pycache__/page.cpython-36.pyc
+tests/__pycache__/
 app/.variant_tools
 .env
 app/static/js/env.js
@@ -11,9 +10,6 @@ app/.DS_Store
 *.ngchm
 testProject
 app/static/env.js
-app/__pycache__/main.cpython-36.pyc
-app/__pycache__/main.cpython-37.pyc
-app/__pycache__/main.cpython-36.pyc
 app/__pycache__/
 .DS_Store
 .DS_Store

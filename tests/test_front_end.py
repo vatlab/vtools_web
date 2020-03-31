@@ -12,7 +12,7 @@ from flask import Flask
 import time
 from flask_testing import LiveServerTestCase
 from selenium import webdriver
-from .page import IndexPage
+from .page import IndexPage, ImportPage, AssociationPage
 
 class TestBase(LiveServerTestCase):
 
@@ -33,13 +33,11 @@ class TestBase(LiveServerTestCase):
         print(domain)
         self.driver.get(domain)
         self.indexPage = IndexPage(self.driver)
+        self.importPage = ImportPage(self.driver)
+        self.associationPage = AssociationPage(self.driver)
 
     def tearDown(self):
         self.driver.quit()
-
-    # def test_server_is_up_and_running(self):
-    #     response = urllib.request.urlopen(self.get_server_url())
-    #     self.assertEqual(response.code, 200)
 
 
 class TestVtools(TestBase):
@@ -54,9 +52,27 @@ class TestVtools(TestBase):
         currentID = self.indexPage.getProject(TestVtools.projectID)
         self.assertEqual(currentID, TestVtools.projectID)
 
+    def test_import(self):
+        self.indexPage.getProject(TestVtools.projectID)
+        self.importPage.get_ExampleData()
+        self.importPage.select_from_selection("existingExampleName","10k_test_2k.vcf")
+        content=self.importPage.import_data("geno")
+        self.assertIn("996",content)
+        self.importPage.select_from_selection("existingExampleName","10k_test_2k.vcf")
+        self.importPage.select_from_selection("existingExampleName","simulated.tsv")
+        content=self.importPage.import_data("pheno")
+        self.assertEqual("sex",content[4])
+    # def test_Association(self):
+    #     self.indexPage.getProject(TestVtools.projectID)
+        self.associationPage.click_on_tab("Association")
+        if self.associationPage.check_loading():
+            self.associationPage.select_from_selection("projectTables","variant")
+            self.associationPage.select_from_selection("projectPhenotypes","disease")
+            self.associationPage.select_from_selection("associateMethods","BurdenBt")
+            content=self.associationPage.run_association()
+            # self.assertEqual("pvalue_BBt",content[5])
 
 
-        
 
 
 if __name__ == '__main__':
