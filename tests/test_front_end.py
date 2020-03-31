@@ -31,9 +31,8 @@ class TestBase(LiveServerTestCase):
         self.driver = webdriver.Chrome()
         domain=self.get_server_url()
         print(domain)
-        # path="/vtools/"
-        path=""
-        self.driver.get(domain+path)
+        self.driver.get(domain)
+        self.indexPage = IndexPage(self.driver)
 
     def tearDown(self):
         self.driver.quit()
@@ -46,15 +45,14 @@ class TestBase(LiveServerTestCase):
 class TestVtools(TestBase):
 
     def test_createProject(self):
-        indexPage = IndexPage(self.driver)
-        projectID = indexPage.createRandomeProject()
-        self.projectID=projectID
+        projectID = self.indexPage.createRandomeProject()
+        TestVtools.projectID=projectID
         self.assertIn("VT", projectID)
 
-    # def test_getProject(self):
-    #     print(self.projectID)
-    #     currentID = indexPage.getProject(self.projectID)
-    #     self.assertEqual(currentID, self.2projectID)
+    def test_getProject(self):
+        print(TestVtools.projectID)
+        currentID = self.indexPage.getProject(TestVtools.projectID)
+        self.assertEqual(currentID, TestVtools.projectID)
 
 
 

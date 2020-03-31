@@ -14,13 +14,13 @@ class IndexPage(BasePage):
 		return self.get_ProjectID()
 
 	def get_ProjectID(self):
-		WebDriverWait(self.driver, 10).until(ec.visibility_of_element_located((By.ID, "title_projectID")))
-		ID=self.driver.find_element_by_id("title_projectID").text.split(":")[1]
+		WebDriverWait(self.driver, 60).until(ec.visibility_of_element_located((By.ID, "title_projectID")))
+		ID=self.driver.find_element_by_id("title_projectID").text.split(":")[1].strip()
 		print(ID)
 		return ID
 
 	def getProject(self,projectID):
-		self.driver.find_element_by_id("projectID").sendKeys(projectID)
+		self.driver.find_element_by_id("projectID").send_keys(projectID)
 		self.driver.find_element_by_id("getProjectButton").click()
 		return self.get_ProjectID()
 
