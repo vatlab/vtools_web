@@ -4,20 +4,20 @@ Vtools website
 	git clone https://github.com/vatlab/vtools_web.git
 	cd vtools_website/app/
 	```
-2. Set the main script for flask, run
+2. Set the main script for flask
 	```
 	export FLASK_APP=main.py
 	```
 
-3. If doing development, run
+3. If doing development
 	```
 	export FLASK_ENV=development
 	```
-4.  Set the folder for project storage, run
+4.  Set the path for project storage
 	```
 	export PROJECT_FOLDER=PATH_TO_PROJECT_STORAGE
 	```
-5.  Set the vtools_web folder (the folder created by git clone), run
+5.  Set the path for vtools_web folder (the folder created by git clone)
 	```
 	export WORK_FOLDER=PATH_TO_VTOOLS_WEB
 	```
@@ -28,12 +28,12 @@ Vtools website
 
 Docker version:
 On Digital Ocean
-1. In /home/vtools_user/vtools_web folder, set .env, current setting is
+1. In /home/vtools_user/vtools_web folder, set .env for enviromental parameters, current setting is
 	```
 	REFERENCE_FOLDER=/home/vtools_user/.variant_tools
 	PROJECT_FOLDER=/home/vtools_user/testProject
     ```
-    .variant_tools folder has all the reference files for variantTools to use. 
+    .variant_tools folder has all the reference files for variantTools to use. These two folders will be mounted into docker containters.
 2.  A docker network has been created on digital ocean.
 	```
 	docker network create vtoolsnet
