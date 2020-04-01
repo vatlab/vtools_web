@@ -261,8 +261,8 @@ $(document).ready(function(){
         var subsetSize=numberPoints/3
         var randomIndex = _.sampleSize(_.range(numberPoints), subsetSize);
 
-
-        svg.select(".axis").remove();
+        svg.selectAll("*").remove();
+        // svg.select(".axis").remove();
         svg.select("#chr").remove();
 
         // ranges, scales, axis, objects
